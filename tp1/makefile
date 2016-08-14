@@ -7,10 +7,16 @@ OUT_DIR = build
 
 DEPEND = makefile $(OUT_DIR)
 
-EJERCICIOS = src/ej1.cpp src/ej2.cpp src/ej3.cpp
-BINARIOS = $(EJERCICIOS:src/%.cpp=$(OUT_DIR)/%)
+EJERCICIOS = ej1 ej2 ej3
 
-all: $(BINARIOS)
+SOURCES = $(EJERCICIOS:%=src/%.cpp)
+BINARIOS = $(EJERCICIOS:%=$(OUT_DIR)/%)
+
+.PHONY: all $(EJERCICIOS) clean
+
+all: $(EJERCICIOS)
+
+$(EJERCICIOS) : % : build/%
 
 $(BINARIOS): $(OUT_DIR)/% : src/%.cpp $(DEPEND)
 	$(GCC) $(CFLAGS) $< -o $@
