@@ -7,11 +7,13 @@
 using namespace std;
 
 int64_t tiempoMinimo(vector<uint32_t> &arq, vector<uint32_t> &can) {
-    // Necesitamos que los arqueólogos sean al menos la mitad
-    if (arq.size() < can.size()) {
+    // Necesitamos que los arqueólogos sean al menos la mitad,
+    // o que no haya ninguno
+    if (arq.size() < can.size() && arq.size()) {
         return -1;
     }
 
+    // Calculamos mínimo y total en una pasada
     uint64_t minimo = -1;
     uint64_t total = 0;
 
@@ -24,8 +26,15 @@ int64_t tiempoMinimo(vector<uint32_t> &arq, vector<uint32_t> &can) {
         total += e;
     }
 
+    // Para cantidad = 1 se hace un viaje con el total
+    // Para cantidad = 2 se hace un viaje con el maximo
+    // Para cantidad > 2 se hacen cantidad-1 viajes, pagando total-minimo
+    //      y cantidad-2 vueltas, pagando el minimo cada vez
     int64_t cantidad = arq.size() + can.size();
-    return (total - minimo) + (cantidad - 2) * minimo;
+
+    if(cantidad == 1) return total;
+    else if(cantidad == 2) return total - minimo;
+    else return total + (cantidad - 3) * minimo;
 }
 
 int main() {
