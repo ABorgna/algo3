@@ -2,31 +2,21 @@
 #include <math.h>
 #include <stdint.h>
 #include <iostream>
-#include <vector>
 #include <set>
+#include <vector>
 
 using namespace std;
 
 vector<uint8_t> digitosBase3(uint64_t n);
 
-int main() {
-    uint64_t peso;
-
-    // Leer el peso de la llave
-    cin >> peso;
-
+void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
     // Descomponemos el peso en sus digitos base 3
     vector<uint8_t> digitos = digitosBase3(peso);
 
-    // Exponentes de las pesas de cada lado
-    // las de la izquierda se suman al valor de la llave
-    set<uint8_t> izq;
-    set<uint8_t> der;
-
     // A cada dígito '2' del peso hay que sumarle 1
     bool carry = false;
-    for(uint8_t i=0; i < digitos.size(); i++) {
-        if(carry) {
+    for (uint8_t i = 0; i < digitos.size(); i++) {
+        if (carry) {
             digitos[i] += 1;
             digitos[i] %= 3;
 
@@ -34,7 +24,7 @@ int main() {
             carry = digitos[i] == 0;
         }
 
-        if(digitos[i] == 2) {
+        if (digitos[i] == 2) {
             // Agregamos una pesa con este exponente
             izq.insert(i);
 
@@ -43,31 +33,48 @@ int main() {
             carry = true;
         }
     }
-    if(carry) digitos.push_back(1);
+    if (carry)
+        digitos.push_back(1);
 
     // Ahora por cada dígito '1' agregamos una pesa del otro lado,
     // para contrarestarlo
-    for(uint8_t i=0; i < digitos.size(); i++) {
-        if(digitos[i] == 1) {
+    for (uint8_t i = 0; i < digitos.size(); i++) {
+        if (digitos[i] == 1) {
             der.insert(i);
         }
     }
+}
+
+int main() {
+    uint64_t peso;
+
+    // Leer el peso de la llave
+    cin >> peso;
+
+    // Exponentes de las pesas de cada lado
+    // las de la izquierda se suman al valor de la llave
+    set<uint8_t> izq;
+    set<uint8_t> der;
+
+    balancear(peso, izq, der);
 
     // Imprimimos el resultado
     cout << izq.size() << " " << der.size() << endl;
 
     bool first = true;
-    for(auto e : izq) {
-        if(!first) cout << " ";
-        cout << pow(3,e);
+    for (auto e : izq) {
+        if (!first)
+            cout << " ";
+        cout << pow(3, e);
         first = false;
     }
     cout << endl;
 
     first = true;
-    for(auto e : der) {
-        if(!first) cout << " ";
-        cout << pow(3,e);
+    for (auto e : der) {
+        if (!first)
+            cout << " ";
+        cout << pow(3, e);
         first = false;
     }
     cout << endl;
@@ -84,7 +91,7 @@ vector<uint8_t> digitosBase3(uint64_t n) {
 
     // log(n) nos da el tamaño del array resultante * ~1.1
     // No hace falta algo exacto
-    res.reserve(log(n)+1);
+    res.reserve(log(n) + 1);
 
     while (n > 0) {
         res.push_back(n % 3);
