@@ -26,7 +26,7 @@ void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
 
         if (digitos[i] == 2) {
             // Agregamos una pesa con este exponente
-            izq.insert(i);
+            der.insert(i);
 
             // Actualizamos el peso
             digitos[i] = 0;
@@ -40,7 +40,7 @@ void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
     // para contrarestarlo
     for (uint8_t i = 0; i < digitos.size(); i++) {
         if (digitos[i] == 1) {
-            der.insert(i);
+            izq.insert(i);
         }
     }
 }
