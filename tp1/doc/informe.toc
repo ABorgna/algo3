@@ -1,5 +1,0 @@
-\select@language {spanish}
-\contentsline {section}{\numberline {1}Problema 1: Cruzando el puente}{3}
-\contentsline {subsection}{\numberline {1.1}Introducci\IeC {\'o}n}{3}
-\contentsline {section}{\numberline {2}Problema 2: Problemas en el camino}{3}
-\contentsline {subsection}{\numberline {2.1}Introducci\IeC {\'o}n}{3}

@@ -27,6 +27,9 @@ $(BINARIOS): $(OUT_DIR)/% : src/%.cpp $(DEPEND)
 $(OUT_DIR):
 	mkdir -p $@
 
+informe:
+	make -C doc/
+
 clean:
 	rm -f build/*
 
