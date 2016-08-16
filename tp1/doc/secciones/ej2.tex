@@ -1,0 +1,21 @@
+\section{Problema 2: Problemas en el camino}
+
+\subsection{Introducción}
+	El siguiente obstáculo del grupo de arqueólogos consiste en equilibrar una balanza de dos platos cuyo lado izquierdo posee una llave con un cierto peso. Para eso, Indiana Jones y su equipo disponen de pesas cuyo valor en masa es una potencia de 3 distinta para cada una. \\
+	Llamaremos $izq$ al peso total de las pesas que se encuentran a la izquierda y $der$ al peso total de las de la derecha.
+	Entonces, dicho formalmente, dada una llave $k$ con su respectivo peso, queremos encontrar dos números $izq$ y $der$ tales que
+
+	$$k + izq = der$$
+
+	donde $izq$ y $der$ son números representados en base 3 que no tienen unos repetidos entre sí y ninguno de sus coeficientes vale 2. En otras palabras:
+
+	
+	\begin{align*}
+	izq = \sum_{i=0}^n izq_i \cdot 3^i && izq_n \neq 0
+	\end{align*}
+	\begin{align*}
+	der = \sum_{j=0}^m der_i \cdot 3^i && der_m \neq 0
+	\end{align*}
+	\begin{align*}
+	izq_i \neq der_i && \forall i & / izq_i = 1 \lor der_i = 1
+	\end{align*}
