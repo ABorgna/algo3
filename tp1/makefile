@@ -1,6 +1,7 @@
 
 GCC=g++
-CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++14
+#CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++14
+CFLAGS= -O0 -Wall -Wextra -ggdb -std=c++14
 VALGRIND=valgrind --leak-check=full
 
 OUT_DIR = build
