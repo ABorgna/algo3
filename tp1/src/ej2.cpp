@@ -8,6 +8,8 @@
 using namespace std;
 
 void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
+    // peso = sum(3^izq) - sum(3^der)
+
     bool carry = false;
     uint8_t exponente = 0;
 
@@ -68,7 +70,7 @@ int main() {
     for (auto e : izq) {
         if (!first)
             cout << " ";
-        cout << pow(3, e);
+        cout << (uint64_t)pow(3, e);
         first = false;
     }
     cout << endl;
@@ -77,7 +79,7 @@ int main() {
     for (auto e : der) {
         if (!first)
             cout << " ";
-        cout << pow(3, e);
+        cout << (uint64_t)pow(3, e);
         first = false;
     }
     cout << endl;
