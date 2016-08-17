@@ -7,42 +7,45 @@
 
 using namespace std;
 
-vector<uint8_t> digitosBase3(uint64_t n);
-
 void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
-    // Descomponemos el peso en sus digitos base 3
-    vector<uint8_t> digitos = digitosBase3(peso);
-
-    // A cada dígito '2' del peso hay que sumarle 1
     bool carry = false;
-    for (uint8_t i = 0; i < digitos.size(); i++) {
+    uint8_t exponente = 0;
+
+    // Recorremos los dígitos en base 3, empezando por el menos significativo
+    while (peso > 0) {
+        uint8_t digito = peso % 3;
+        peso /= 3;
+
+        // Le sumamos una pesa al dígito anterior, y quedó un carry
         if (carry) {
-            digitos[i] += 1;
-            digitos[i] %= 3;
+            digito += 1;
+            digito %= 3;
 
             // Checkear si se generó otro carry mas
-            carry = digitos[i] == 0;
+            carry = digito == 0;
         }
 
-        if (digitos[i] == 2) {
+        if (digito == 2) {
+            // A cada dígito '2' del peso hay que sumarle 1
+
             // Agregamos una pesa con este exponente
-            der.insert(i);
+            der.insert(exponente);
 
             // Actualizamos el peso
-            digitos[i] = 0;
+            digito = 0;
             carry = true;
-        }
-    }
-    if (carry)
-        digitos.push_back(1);
 
-    // Ahora por cada dígito '1' agregamos una pesa del otro lado,
-    // para contrarestarlo
-    for (uint8_t i = 0; i < digitos.size(); i++) {
-        if (digitos[i] == 1) {
-            izq.insert(i);
+        } else if (digito == 1) {
+            // Si quedó un 1 agregamos una pesa del otro lado, para
+            // contrarestarlo
+            izq.insert(exponente);
         }
+
+        exponente++;
     }
+
+    if (carry)
+        izq.insert(exponente);
 }
 
 int main() {
@@ -80,23 +83,4 @@ int main() {
     cout << endl;
 
     return 0;
-}
-
-/*
- * Devuelve los dígitos de n en base 3, least significant first
- * El vector retornado no excede los 32 elementos
- */
-vector<uint8_t> digitosBase3(uint64_t n) {
-    vector<uint8_t> res;
-
-    // log(n) nos da el tamaño del array resultante * ~1.1
-    // No hace falta algo exacto
-    res.reserve(log(n) + 1);
-
-    while (n > 0) {
-        res.push_back(n % 3);
-        n /= 3;
-    }
-
-    return res;
 }
