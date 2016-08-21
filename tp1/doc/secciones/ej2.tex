@@ -1,21 +1,67 @@
 \section{Problema 2: Problemas en el camino}
 
 \subsection{Introducción}
-	El siguiente obstáculo del grupo de arqueólogos consiste en equilibrar una balanza de dos platos cuyo lado izquierdo posee una llave con un cierto peso. Para eso, Indiana Jones y su equipo disponen de pesas cuyo valor en masa es una potencia de 3 distinta para cada una. \\
-	Llamaremos $izq$ al peso total de las pesas que se encuentran a la izquierda y $der$ al peso total de las de la derecha.
-	Entonces, dicho formalmente, dada una llave $k$ con su respectivo peso, queremos encontrar dos números $izq$ y $der$ tales que
+	El siguiente obstáculo del grupo de arqueólogos consiste en reconstruir el estado de una balanza de dos platillos con una carga $P$ del lado izquierdo utilizando únicamente pesas de distintas potencias de 3. Además la solución propuesta debe tener complejidad temporal del orden $O(\sqrt(P))$
+	\\ 
 
-	$$k + izq = der$$
+	Por la naturaleza del problema, donde nos interesa determinar únicamente la pertencia de cada potencia en el total de las que usamos para nivelar la balanza (y distinguir a qué lado de la balanza van) la representación del estado final de cada platillo por separado mediante conjuntos disjuntos resulta apropiada. Llamaremos $I$ al conjunto final de las potencias sobre el platillo izquierdo y $D$ a aquellas de la derecha. Además, como cada plato es contrapeso del otro, el estado de la balanza respecto de uno de los platillos se interpreta como su carga menos la del opuesto. 
+	\\
 
-	donde $izq$ y $der$ son números representados en base 3 tales que sus coeficientes que valen 1 no se repiten entre sí y ninguno de sus coeficientes vale 2. En otras palabras:
+	A partir de dichas representaciones, dado un valor de $P$, queremos encontrar dos conjuntos disjuntos de potencias de base 3 $I$ y $D$ tales que recreen el estado de la balanza original con una única carga $P$ a la a izquierda. En operatoria:
+	\\
 
+	$\sum I$ - $\sum D$ = $P$ \ \ $\wedge$ \ \ $I \cap D = \emptyset$ 
+	\\ 
 	
-	\begin{align*}
-	izq = \sum_{i=0}^n izq_i \cdot 3^i && izq_n \neq 0
-	\end{align*}
-	\begin{align*}
-	der = \sum_{j=0}^m der_i \cdot 3^i && der_m \neq 0
-	\end{align*}
-	\begin{align*}
-	izq_i \neq der_i && \forall i & / izq_i = 1 \lor der_i = 1
-	\end{align*}
+	Por ejemplo, para $P$ = 34 el par de conjuntos $\left \langle I,D  \right \rangle$ = $\left \langle \{27,9,1\},\{3\}  \right \rangle$ es solución porque \\
+	$\{27,9,1\} \cap \{3\} = \emptyset \ \wedge \ 34 = \sum I - \sum D = (27+9+1)-(3)$.
+	\\
+	
+	
+
+\newpage 
+\subsection{Solución y Correctitud}
+	Para poder determinar $I$ y $D$ es necesario conocer la descomposición polinómica base 3 de $P$. El caso más simple de analizar es cuando $P$ es una potencia de 3 y entonces solamente requerimos de una único elemento para $I$ (es decir, el mismo $P$) y ninguno para $D$. En realidad este es un subcaso de otro más general: que la representación en base 3 de $P$ sea binaria (no haya dígitos que valen 2). Estos casos se pueden resolver fácilmente con $I$ como el conjunto de todos los factores de la descomposición polinómica. Formalizando, sea $P_{10}$ = $A_3$ = $\left \langle A_{ \left \lfloor{log(P)}\right \rfloor + 1 } \ ... \ A_1, A_0  \right \rangle$ por definición entonces \\
+	
+	$P$ = $\sum_{i = 0}^{\left \lfloor{log(P)}\right \rfloor + 1} A_i*3^{i}$ y nos alcanza con tomar $I$ = $\bigl ( \ \bigcup_{i=0}^{\left \lfloor{log(P)}\right \rfloor + 1} \{A_i\} \ \bigr ) \setminus \{0\} \ \ \wedge \ \ D = \emptyset $
+	\\
+	
+	Sin embargo, hasta ahora obviamos qué sucede si hay coeficientes que valen 2 en la descomposición polinómica de $P$. Retornando a modo ilustrativo al contexto narrativo del problema, no poseemos múltiples pesas de un mismo peso. Es decir que, manteniendo por base la idea para el caso anterior, necesitamos alguna mecánica que garantice la existencia de una solución a costa de cargar valores en $D$ que complementen manipulaciones en $A_3$ para determinar $I$. 
+	\\
+	
+	* cómo solucionar lo de los 2's (explicación breve de lo que hace el algoritmo con los carries) * 
+	\\
+	
+\lstset{basicstyle=\large}
+\begin{lstlisting}
+    $\neg$hayCarry
+    exponente $\leftarrow$ 0
+
+    for digito in (P en base 3):
+        if hayCarry
+            digito $\leftarrow$ 1
+            digito $\leftarrow$ digito $mod$ 3
+            hayCarry si digito es 0
+
+        if digito == 2:
+            der.push_back(exponente);
+            digito $\leftarrow$ 0;
+            hayCarry
+
+        else if digito == 1:
+            izq.push_back(exponente);
+        
+        exponente $\leftarrow$ exponente + 1
+    
+    if hayCarry:
+        izq.push_back(exponente)
+
+\end{lstlisting}
+
+
+\subsection{Complejidad}
+	* explicación de cómo itera *
+
+	* demo de que log(n) es O(sqrt(n)) *
+
+\subsection{Análisis experimental}
