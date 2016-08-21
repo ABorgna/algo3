@@ -1,40 +1,156 @@
 
+#include <math.h>
 #include <stdint.h>
 #include <algorithm>
 #include <iostream>
+#include <map>
+#include <queue>
+#include <set>
+#include <tuple>
 #include <vector>
 
 using namespace std;
 
-int64_t tiempoMinimo(vector<uint32_t> &arq, vector<uint32_t> &can) {
-    // Necesitamos que los arqueólogos sean al menos la mitad,
-    // o que no haya ninguno
-    if (arq.size() < can.size() && arq.size()) {
-        return -1;
+// Hay 2^(N+M) estados posibles
+typedef struct estado_t {
+    // Para todo, true = del lado derecho
+    vector<bool> arq;
+    vector<bool> can;
+    bool linterna = false;
+
+    estado_t(){};
+    estado_t(uint32_t n, uint32_t m) : arq(n), can(m) {}
+
+    // La priority_queue requiere <
+    bool operator<(const struct estado_t &o) const {
+        return tie(linterna, arq, can) < tie(o.linterna, o.arq, o.can);
+    }
+    bool operator==(const struct estado_t &o) const {
+        return tie(linterna, arq, can) == tie(o.linterna, o.arq, o.can);
+    }
+} estado;
+
+bool agregarCandidato(map<estado, uint32_t> &dist,
+                      set<pair<uint32_t, estado>> &candidatos,
+                      estado &hijo, uint32_t peso);
+
+int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
+    // Cantidades
+    uint32_t totArq = arq.size();
+    uint32_t totCan = can.size();
+
+    // Empiezan todos del lado izquierdo
+    estado inicial(totArq, totCan);
+    estado objetivo;
+    objetivo.arq = vector<bool>(totArq, true);
+    objetivo.can = vector<bool>(totCan, true);
+    objetivo.linterna = true;
+
+    // Distancia minima hasta el estado
+    map<estado, uint32_t> dist;
+    dist.insert({inicial, 0});
+
+    // Mantenemos la lista de candidatos a explorar,
+    // y vemos siempre el mas cercano primero
+    set<pair<uint32_t, estado>> candidatos;
+    candidatos.insert(make_pair(0, inicial));
+
+    int64_t res = -1;
+    while (!candidatos.empty()) {
+        auto p = candidatos.begin();
+        uint32_t costo = p->first;
+        estado nodo = p->second;
+        candidatos.erase(p);
+
+        // Llegamos a la solución
+        if (nodo == objetivo) {
+            res = costo;
+            break;
+        }
+
+        // Hacemos un population count
+        uint32_t arqThisSide = 0;
+        uint32_t canThisSide = 0;
+        uint32_t arqOtherSide = 0;
+        uint32_t canOtherSide = 0;
+
+        uint32_t popcount = 0;
+        for (uint32_t i = 0; i < totArq; i++)
+            if (nodo.arq[i])
+                arqOtherSide++;
+        arqThisSide = nodo.linterna ? totArq - popcount : popcount;
+        arqOtherSide = totArq - arqOtherSide;
+
+        popcount = 0;
+        for (uint32_t i = 0; i < totCan; i++)
+            if (nodo.can[i])
+                canOtherSide++;
+        canThisSide = nodo.linterna ? totCan - popcount : popcount;
+        canOtherSide = totCan - canOtherSide;
+
+        // Generamos los pasos posibles a partir de donde estamos
+        estado hijo = nodo;
+        hijo.linterna = !hijo.linterna;
+
+        if (arqThisSide == 2 ||
+            (arqThisSide > 2 && arqThisSide - 2 >= canThisSide)) {
+            // Podemos mandar dos arqueologos
+            for (uint32_t i = 0; i < totCan; i++) {
+                // Checkear si está de este lado
+                if (nodo.arq[i] != nodo.linterna)
+                    continue;
+
+                hijo.arq[i] = !nodo.linterna;
+                for (uint32_t j = i + 1; j < totCan; j++) {
+                    if (hijo.arq[j] != nodo.linterna)
+                        continue;
+                    hijo.arq[j] = !nodo.linterna;
+
+                    // El movimiento siempre cuesta la menor de las velocidades
+                    uint32_t costoExtra = min(arq[i], arq[j]);
+                    uint32_t distancia = costo + costoExtra;
+
+                    // Agregamos este hijo a la lista
+                    agregarCandidato(dist, candidatos, hijo, distancia);
+
+                    hijo.arq[j] = !nodo.linterna;
+                }
+                // Lo volvemos a como estaba
+                hijo.arq[i] = nodo.linterna;
+            }
+        }
+
+        // TODO: Falta mandar dos canibales, uno solo de algun tipo, y uno y uno
     }
 
-    // Calculamos mínimo y total en una pasada
-    uint64_t minimo = -1;
-    uint64_t total = 0;
+    return res;
+}
 
-    for (uint64_t e : arq) {
-        minimo = min(e, minimo);
-        total += e;
+bool agregarCandidato(map<estado, uint32_t> &dist,
+                      set<pair<uint32_t, estado>> &candidatos,
+                      estado &hijo, uint32_t distancia) {
+
+    auto s = dist.find(hijo);
+    if (s != dist.end()) {
+        // El hijo ya tiene una distancia
+        // lo agregamos solo si la distancia resultante es menor
+        uint32_t distVieja = s->second;
+
+        if (distancia < distVieja) {
+            // Hay que borrar la posición en la cola de candidatos
+            // para insertarlo de nuevo
+            auto p = candidatos.find({distVieja,hijo});
+            candidatos.erase(p);
+        } else {
+            // La distancia anterior ya era mejor que venir por este camino
+            return false;
+        }
     }
-    for (uint64_t e : can) {
-        minimo = min(e, minimo);
-        total += e;
-    }
 
-    // Para cantidad = 1 se hace un viaje con el total
-    // Para cantidad = 2 se hace un viaje con el maximo
-    // Para cantidad > 2 se hacen cantidad-1 viajes, pagando total-minimo
-    //      y cantidad-2 vueltas, pagando el minimo cada vez
-    int64_t cantidad = arq.size() + can.size();
+    dist.insert({hijo,distancia});
+    candidatos.insert({distancia,hijo});
 
-    if(cantidad == 1) return total;
-    else if(cantidad == 2) return total - minimo;
-    else return total + (cantidad - 3) * minimo;
+    return true;
 }
 
 int main() {
