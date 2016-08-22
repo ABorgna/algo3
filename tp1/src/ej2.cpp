@@ -67,7 +67,7 @@ int main() {
     cout << izq.size() << " " << der.size() << endl;
 
     bool first = true;
-    for (int i = 0; i < izq.size(); i++) {
+    for (uint32_t i = 0; i < izq.size(); i++) {
         if (!first)
             cout << " ";
         cout << (uint64_t) pow(3, izq[i]);
@@ -76,7 +76,7 @@ int main() {
     cout << endl;
 
     first = true;
-    for (int i = 0; i < der.size(); i++) {
+    for (uint32_t i = 0; i < der.size(); i++) {
         if (!first)
             cout << " ";
         cout << (uint64_t)pow(3, der[i]);

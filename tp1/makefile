@@ -6,7 +6,7 @@ VALGRIND=valgrind --leak-check=full
 
 OUT_DIR = build
 
-DEPEND = makefile $(OUT_DIR)
+DEPEND = makefile
 
 EJERCICIOS = ej1 ej2 ej3 v2
 
@@ -15,7 +15,7 @@ BINARIOS = $(EJERCICIOS:%=$(OUT_DIR)/%)
 
 .PHONY: all $(EJERCICIOS) clean
 
-all: $(EJERCICIOS)
+all: $(OUT_DIR) $(EJERCICIOS)
 
 $(EJERCICIOS) : % : build/%
 
