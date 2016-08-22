@@ -13,9 +13,16 @@ EJERCICIOS = ej1 ej2 ej3 v2
 SOURCES = $(EJERCICIOS:%=src/%.cpp)
 BINARIOS = $(EJERCICIOS:%=$(OUT_DIR)/%)
 
-.PHONY: all $(EJERCICIOS) clean
+ENTREGABLE=entregable.tar.gz
+
+.PHONY: all $(EJERCICIOS) clean tar
 
 all: $(OUT_DIR) $(EJERCICIOS)
+
+tar: $(ENTREGABLE)
+
+$(ENTREGABLE): informe
+	tar -czf $@ src -C doc informe.pdf
 
 $(EJERCICIOS) : % : build/%
 
@@ -31,6 +38,12 @@ $(OUT_DIR):
 informe:
 	make -C doc/
 
+help:
+	@echo "make 		para compilar los ejercicios"
+	@echo "make ejX 	para compilar uno solo"
+	@echo "make tar 	para generar el archivo entregable"
+
 clean:
 	rm -f build/*
+	rm -f $(ENTREGABLE)
 
