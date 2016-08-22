@@ -1,5 +1,6 @@
 
 #include <math.h>
+#include <cassert>
 #include <stdint.h>
 #include <algorithm>
 #include <iostream>
@@ -88,39 +89,89 @@ int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
         canThisSide = nodo.linterna ? totCan - popcount : popcount;
         canOtherSide = totCan - canOtherSide;
 
+        // Checkeamos que no sea un caso invalido
+        if(arqThisSide > 0 && arqThisSide < canThisSide) {
+            continue;
+        }
+        if(arqOtherSide > 0 && arqOtherSide < canOtherSide) {
+            continue;
+        }
+
         // Generamos los pasos posibles a partir de donde estamos
         estado hijo = nodo;
         hijo.linterna = !hijo.linterna;
 
-        if (arqThisSide == 2 ||
-            (arqThisSide > 2 && arqThisSide - 2 >= canThisSide)) {
-            // Podemos mandar dos arqueologos
-            for (uint32_t i = 0; i < totCan; i++) {
-                // Checkear si está de este lado
-                if (nodo.arq[i] != nodo.linterna)
+        for (uint32_t i = 0; i < totArq; i++) {
+            // Checkear si está de este lado
+            if (nodo.arq[i] != nodo.linterna)
+                continue;
+
+            hijo.arq[i] = !nodo.linterna;
+            for (uint32_t j = i; j < totArq; j++) {
+                if (nodo.arq[j] != nodo.linterna)
                     continue;
+                hijo.arq[j] = !nodo.linterna;
 
-                hijo.arq[i] = !nodo.linterna;
-                for (uint32_t j = i + 1; j < totCan; j++) {
-                    if (hijo.arq[j] != nodo.linterna)
-                        continue;
-                    hijo.arq[j] = !nodo.linterna;
+                // El movimiento siempre cuesta la menor de las velocidades
+                uint32_t costoExtra = max(arq[i], arq[j]);
+                uint32_t distancia = costo + costoExtra;
 
-                    // El movimiento siempre cuesta la menor de las velocidades
-                    uint32_t costoExtra = min(arq[i], arq[j]);
-                    uint32_t distancia = costo + costoExtra;
+                // Agregamos este hijo a la lista
+                agregarCandidato(dist, candidatos, hijo, distancia);
 
-                    // Agregamos este hijo a la lista
-                    agregarCandidato(dist, candidatos, hijo, distancia);
-
-                    hijo.arq[j] = !nodo.linterna;
-                }
-                // Lo volvemos a como estaba
-                hijo.arq[i] = nodo.linterna;
+                if(i!=j) hijo.arq[j] = nodo.linterna;
             }
+            // Lo volvemos a como estaba
+            hijo.arq[i] = nodo.linterna;
         }
 
-        // TODO: Falta mandar dos canibales, uno solo de algun tipo, y uno y uno
+        for (uint32_t i = 0; i < totCan; i++) {
+            // Checkear si está de este lado
+            if (nodo.can[i] != nodo.linterna)
+                continue;
+
+            hijo.can[i] = !nodo.linterna;
+            for (uint32_t j = i; j < totCan; j++) {
+                if (nodo.can[j] != nodo.linterna)
+                    continue;
+                hijo.can[j] = !nodo.linterna;
+
+                // El movimiento siempre cuesta la menor de las velocidades
+                uint32_t costoExtra = max(can[i], can[j]);
+                uint32_t distancia = costo + costoExtra;
+
+                // Agregamos este hijo a la lista
+                agregarCandidato(dist, candidatos, hijo, distancia);
+
+                if(i!=j) hijo.can[j] = nodo.linterna;
+            }
+            // Lo volvemos a como estaba
+            hijo.can[i] = nodo.linterna;
+        }
+
+        for (uint32_t i = 0; i < totArq; i++) {
+            // Checkear si está de este lado
+            if (nodo.arq[i] != nodo.linterna)
+                continue;
+
+            hijo.arq[i] = !nodo.linterna;
+            for (uint32_t j = 0; j < totCan; j++) {
+                if (nodo.can[j] != nodo.linterna)
+                    continue;
+                hijo.can[j] = !nodo.linterna;
+
+                // El movimiento siempre cuesta la menor de las velocidades
+                uint32_t costoExtra = max(arq[i], can[j]);
+                uint32_t distancia = costo + costoExtra;
+
+                // Agregamos este hijo a la lista
+                agregarCandidato(dist, candidatos, hijo, distancia);
+
+                hijo.can[j] = nodo.linterna;
+            }
+            // Lo volvemos a como estaba
+            hijo.arq[i] = nodo.linterna;
+        }
     }
 
     return res;
@@ -141,6 +192,7 @@ bool agregarCandidato(map<estado, uint32_t> &dist,
             // para insertarlo de nuevo
             auto p = candidatos.find({distVieja,hijo});
             candidatos.erase(p);
+            dist.erase(dist.find(hijo));
         } else {
             // La distancia anterior ya era mejor que venir por este camino
             return false;
