@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
+void balancear(uint64_t peso, vector<uint8_t> &izq, vector<uint8_t> &der) {
     // peso = sum(3^izq) - sum(3^der)
 
     bool carry = false;
@@ -31,7 +31,7 @@ void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
             // A cada dígito '2' del peso hay que sumarle 1
 
             // Agregamos una pesa con este exponente
-            der.insert(exponente);
+            der.push_back(exponente);
 
             // Actualizamos el peso
             digito = 0;
@@ -40,14 +40,14 @@ void balancear(uint64_t peso, set<uint8_t> &izq, set<uint8_t> &der) {
         } else if (digito == 1) {
             // Si quedó un 1 agregamos una pesa del otro lado, para
             // contrarestarlo
-            izq.insert(exponente);
+            izq.push_back(exponente);
         }
 
         exponente++;
     }
 
     if (carry)
-        izq.insert(exponente);
+        izq.push_back(exponente);
 }
 
 int main() {
@@ -58,8 +58,8 @@ int main() {
 
     // Exponentes de las pesas de cada lado
     // las de la izquierda se suman al valor de la llave
-    set<uint8_t> izq;
-    set<uint8_t> der;
+    vector<uint8_t> izq;
+    vector<uint8_t> der;
 
     balancear(peso, izq, der);
 
@@ -67,19 +67,19 @@ int main() {
     cout << izq.size() << " " << der.size() << endl;
 
     bool first = true;
-    for (auto e : izq) {
+    for (int i = 0; i < izq.size(); i++) {
         if (!first)
             cout << " ";
-        cout << (uint64_t)pow(3, e);
+        cout << (uint64_t) pow(3, izq[i]);
         first = false;
     }
     cout << endl;
 
     first = true;
-    for (auto e : der) {
+    for (int i = 0; i < der.size(); i++) {
         if (!first)
             cout << " ";
-        cout << (uint64_t)pow(3, e);
+        cout << (uint64_t)pow(3, der[i]);
         first = false;
     }
     cout << endl;
