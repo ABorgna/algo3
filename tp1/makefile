@@ -8,7 +8,7 @@ OUT_DIR = build
 
 DEPEND = makefile
 
-EJERCICIOS = ej1 ej2 ej3 v2
+EJERCICIOS = ej1 ej2 ej3
 
 SOURCES = $(EJERCICIOS:%=src/%.cpp)
 BINARIOS = $(EJERCICIOS:%=$(OUT_DIR)/%)

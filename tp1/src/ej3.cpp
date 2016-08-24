@@ -1,7 +1,9 @@
 
 #include <stdint.h>
 #include <iostream>
+#include <algorithm>
 #include <map>
+#include <set>
 #include <vector>
 
 using namespace std;
@@ -25,8 +27,13 @@ uint32_t mkp(vector<uint8_t> const &bins, vector<mkp_object> const &objetos,
 
     // Cantidad total de objetos
     uint32_t totObjetos = 0;
-    for (auto &obj : objetos) {
+    vector<uint32_t> objetosFlatten;
+    for (uint32_t i = 0; i < objetos.size(); i++) {
+        const mkp_object &obj = objetos[i];
         totObjetos += obj.count;
+
+        objetosFlatten.reserve(objetosFlatten.size() + obj.count);
+        for (uint32_t j = 0; j < obj.count; j++) objetosFlatten.push_back(i);
     }
 
     // m tiene como claves los pesos de las mochilas
@@ -34,27 +41,32 @@ uint32_t mkp(vector<uint8_t> const &bins, vector<mkp_object> const &objetos,
     // cada mochila
     // Una ganancia -1 significa que no hay una configuración posible
     typedef struct valor_combinacion_t {
-        vector<vector<bool>> combinaciones;
         int32_t valor;
+        bool usaObjetoJ;
+        int32_t binObjetoJ;
+        int32_t objetoAnterior;
     } valor_combinacion;
 
     map<vector<uint8_t>, vector<valor_combinacion>> m;
 
     // Recorremos cada combinacion
-    vector<uint8_t> combinacion(bins.size(), 0);
     bool done = false;
-    valor_combinacion *combinacion_max = NULL;
+    vector<uint8_t> combinacion(bins.size(), 0);
+    vector<uint8_t> combinacionMax = combinacion;
+    int32_t valorMax = -1;
+
+    // Todas las mochilas en 0 se optimizan con 0
+    vector<valor_combinacion> vcs_tmp(totObjetos + 1, {0, false, -1, -1});
+    m.insert({combinacion, vcs_tmp});
+    combinacion[0]++;
 
     while (!done) {
-        // Agregamos la combinación a la lista
-        // Inicializamos todas las ganancias en -1
-        // Excepto para 0 objetos (ganancia 0)
-        valor_combinacion vc{
-            vector<vector<bool>>(bins.size(), vector<bool>(totObjetos)), -1};
-        vector<valor_combinacion> vcs_tmp(totObjetos + 1, vc);
-        vcs_tmp[0].valor = 0;
 
-        auto out = m.insert({combinacion, vcs_tmp});
+        // Agregamos la combinación a la lista
+        // Inicializamos la ganancia con 0 objetos a 0
+        auto out =
+            m.insert({combinacion, vector<valor_combinacion>(
+                                       totObjetos + 1, {-1, false, -1, -1})});
         vector<valor_combinacion> &vcs = out.first->second;
 
         // Para cada primeros j objetos buscamos el máximo
@@ -63,41 +75,51 @@ uint32_t mkp(vector<uint8_t> const &bins, vector<mkp_object> const &objetos,
             for (uint32_t cnt = 0; cnt < obj.count; cnt++) {
                 j++;
 
-                // TODO: es todo horrible pero funciona, refactor
-
                 // Decidimos a qué bin conviene agregar el objeto,
                 // o si conviene no usarlo
-                int32_t mejor_bin = -1;
-                valor_combinacion &mejor_vc = vcs[j - 1];
+                int32_t mejorBin = -1;
+                valor_combinacion *mejorVc = &vcs[j - 1];
+                int32_t mejorValor = mejorVc->valor;
 
                 for (uint8_t bin = 0; bin < bins.size(); bin++) {
                     // No podemos agregar el objeto al bin si no entra
-                    if (combinacion[bin] < obj.weight) continue;
+                    if (combinacion[bin] < obj.weight)
+                        continue;
 
                     // Veamos si combiene usar este bin
                     vector<uint8_t> comb(combinacion);
                     comb[bin] -= obj.weight;
-                    valor_combinacion &vc_a_agregar = m[comb][j-1];
-                    // TODO: horrible
-                    if(vc_a_agregar.valor >= 0 && mejor_vc.valor <= vc_a_agregar.valor + (mejor_bin >= 0 ? obj.value : 0)) {
-                        mejor_bin = bin;
-                        mejor_vc = vc_a_agregar;
+                    valor_combinacion &vc_a_agregar = m[comb][j - 1];
+
+                    if (vc_a_agregar.valor < 0) {
+                        continue;  // No había una combinación de objetos válida
+                                   // para esta cantidad
+                    }
+
+                    if (mejorValor <= vc_a_agregar.valor + obj.value) {
+                        mejorBin = bin;
+                        mejorVc = &vc_a_agregar;
+                        mejorValor = vc_a_agregar.valor + obj.value;
                     }
                 }
 
-                vcs[j] = mejor_vc;
+                vcs[j] = *mejorVc;
 
-                if (mejor_bin != - 1) {
+                vcs[j].objetoAnterior =
+                    mejorVc->usaObjetoJ ? j - 1 : mejorVc->objetoAnterior;
+                vcs[j].usaObjetoJ = false;
+
+                if (mejorBin != -1) {
                     // Usamos el objeto, hay que marcarlo en el vc que copiamos
-                    vcs[j] = mejor_vc;
                     vcs[j].valor += obj.value;
-                    vcs[j].combinaciones[mejor_bin][j] = 1;
+                    vcs[j].usaObjetoJ = true;
+                    vcs[j].binObjetoJ = mejorBin;
                 }
 
                 // Recalcular el máximo
-                if (combinacion_max == NULL ||
-                    combinacion_max->valor < vcs[j].valor) {
-                    combinacion_max = &vcs[j];
+                if (valorMax < 0 || valorMax < vcs[j].valor) {
+                    valorMax = vcs[j].valor;
+                    combinacionMax = combinacion;
                 }
             }
         }
@@ -116,22 +138,30 @@ uint32_t mkp(vector<uint8_t> const &bins, vector<mkp_object> const &objetos,
     }
 
     // Escribimos los ids del resultado
-    // TODO: feo
     resultIds.resize(bins.size());
-    uint32_t j = 0;
-    for (uint32_t i=0; i<objetos.size(); i++) {
-        const mkp_object& obj = objetos[i];
-        for (uint32_t cnt = 0; cnt < obj.count; cnt++) {
-            j++;
-            for(uint32_t bin=0; bin<bins.size(); bin++) {
-                if(combinacion_max->combinaciones[bin][j]) {
-                    resultIds[bin].push_back(i);
-                }
-            }
+    vector<uint8_t> combinacionBase(bins.size(), 0);
+    uint32_t currentObj = totObjetos;
+    while (combinacionMax != combinacionBase) {
+        const valor_combinacion &vc = m[combinacionMax][currentObj];
+
+        if (vc.usaObjetoJ) {
+            uint32_t objId = objetosFlatten[currentObj - 1];
+            const mkp_object &obj = objetos[objId];
+
+            resultIds[vc.binObjetoJ].push_back(objId);
+
+            combinacionMax[vc.binObjetoJ] -= obj.weight;
         }
+        currentObj = vc.objetoAnterior;
     }
 
-    return combinacion_max->valor;
+    // Como recorrimos los objetos desde el último hay que invertir el array
+    // (lo piden ordenado)
+    for(auto &v : resultIds) {
+        reverse(v.begin(), v.end());
+    }
+
+    return valorMax;
 }
 
 int main() {
