@@ -9,4 +9,36 @@
 	\item Cada persona puede cruzar el puente a una velocidad fija. Si dos personas cruzan el puente, lo harán a la velocidad del que sea más lento
 	\end{itemize}
 	El objetivo del problema es encontrar el tiempo mínimo necesario para que todos los integrantes del equipo lleguen a salvo al otro lado del puente.
+
+	En las siguientes secciones, llamaremos estado a la ubicacion de cada arqueologo, junto con su velocidad, la ubicacion de cada canibal junto con su velocidad y la ubicacion de la estado
+
+	Podemos representar cada estado como un vector de N+M+1 booleanos, donde los primeros N valores son donde estan cada arqueologo, los siguientes M valores donde estan los canibales y el ultimo valor representa donde esta la linterna. Y a su vez, cada estado puede ser pensado como el vertice de un grafo y las aristas como el tiempo necesario para ir de un estado inicial a ese.	
+
+	Formalmente, esto equivale a hallar el camino minimo entre 2 vertices particulares de un grafo.
+
+\subsection{Solucion y Correctitud}	
 	
+
+	Para resolver el problema, lo que haremos es tener una de prioridad minima de  (Estado,Costo) y usaremos el costo para determinar la prioridad de cada elemento.
+	Empezamos encolando el estado inicial y mientras haya elementos en la cola haremos lo siguiente.
+	Se desencola el primer elemento, se mira su estado, si es el estado que estamos buscando, devolvemos el costo y termina.
+	En caso contrario, a partir del estado que obtuvimos, nos generamos todos los siguientes estados posibles junto con el tiempo necesario para llegar del estado inicial a ese y el ciclo vuelve a empezar.
+	En caso de no quedar mas elementos en la cola y no se haya encontrado una solucion
+	se devuelve -1.
+	A continuacion, presentamos un pseudo codigo de nuestro algoritmo.
+	
+
+	% TO DO : Completar.
+	\lstset{basicstyle=\large}
+	\begin{lstlisting}
+    c $\leftarrow$ cola vacia
+    encolamos el estado inicial
+
+    while C tenga elementos
+
+    actual $leftarrow$ c.desencolar
+ 		
+
+
+
+\end{lstlisting} 
