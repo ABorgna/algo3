@@ -1,6 +1,6 @@
 targets = informe.pdf
 
-includes = secciones/ej1.tex secciones/ej2.tex
+includes = secciones/ej1.tex secciones/ej2.tex secciones/ej3.tex
 
 libs = caratula.sty
 
