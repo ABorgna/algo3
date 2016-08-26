@@ -1,3 +1,4 @@
+\newpage
 \section{Problema 2: Problemas en el camino}
 
 \subsection{Introducción}
@@ -19,7 +20,6 @@
 
 
 
-\newpage
 \subsection{Solución y Correctitud}
 	Para poder determinar $I$ y $D$ es necesario conocer la descomposición polinómica base 3 de $P$. El caso más simple de analizar es cuando $P$ es una potencia de 3 y entonces solamente requerimos de un único elemento para $I$ (es decir, el mismo $P$) y ninguno para $D$. En realidad este es un subcaso de otro más general: que la representación en base 3 de $P$ sea binaria (no haya dígitos que valen 2). Estos casos se pueden resolver fácilmente con $I$ como el conjunto de todos los monomios de la descomposición polinómica, es decir, los dígitos de su representación ternaria. Formalizando, sea $P_{10}$ = $A_3$ = $\left \langle a_{ \left \lfloor{log(P)}\right \rfloor + 1 } \ ... \ a_1, a_0  \right \rangle$ por definición entonces \\
 
@@ -39,16 +39,15 @@
 
 	Pero si $a_i$ es 2 lo que hacemos es contar ese exponente para $D$ y provocamos un acarreo hacia el próximo dígito $a_{i+1}$ que pasa a valer $(a_{i+1} + 1) \ mod \ 3$. Se puede ver que puede llegar a caer en otro dígito que ya valía 2, generando más acarreos hasta caer en un dígito que valga 1 (teniendo que generar otro acarreo por la idea del algoritmo) ó 0, 'tomando' el acarreo y sumando para $I$ la diferencia que creamos al agregar el exponente original $i$ en $D$, y poder seguir aplicando el mismo método en los próximos dígitos.
 
-	Esto, visto desde la resta de ambos conjuntos, significa sumar $3^{i}$ tanto para $\sum I$ como $\sum D$. Por invariante de la iteración \footnote{Hasta ahora solamente nos ocupamos de los dígitos anteriores, por lo que $i \notin der \cup izq$}, si consideramos las sumas de ambos conjuntos como una descomposición polinómica base 3, este término valía 0 para $\sum D$ y $2*3^{i}$ para $\sum I$, quedando $3^{i}$ y $(2+1)*3^{i} = 3^{i+1}$ respectivamente y viendo además que de este modo no repetimos exponentes entre $I$ y $D$ ($3^i$ pertenece a $D$ pero no a $I$).
+	Esto, visto desde la resta de ambos conjuntos, significa sumar $3^{i}$ tanto para $\sum I$ como $\sum D$. Por invariante de la iteración (hasta ahora solamente nos ocupamos de los dígitos anteriores, por lo que $i \notin der \cup izq$), si consideramos las sumas de ambos conjuntos como una descomposición polinómica base 3, este término valía 0 para $\sum D$ y $2*3^{i}$ para $\sum I$, quedando $3^{i}$ y $(2+1)*3^{i} = 3^{i+1}$ respectivamente y viendo además que de este modo no repetimos exponentes entre $I$ y $D$ ($3^i$ pertenece a $D$ pero no a $I$).
 	\\
 	
 	Por lo tanto, distribuyendo restas algebráicamente válidas de la pinta ($3^{i}-3^{i}$) entre $I$ y $D$ pudimos mantener la idea que satisfacía originalmente $\sum I$ - $\sum D$ = $P$ partiendo de $D$ = $\emptyset$ e $I$ como los monomios de la descomposición polinómica base 3 de $P$, de tal modo que fuimos 'pateando' los términos con coeficientes de valor 2 a términos de mayor grado y manteniendo los dos conjuntos con intersección vacía. En el pseudocódigo siguiente se ve más claro incluso por qué nunca se cuenta el mismo exponente para ambos conjuntos.
-	
-	\newpage
-
+\\
+\\
 \lstset{basicstyle=\large}
 \begin{lstlisting}
-    hayCarry $\leftarrow$ false
+    hayCarry $\leftarrow$ false				
     exponente $\leftarrow$ 0
 
     for digito in (P en base 3):
@@ -111,9 +110,33 @@
 	%\item Si $a_j$ = 2 entonces
 	%\end{itemize}
 
+\newpage
 \subsection{Complejidad}
-	* explicación de cómo itera *
-
-	* demo de que log(n) es O(sqrt(n)) *
+	El pseudocódigo no incluye el ciclo final que se encarga de convertir $der$ e $izq$ en la secuencia ordenada de elementos de $I$ y $D$. Esto se hace iterando de principio a fín cada vector y devolviendo por salida estándar $3^{\ elem \ actual}$ en cada iteración. Considerando a la operación pow($base$, $exp$) constante, el costo del ciclo es $\mathcal{O} (|der| + |izq|)$. Más adelante vamos a ver que ambas longitudes son orden de $log_3(P)$.
+	
+	Otra cosa que no incluímos en el pseudocódigo (por una leve simplificación) es cómo se consigue la representación base 3 de $P$ que iteramos. La guarda original del ciclo corresponde a:
+	
+	%\lstset{basicstyle=\large}
+	\begin{lstlisting}
+	[...]
+	while P > 0:
+        	digito $\leftarrow$ P mod 3
+        	P $\leftarrow$ P / 3
+	[...]
+	\end{lstlisting}
+	
+	Por lo tanto en cada iteración conseguimos, mediante el algoritmo clásico de conversión de base mediante división, el próximo dígito. Cuando $P \geq 0$ entonces el ciclo termina y como $P$ decrementa en un tercio en cada iteración, esto significa que el ciclo se ejecuta un orden de $log_3(P)$ veces. 
+	\\
+	
+	En el cuerpo del ciclo todas las operaciones aritméticas que se realizan son constantes en complejidad temporal (asumimos $mod$ incluída), pero también se realiza hasta una inserción en las secuencias $izq$ y $der$ por ciclo. Ambas secuencias las implementamos con el tipo $vector$ y, por lo tanto, la inserción corresponde a la operación $push\_back(elem)$. Esta operación tiene complejidad temporal constante amortizada, aunque podrían suceder 'reubicaciónes' que hicieran que para esa llamada en particular el costo sea lineal. Vamos a analizar partiendo de la complejidad amortizada, considerando que también se podría usar un array de tamaño $\left \lfloor{log_3(P)}\right \rfloor + 2$ ($\left \lfloor{log_3(P)}\right \rfloor + 1$ por la representación de P en base 3 y un 'bit' más por si hay un acarreo) y tener acceso constante en general.
+	
+	Entonces nuestro ciclo se va a ejecutar $\mathcal{O} (log(P))$ veces, con guarda y cuerpo $\mathcal{O} (1)$. Lo que nos deja un ciclo con complejidad temporal $\mathcal{O} (log(P))$ y luego un proceso encargado de imprimir salidas estándar de costo $\mathcal{O} (|der| + |izq|)$. Pero, como ya anticipamos, ambas longitudes son $\mathcal{O} (log(P))$ porque solamente vamos a iterar una cantidad logarítmica (respecto de P) de dígitos y no puede haber ninguno (por correctitud respecto del enunciado) repetido en ambos vectores. Por lo tanto nos queda una complejidad final de $\mathcal{O} (log(P))$.
+	\\
+	
+	Nos resta ver que $\mathcal{O} (log(P))$ = $\mathcal{O} (\sqrt(P))$ para probar que cumplimos con los requisitos de complejidad del problema inicial.
+	
+	Por propiedades de logarítmos $log(P) = 2log(\sqrt(P))$ y usando que $\forall \ x > 0, \ log(x) < x$ nos queda que $ P > 0 \Longrightarrow log(P) < 2\sqrt(P)$, y por lo tanto podemos asegurar $log(P) \in \mathcal{O} (\sqrt(P))$. 
 
 \subsection{Análisis experimental}
+
+\newpage
