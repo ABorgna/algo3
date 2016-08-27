@@ -1,3 +1,4 @@
+#include <interfaz.h>
 
 #include <math.h>
 #include <cassert>
@@ -30,6 +31,12 @@ typedef struct estado_t {
         return tie(linterna, arq, can) == tie(o.linterna, o.arq, o.can);
     }
 } estado;
+
+uint32_t cantArq;
+uint32_t cantCan;
+
+vector<uint32_t> arq;
+vector<uint32_t> can;
 
 bool agregarCandidato(map<estado, uint32_t> &dist,
                       set<pair<uint32_t, estado>> &candidatos,
@@ -205,33 +212,31 @@ bool agregarCandidato(map<estado, uint32_t> &dist,
     return true;
 }
 
-int main() {
-    uint32_t cantArq;
-    uint32_t cantCan;
+void prob_load(std::istream& is) {
 
-    vector<uint32_t> arq;
-    vector<uint32_t> can;
-
-    cin >> cantArq >> cantCan;
+    is >> cantArq >> cantCan;
 
     arq.reserve(cantArq);
     can.reserve(cantCan);
 
     for (uint32_t i = 0; i < cantArq; i++) {
         uint32_t a;
-        cin >> a;
+        is >> a;
         arq.push_back(a);
     }
 
     for (uint32_t i = 0; i < cantCan; i++) {
         uint32_t a;
-        cin >> a;
+        is >> a;
         can.push_back(a);
     }
+}
 
+int prob_solve(std::ostream &os) {
     int64_t t = tiempoMinimo(arq, can);
 
-    cout << t << endl;
+    os << t << endl;
 
     return 0;
 }
+

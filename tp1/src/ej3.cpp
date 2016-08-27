@@ -1,3 +1,4 @@
+#include <interfaz.h>
 
 #include <stdint.h>
 #include <algorithm>
@@ -13,6 +14,10 @@ typedef struct mkp_object_t {
     uint32_t weight;
     int32_t value;
 } mkp_object;
+
+uint32_t m, n;
+vector<uint32_t> bins;
+vector<mkp_object> objects;
 
 uint32_t mkp(vector<uint32_t> bins, vector<mkp_object> const &objetos,
              vector<vector<uint32_t>> &resultIds) {
@@ -113,30 +118,27 @@ uint32_t mkp(vector<uint32_t> bins, vector<mkp_object> const &objetos,
     return valorMax;
 }
 
-int main() {
-    // Parse
-    uint32_t m, n;
-    vector<uint32_t> bins;
-    vector<mkp_object> objects;
-
-    cin >> m >> n;
+void prob_load(std::istream& is) {
+    is >> m >> n;
     bins.reserve(m);
     objects.reserve(n);
 
     for (uint32_t i = 0; i < m; i++) {
         uint32_t budget;
-        cin >> budget;
+        is >> budget;
         bins.push_back(budget);
     }
     for (uint32_t i = 0; i < n; i++) {
         uint32_t count;
         mkp_object obj;
 
-        cin >> count >> obj.weight >> obj.value;
+        is >> count >> obj.weight >> obj.value;
         obj.id = i;
         for (uint32_t j = 0; j < count; j++) objects.push_back(obj);
     }
+}
 
+int prob_solve(std::ostream &os) {
     // Solve
     vector<vector<uint32_t>> resultIds;
     uint32_t finalValue;
@@ -144,18 +146,19 @@ int main() {
     finalValue = mkp(bins, objects, resultIds);
 
     // Print
-    cout << finalValue << endl;
+    os << finalValue << endl;
 
     for (uint32_t b=0; b < m; b++) {
         auto &bin = resultIds[b];
-        cout << bin.size();
+        os << bin.size();
 
         for (auto id : bin) {
-            cout << " " << id;
+            os << " " << id;
         }
 
-        cout << endl;
+        os << endl;
     }
 
     return 0;
 }
+

@@ -1,3 +1,4 @@
+#include <interfaz.h>
 
 #include <math.h>
 #include <stdint.h>
@@ -6,6 +7,8 @@
 #include <vector>
 
 using namespace std;
+
+uint64_t peso;
 
 void balancear(uint64_t peso, vector<uint8_t> &izq, vector<uint8_t> &der) {
     // peso = sum(3^izq) - sum(3^der)
@@ -50,12 +53,12 @@ void balancear(uint64_t peso, vector<uint8_t> &izq, vector<uint8_t> &der) {
         izq.push_back(exponente);
 }
 
-int main() {
-    uint64_t peso;
-
+void prob_load(std::istream& is) {
     // Leer el peso de la llave
-    cin >> peso;
+    is >> peso;
+}
 
+int prob_solve(std::ostream &os) {
     // Exponentes de las pesas de cada lado
     // las de la izquierda se suman al valor de la llave
     vector<uint8_t> izq;
@@ -64,25 +67,26 @@ int main() {
     balancear(peso, izq, der);
 
     // Imprimimos el resultado
-    cout << izq.size() << " " << der.size() << endl;
+    os << izq.size() << " " << der.size() << endl;
 
     bool first = true;
     for (uint32_t i = 0; i < izq.size(); i++) {
         if (!first)
-            cout << " ";
-        cout << (uint64_t) pow(3, izq[i]);
+            os << " ";
+        os << (uint64_t) pow(3, izq[i]);
         first = false;
     }
-    cout << endl;
+    os << endl;
 
     first = true;
     for (uint32_t i = 0; i < der.size(); i++) {
         if (!first)
-            cout << " ";
-        cout << (uint64_t)pow(3, der[i]);
+            os << " ";
+        os << (uint64_t)pow(3, der[i]);
         first = false;
     }
-    cout << endl;
+    os << endl;
 
     return 0;
 }
+
