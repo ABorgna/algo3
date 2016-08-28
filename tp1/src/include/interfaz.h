@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <option.h>
-//#include <generator.h>
+#include <generator.h>
 
 // Esta función es llamada para que el problema interprete
 //la entrada e inicialice las variables de una instancia.
@@ -24,11 +24,17 @@ void prob_reload();
 std::vector<uint64_t> prob_vars();
 
 // Esta función retorna los generadores del problema
-//std::vector<Generator> prob_generators();
+std::vector<Generator> prob_generators();
 
 // Esta función es llamada para imprimir el input del problema.
 void prob_print_input(std::ostream& os);
 
 // Esta función devuelve un vector con las opciones custom del problema
 std::vector<Option> prob_custom_options();
+
+// Esta función devuelve números aleatorios en el rango [inicio, fin]
+uint64_t rnd(uint64_t inicio, uint64_t fin);
+
+// Esta función devuelve la diferencia entre dos tiempos
+uint64_t diff(timespec start, timespec end);
 

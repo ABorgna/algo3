@@ -53,6 +53,10 @@ void balancear(uint64_t peso, vector<uint8_t> &izq, vector<uint8_t> &der) {
         izq.push_back(exponente);
 }
 
+/**************************************
+ * Funciones del framework de testeo
+ **************************************/
+
 void prob_load(std::istream& is) {
     // Leer el peso de la llave
     is >> peso;
@@ -88,5 +92,29 @@ int prob_solve(std::ostream &os) {
     os << endl;
 
     return 0;
+}
+
+void prob_reload() {}
+
+vector<uint64_t> prob_vars() {
+    return {peso};
+}
+
+void prob_print_input(std::ostream& os) {
+    os << peso << endl;
+}
+
+vector<Option> prob_custom_options() {
+    return {};
+}
+
+void generator_simple(const std::vector<uint64_t>& v) {
+    prob_reload();
+
+    peso = v[0];
+}
+
+vector<Generator> prob_generators() {
+    return {{"simple",generator_simple}};
 }
 

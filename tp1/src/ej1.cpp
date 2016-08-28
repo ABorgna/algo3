@@ -212,6 +212,10 @@ bool agregarCandidato(map<estado, uint32_t> &dist,
     return true;
 }
 
+/**************************************
+ * Funciones del framework de testeo
+ **************************************/
+
 void prob_load(std::istream& is) {
 
     is >> cantArq >> cantCan;
@@ -238,5 +242,49 @@ int prob_solve(std::ostream &os) {
     os << t << endl;
 
     return 0;
+}
+
+void prob_reload() {
+    arq.resize(0);
+    can.resize(0);
+}
+
+vector<uint64_t> prob_vars() {
+    vector<uint64_t> res;
+
+    res.push_back(cantArq);
+    res.push_back(cantCan);
+    for(auto a : arq) res.push_back(a);
+    for(auto c : can) res.push_back(c);
+
+    return res;
+}
+
+void prob_print_input(std::ostream& os) {
+    for(auto v : prob_vars()) os << v << " ";
+    os << endl;
+}
+
+vector<Option> prob_custom_options() {
+    return {};
+}
+
+void generator_random(const std::vector<uint64_t>& v) {
+    prob_reload();
+
+    cantArq = v[0];
+    cantCan = v[1];
+
+    for(uint64_t i=0; i<cantArq; i++) {
+        arq.push_back(rnd(1,1000000));
+    }
+
+    for(uint64_t i=0; i<cantCan; i++) {
+        can.push_back(rnd(1,1000000));
+    }
+}
+
+vector<Generator> prob_generators() {
+    return {{"random", generator_random}};
 }
 
