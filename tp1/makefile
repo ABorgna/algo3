@@ -1,15 +1,16 @@
 
 GCC=g++
-#CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++14
-CFLAGS= -O0 -Wall -Wextra -ggdb -std=c++14
+CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++14
+#CFLAGS= -O0 -Wall -Wextra -ggdb -std=c++14
 VALGRIND=valgrind --leak-check=full
 
 OUT_DIR = build
 SRC_DIR = src
 OBJ_DIR = obj
 BENCH_OBJ_DIR = $(OBJ_DIR)/bench
+BENCH_OUT_DIR = bench
 
-DIRS = $(OUT_DIR) $(OBJ_DIR) $(BENCH_OBJ_DIR)
+DIRS = $(OUT_DIR) $(OBJ_DIR) $(BENCH_OBJ_DIR) $(BENCH_OUT_DIR)
 
 INCLUDES = $(SRC_DIR)/include/
 CFLAGS += -I $(INCLUDES)
@@ -20,13 +21,21 @@ EXTRA_SOURCES = $(SRC_DIR)/bench/benchmark.cpp $(SRC_DIR)/bench/pcg.cpp
 BINARIOS = $(EJERCICIOS:%=$(OUT_DIR)/%)
 EXTRA_OBJS = $(EXTRA_SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
+BENCHMARKS = $(EJERCICIOS:%=%-bench)
+BENCHMARKS_OUT = $(BENCHMARKS:%=$(BENCH_OUT_DIR)/%)
+
 ENTREGABLE=entregable.tar.gz
 
-.PHONY: all $(EJERCICIOS) $(BENCHMARKS) clean tar informe help
+.PHONY: all $(EJERCICIOS) $(BENCHMARKS) $(BENCHMARKS_OUT) \
+	clean tar informe help dirs benchmark
 
-all: $(DIRS) $(EJERCICIOS)
+all: dirs $(EJERCICIOS)
 
 tar: $(ENTREGABLE)
+
+dirs: $(DIRS)
+
+benchmark: $(BENCHMARKS)
 
 $(ENTREGABLE): informe
 	tar -czf $@ src -C doc informe.pdf
@@ -42,13 +51,40 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(DIRS):
 	mkdir -p $@
 
+$(BENCHMARKS) : % : $(BENCH_OUT_DIR)/%
+
+$(BENCH_OUT_DIR)/ej1-bench: ej1
+	build/ej1 -a 0:3 0:3 -A 1 -c 0`wc -l $@ 2>/dev/null | sed 's/ .*//'` -o $@
+
+$(BENCH_OUT_DIR)/ej2-bench: ej2
+	build/ej2 -a 1:1000:1 -A 0.01 -o $@-0 \
+		-c 0`wc -l $@-0 2>/dev/null | sed 's/ .*//'`
+	build/ej2 -a 2000:1000000:1000 -A 0.01 -o $@-1 \
+		-c 0`wc -l $@-1 2>/dev/null | sed 's/ .*//'`
+	build/ej2 -a 2000000:1000000000:1000000 -A 0.01 -o $@-2 \
+		-c 0`wc -l $@-2 2>/dev/null | sed 's/ .*//'`
+	build/ej2 -a 2000000000:1000000000000:1000000000 -A 0.01 -o $@-3 \
+		-c 0`wc -l $@-3 2>/dev/null | sed 's/ .*//'`
+	build/ej2 -a 2000000000000:1000000000000000:1000000000000 -A 0.01 -o $@-4 \
+		-c 0`wc -l $@-4 2>/dev/null | sed 's/ .*//'`
+	cat $@-0 > $@
+	cat $@-1 >> $@
+	cat $@-2 >> $@
+	cat $@-3 >> $@
+	cat $@-4 >> $@
+
+$(BENCH_OUT_DIR)/ej3-bench: ej3
+	@echo "TODO"
+
 informe:
 	make -C doc/
 
 help:
-	@echo "make 		para compilar los ejercicios"
-	@echo "make ejX 	para compilar uno solo"
-	@echo "make tar 	para generar el archivo entregable"
+	@echo "make 			para compilar los ejercicios"
+	@echo "make ejX 		para compilar uno solo"
+	@echo "make tar 		para generar el archivo entregable"
+	@echo "make benchmark 	para correr los benchmarks"
+	@echo "make ejX-bech 	para correr el benchmark de un ejercicio"
 
 clean:
 	rm -f build/*

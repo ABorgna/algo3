@@ -85,14 +85,14 @@ int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
         uint32_t popcount = 0;
         for (uint32_t i = 0; i < totArq; i++)
             if (nodo.arq[i])
-                arqOtherSide++;
+                popcount++;
         arqThisSide = nodo.linterna ? totArq - popcount : popcount;
         arqOtherSide = totArq - arqOtherSide;
 
         popcount = 0;
         for (uint32_t i = 0; i < totCan; i++)
             if (nodo.can[i])
-                canOtherSide++;
+                popcount++;
         canThisSide = nodo.linterna ? totCan - popcount : popcount;
         canOtherSide = totCan - canOtherSide;
 

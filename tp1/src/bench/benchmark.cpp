@@ -128,7 +128,8 @@ void print_measure(ostream& os, uint64_t iteraciones,
     vector<uint64_t> times(iteraciones);
     uint64_t res = measure(times);
     for (const uint64_t v : vars) os << v << " ";
-    os << *min_element(times.begin(), times.end()) << " " << res << endl;
+    os << *min_element(times.begin(), times.end())
+       << " " << times.size() << " " << res << endl;
 }
 
 int compare_streams(ostream& os, istream& resultados, istream& respuestas) {
@@ -211,8 +212,8 @@ void measure_multiple(ostream& os, istream& is, uint64_t iteraciones) {
 }
 
 void generate_measure(ostream& os, const vector<Range>& ranges,
-                      uint64_t iteraciones, uint64_t cantidad,
-                      GeneratorCall generator) {
+        uint64_t iteraciones, uint64_t cantidad,
+        GeneratorCall generator) {
     log_generate(cantidad, ranges);
     vector<uint64_t> vars = get_vars_begin(ranges);
     const uint64_t indice_range = num_problema / cantidad;
@@ -220,8 +221,10 @@ void generate_measure(ostream& os, const vector<Range>& ranges,
     if (num_problema > 0)
         cerr << "Avanzando hasta el checkpoint." << endl;
     // Incremento variables indice_range veces para llegar a num_problema.
-    for (uint64_t i = 0; i < indice_range; i++) increment_ranges(vars, ranges);
-    do {
+    bool cont = true;
+    for (uint64_t i = 0; i < indice_range && cont; i++)
+        cont = increment_ranges(vars, ranges);
+    while(cont) {
         for (uint64_t i = indice_instancia; i < cantidad; i++, num_problema++) {
             cerr << "Problema Nᵒ " << num_problema << ", RNG State: ";
             print_rng_state(cerr) << endl;
@@ -233,7 +236,8 @@ void generate_measure(ostream& os, const vector<Range>& ranges,
                 prob_print_input(os);
         }
         indice_instancia = 0;
-    } while (increment_ranges(vars, ranges));
+        cont = increment_ranges(vars, ranges);
+    }
     cerr << "Terminado." << endl;
 }
 
