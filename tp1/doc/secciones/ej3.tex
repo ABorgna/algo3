@@ -1,5 +1,21 @@
 \section{Problema 3: Guardando el tesoro}
 
+\subsection{Introducción}
+
 En medio del viaje, nuestros arqueólogos encuentran una sala llena de tesoros que desean llevar a su casa utilizando las mochilas con las que disponen. Deberán distribuir los objetos de manera lo suficientemente eficiente como para maximizar el valor total entre todas las mochilas sabiendo que cada una de estas tiene un tope de peso que pueden llevar.
 
 Dicho formalmente, si tenemos $n$ objetos con peso $p_i$ y valor $v_i$ y $m$ mochilas con capacidad $c_j$, queremos distribuir los $v_i$ en cada mochila $m_j$ de manera tal de maximizar la suma total del valor de cada mochila sin exceder su capacidad de peso.
+
+Este tipo de problema es conocido como Multiple Knapsack.
+
+\subsection{Solcuión y Correctitud}
+
+Para solucionar el problema, se utilizó programación dinámica de la siguiente manera:
+
+\begin{itemize}
+\item Se empieza suponiendo que todas las mochilas tienen capacidad 0. Se van haciendo pruebas y se va aumentando en 1 el tamaño de cada una hasta llegar a la capacidad máxima original de todas las mochilas (en otras palabras, se prueba con todas las combinaciones de tamaños posibles)
+\item Estas pruebas consisten en ver, dada una combinación de capacidades máximas, cuál es la combinación de objetos que genera el máximo valor sin superar la cota de ninguna mochila
+\item Para ver eso, se van probando los objetos uno por uno en cada mochila. Si el objeto $i$ entra en la mochila $j$, se consulta un valor previamente calculado, el cual es el resultante de hacer este mismo procedimiento con la misma configuración de mochilas, salvando la mochila $j$ a la cual se le resta el peso del objeto $i$. Si ese valor sumado al valor del objeto $i$ supera al que venía siendo el candidato a valor máximo, será reemplazado por este mismo
+\end{itemize}
+
+%TODO: Poner un ejemplo chico para que se entienda mejor
