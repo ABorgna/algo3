@@ -30,8 +30,13 @@ GRAPHS_OUT = $(EJERCICIOS:%=$(GRAPHS_OUT_DIR)/%)
 
 ENTREGABLE=entregable.tar.gz
 
-.PHONY: all $(EJERCICIOS) $(BENCHMARKS) $(BENCHMARKS_OUT) $(GRAPHS) \
-	clean tar informe help dirs benchmark
+# Funcion auxiliar para calcular a partir de que problema
+# continuar los bechmarks
+CHECKPOINT = 0`wc -l $(1) 2>/dev/null | sed 's/ .*//'`
+
+.PHONY: all $(EJERCICIOS) $(BENCHMARKS) $(BENCHMARKS_OUT) \
+	$(GRAPHS) $(GRAPHS_OUT) \
+	clean tar informe help dirs benchmark graphs
 
 all: dirs $(EJERCICIOS)
 
@@ -60,38 +65,73 @@ $(DIRS):
 $(BENCHMARKS) : %-bench : $(BENCH_OUT_DIR)/%
 
 $(BENCH_OUT_DIR)/ej1: ej1
-	build/ej1 -a 0:3 0:3 -A 1 -c 0`wc -l $@ 2>/dev/null | sed 's/ .*//'` -o $@
+	build/ej1 -a 0:9 0:9 -A 0.01 -c $(call CHECKPOINT,$@) -o $@
 
 $(BENCH_OUT_DIR)/ej2: ej2
-	build/ej2 -a 1:1000:1 -A 0.01 -o $@-0 \
-		-c 0`wc -l $@-0 2>/dev/null | sed 's/ .*//'`
-	build/ej2 -a 2000:1000000:1000 -A 0.01 -o $@-1 \
-		-c 0`wc -l $@-1 2>/dev/null | sed 's/ .*//'`
-	build/ej2 -a 2000000:1000000000:1000000 -A 0.01 -o $@-2 \
-		-c 0`wc -l $@-2 2>/dev/null | sed 's/ .*//'`
-	build/ej2 -a 2000000000:1000000000000:1000000000 -A 0.01 -o $@-3 \
-		-c 0`wc -l $@-3 2>/dev/null | sed 's/ .*//'`
-	build/ej2 -a 2000000000000:1000000000000000:1000000000000 -A 0.01 -o $@-4 \
-		-c 0`wc -l $@-4 2>/dev/null | sed 's/ .*//'`
+	build/ej2 -a 1:100:1 -A 0.01 -o $@-0 \
+		-c $(call CHECKPOINT,$@-0)
+	build/ej2 -a 100:10000:10 -A 0.01 -o $@-1 \
+		-c $(call CHECKPOINT,$@-1)
+	build/ej2 -a 10000:1000000:1000 -A 0.01 -o $@-2 \
+		-c $(call CHECKPOINT,$@-2)
+	build/ej2 -a 1000000:100000000:100000 -A 0.01 -o $@-3 \
+		-c $(call CHECKPOINT,$@-3)
+	build/ej2 -a 100000000:10000000000:10000000 -A 0.01 -o $@-4 \
+		-c $(call CHECKPOINT,$@-4)
+	build/ej2 -a 10000000000:1000000000000:1000000000 -A 0.01 -o $@-5 \
+		-c $(call CHECKPOINT,$@-5)
+	build/ej2 -a 1000000000000:100000000000000:100000000000 -A 0.01 -o $@-6 \
+		-c $(call CHECKPOINT,$@-6)
+	build/ej2 -a 100000000000000:10000000000000000:10000000000000 -A 0.01 -o $@-7 \
+		-c $(call CHECKPOINT,$@-7)
 	cat $@-0 > $@
 	cat $@-1 >> $@
 	cat $@-2 >> $@
 	cat $@-3 >> $@
 	cat $@-4 >> $@
+	cat $@-5 >> $@
+	cat $@-6 >> $@
+	cat $@-7 >> $@
 
 $(BENCH_OUT_DIR)/ej3: ej3
-	@echo "TODO"
+	@echo "k0=50, k1=0, k2=0, C=1-50"
+	build/ej3 -a 50 0 0 1:50 1 10 -A 0.001 -c $(call CHECKPOINT,$@-c1) -o $@-c1
+	@echo "k0=17, k1=17, k2=17, C=1-50"
+	build/ej3 -a 17 17 17 1:50 1 10 -A 0.001 -c $(call CHECKPOINT,$@-c3) -o $@-c3
+	@echo "k0=1-50, k1=0, k2=0, C=50"
+	build/ej3 -a 1:50 0 0 50 1 10 -A 0.001 -c $(call CHECKPOINT,$@-k1) -o $@-k1
+	@echo "k0=1-17, k1=0-17, k2=0-17, C=50"
+	build/ej3 -a 1:17 0:17 0:17 50 1 2 -A 0.001 -c $(call CHECKPOINT,$@-full) -o $@-full
+	cat $@-c1 > $@
+	cat $@-c3 >> $@
+	cat $@-k1 >> $@
+	cat $@-full >> $@
 
 $(GRAPHS) : %-graph : $(GRAPHS_OUT_DIR)/%
 
-$(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1-bench
-	tools/grapher.py -i $< -o $@ --log -x "Peso" -t "Tiempo aoeuaoueou"
+$(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
+	tools/grapher.py -i $< -o $@ --yscale log -x "Cantidad de gente" -t "Tiempo mínimo de arqueologos y caníbales"
 
-$(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2-bench
-	tools/grapher.py -i $< -o $@ --log -x "Peso" -t "Tiempo aoeuaoueou"
+$(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
+	tools/grapher.py -i $< -o $@ --xscale log -x "Peso" -t "Tiempo aoeuaoueou"
 
-$(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3-bench
-	@echo "TODO"
+$(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
+	tools/grapher.py -i $< -o $@-c1 -x "Cantidad de objetos" \
+		-t "Una mochila, k=50" simple "50 0 0 +"
+	tools/grapher.py -i $< -o $@-c3 -x "Cantidad de objetos" \
+		-t "Tres mochilas, k=50" simple "17 17 17 +"
+	tools/grapher.py -i $< -o $@-k1 -x "Suma de las capacidades" \
+		-t "Una mochila, c=50" simple "+ 0 0 50"
+	tools/grapher.py -i $< -o $@-k2 -x "Suma de las capacidades" \
+		-t "Dos mochilas, c=50" simple "+ +>0 0 50"
+	tools/grapher.py -i $< -o $@-k3 -x "Suma de las capacidades" \
+		-t "Tres mochilas, c=50" simple "+ +>0 +>0 50"
+	tools/grapher.py -i $< -o $@-kp1 -x "Productoria de las capacidades" \
+		-t "Una mochila, c=50" simple "* 0 0 50"
+	tools/grapher.py -i $< -o $@-kp2 -x "Productoria de las capacidades" \
+		-t "Dos mochilas, c=50" simple "* *>0 0 50"
+	tools/grapher.py -i $< -o $@-kp3 -x "Productoria de las capacidades" \
+		-t "Tres mochilas, c=50" simple "* *>0 *>0 50"
 
 informe: $(GRAPHS)
 	make -C doc/

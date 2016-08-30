@@ -16,8 +16,7 @@ typedef struct mkp_object_t {
     int64_t value;
 } mkp_object;
 
-uint64_t m, n;
-vector<uint64_t> bins;
+vector<uint64_t> bins(3,0);
 vector<mkp_object> objects;
 
 uint64_t mkp(vector<uint64_t> bins, vector<mkp_object> const &objetos,
@@ -26,7 +25,6 @@ uint64_t mkp(vector<uint64_t> bins, vector<mkp_object> const &objetos,
 
     // Si hay menos de 3 mochilas, consideramos las siguientes como
     // de tamaño 0
-    bins.resize(3, 0);
 
     // Para cada combinación de k_i pesos de las mochilas, con 0 <= k_i <=
     // capacidad(i)
@@ -124,15 +122,19 @@ uint64_t mkp(vector<uint64_t> bins, vector<mkp_object> const &objetos,
  **************************************/
 
 void prob_load(std::istream& is) {
+    uint64_t m,n;
+
     is >> m >> n;
-    bins.reserve(m);
-    objects.reserve(n);
+
+    bins = {0,0,0};
+    objects.resize(0);
 
     for (uint64_t i = 0; i < m; i++) {
         uint64_t budget;
         is >> budget;
         bins.push_back(budget);
     }
+
     for (uint64_t i = 0; i < n; i++) {
         uint64_t count;
         mkp_object obj;
@@ -148,12 +150,17 @@ int prob_solve(std::ostream &os) {
     vector<vector<uint64_t>> resultIds;
     uint64_t finalValue;
 
+    // Checkeamos que haya al menos un objeto y al menos una mochila no vacía
+    if(bins[0] == 0 || objects.empty()) {
+        return 1;
+    }
+
     finalValue = mkp(bins, objects, resultIds);
 
     // Print
     os << finalValue << endl;
 
-    for (uint64_t b=0; b < m; b++) {
+    for (uint64_t b=0; b < bins.size() && bins[b] > 0; b++) {
         auto &bin = resultIds[b];
         os << bin.size();
 
@@ -168,31 +175,16 @@ int prob_solve(std::ostream &os) {
 }
 
 void prob_reload() {
-    bins.resize(0);
-    objects.resize(0);
 }
 
 vector<uint64_t> prob_vars() {
     vector<uint64_t> res;
 
-    res.push_back(m);
-    res.push_back(n);
-    for(auto x : bins) res.push_back(x);
+    // k0, k1, k2
+    for(auto b : bins) res.push_back(b);
 
-    uint64_t lastId = -1;
-    for(auto &obj : objects) {
-        if(lastId != obj.id) {
-            res.push_back(0);
-            res.push_back(obj.weight);
-            res.push_back(obj.value);
-            lastId = obj.id;
-        }
-        res[res.size()-3]++;
-    }
-
-    // Caso especial para que la opcion -a detecte
-    // que se necesitan 4 parametros
-    if(res.size() == 2) res.resize(4);
+    // Sum Ci
+    res.push_back(objects.size());
 
     return res;
 }
@@ -209,20 +201,16 @@ vector<Option> prob_custom_options() {
 void generator_random(const std::vector<uint64_t>& v) {
     prob_reload();
 
-    m = v[0];
-    n = v[1];
-
-    uint64_t sumK = max(v[2],m);
-
-    for(uint64_t i=0; i<m; i++) {
-        uint64_t ki = rnd(1,sumK - (m-i-1));
-        bins.push_back(ki);
-    }
-
+    bins[0] = v[0];
+    bins[1] = v[1];
+    bins[2] = v[2];
     uint64_t sumC = v[3];
 
+    uint64_t kmax = max(v[0],max(v[1],v[2]));
+
+    objects.resize(0);
     for(uint64_t i=0; i<sumC; i++) {
-        objects.push_back({i, rnd(1,100), (int64_t)rnd(1,1000000)});
+        objects.push_back({i, rnd(1,kmax), (int64_t)rnd(1,1000000)});
     }
 }
 

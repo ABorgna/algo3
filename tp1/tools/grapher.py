@@ -20,7 +20,8 @@ class Grapher:
     def __init__(self):
         plt.style.use('ggplot')
 
-    def run(self, infile, outfile, mode, modevars, title='', xlabel='', log=False):
+    def run(self, infile, outfile, mode, modevars, title='', xlabel='',
+            xscale='linear', yscale='linear'):
 
         points = []
 
@@ -28,7 +29,10 @@ class Grapher:
             values = [int(x) for x in line.split()]
 
             # Last number is the function return value
-            values.pop()
+            # Ignore this datapoint if non zero
+            ret = values.pop()
+            if ret != 0:
+                continue
 
             # Next is the number of runs
             values.pop()
@@ -48,29 +52,53 @@ class Grapher:
                             len(values), 'but got', len(modevars), file=sys.stderr)
                     sys.exit(2)
 
+                x = 0
                 for mv, v in zip(modevars,values):
-                    if mv == 'x':
-                        x = v
-                    elif mv != '*':
-                        # mv is a number, add this point only if v coincides
-                        if int(mv) != v:
-                            x = None
-                            break
+                    valid = True
+                    use = False
+
+                    if mv[0] == '+':
+                        x += v
+                        mv = mv[1:]
+                    elif mv[0] == '*':
+                        x = v if x == 0 else x * v
+                        mv = mv[1:]
+
+                    if len(mv):
+                        if mv[0] == '>':
+                            if v <= int(mv[1:]):
+                                valid = False
+                        elif mv[0] == '<':
+                            if v >= int(mv[1:]):
+                                valid = False
+                        elif mv[0] == '!':
+                            if v == int(mv[1:]):
+                                valid = False
+                        elif mv != '?':
+                            if int(mv) != v:
+                                valid = False
+
+                    if not valid:
+                        x = None
+                        break
 
             if x is None:
-                break
+                continue
 
             point = (x,time)
             points.append(point)
 
         points.sort()
 
-        self.plotTime(points, outfile, title, xlabel, log)
+        if len(points):
+            self.plotTime(points, outfile, title, xlabel, xscale, yscale)
+        else:
+            print("No datapoints available", file=sys.stderr)
 
 
     # Graphs
 
-    def plotTime(self, points, outfile, title, xlabel, log):
+    def plotTime(self, points, outfile, title, xlabel, xscale, yscale):
         sets = []
         groups = []
 
@@ -100,39 +128,47 @@ class Grapher:
         fig, ax = plt.subplots()
         fig.set_size_inches((12,9))
 
-        ax.plot(xs,ys, color=self.COLORS[0])
+        ax.plot(xs, ys, 'o', color=self.COLORS[0])
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel("Tiempo")
+        ax.set_xscale(xscale)
+        ax.set_yscale(yscale)
+        ax.set_ylim(ymin=0)
         ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%g'+unit))
-
-        if log:
-            ax.set_xscale('log')
 
         fig.savefig(outfile, format='png')
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate a graph from a benchmark output")
+    parser = argparse.ArgumentParser(
+            description="Generate a graph from a benchmark output")
 
-    parser.add_argument('-l','--log', action='store_true', help='Logarithmic scale')
     parser.add_argument('-t','--title', help='Title of the graph')
     parser.add_argument('-x','--xlabel', help='Label of the x axis')
+    parser.add_argument('-X','--xscale', default='linear',
+            choices=['linear','log','loglog'],
+            help='Scale of the X axis (linear, log or loglog)')
+    parser.add_argument('-Y','--yscale', default='linear',
+            choices=['linear','log','loglog'],
+            help='Scale of the Y axis (linear, log or loglog)')
 
-    parser.add_argument('-i', help='Input file', nargs='?', type=argparse.FileType('r'),
-                        default=sys.stdin, dest='infile')
-    parser.add_argument('-o', help='Output file', nargs='?', type=argparse.FileType('wb'),
-                        default=sys.stdout, dest='outfile')
+    parser.add_argument('-i', help='Input file', nargs='?',
+            type=argparse.FileType('r'),
+            default=sys.stdin, dest='infile')
+    parser.add_argument('-o', help='Output file', nargs='?',
+            type=argparse.FileType('wb'),
+            default=sys.stdout, dest='outfile')
 
-    parser.add_argument('mode', nargs='?', default='sum', choices=['sum','simple'],
-                        help='sum or simple')
-    parser.add_argument('modevars', metavar='var', nargs='*',
-                        help='')
+    parser.add_argument('mode', nargs='?', default='sum',
+            choices=['sum','simple'], help='sum or simple')
+    parser.add_argument('modevars', metavar='var', nargs='*', help='')
 
     args = parser.parse_args()
     if(len(args.modevars) == 1):
         args.modevars = args.modevars[0].split()
 
     g = Grapher()
-    g.run(args.infile, args.outfile, args.mode, args.modevars, args.title, args.xlabel, args.log)
+    g.run(args.infile, args.outfile, args.mode, args.modevars, args.title,
+            args.xlabel, args.xscale, args.yscale)
 

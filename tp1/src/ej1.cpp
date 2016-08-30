@@ -32,9 +32,6 @@ typedef struct estado_t {
     }
 } estado;
 
-uint32_t cantArq;
-uint32_t cantCan;
-
 vector<uint32_t> arq;
 vector<uint32_t> can;
 
@@ -217,6 +214,10 @@ bool agregarCandidato(map<estado, uint32_t> &dist,
  **************************************/
 
 void prob_load(std::istream& is) {
+    uint32_t cantArq;
+    uint32_t cantCan;
+    arq.resize(0);
+    can.resize(0);
 
     is >> cantArq >> cantCan;
 
@@ -244,18 +245,13 @@ int prob_solve(std::ostream &os) {
     return 0;
 }
 
-void prob_reload() {
-    arq.resize(0);
-    can.resize(0);
-}
+void prob_reload() {}
 
 vector<uint64_t> prob_vars() {
     vector<uint64_t> res;
 
-    res.push_back(cantArq);
-    res.push_back(cantCan);
-    for(auto a : arq) res.push_back(a);
-    for(auto c : can) res.push_back(c);
+    res.push_back(arq.size());
+    res.push_back(can.size());
 
     return res;
 }
@@ -272,8 +268,11 @@ vector<Option> prob_custom_options() {
 void generator_random(const std::vector<uint64_t>& v) {
     prob_reload();
 
-    cantArq = v[0];
-    cantCan = v[1];
+    uint64_t cantArq = v[0];
+    uint64_t cantCan = v[1];
+
+    arq.resize(0);
+    can.resize(0);
 
     for(uint64_t i=0; i<cantArq; i++) {
         arq.push_back(rnd(1,1000000));
