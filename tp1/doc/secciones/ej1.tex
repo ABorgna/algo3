@@ -12,12 +12,13 @@
 
 	En las siguientes secciones, llamaremos estado a la ubicacion de cada arqueologo, junto con su velocidad, la ubicacion de cada canibal junto con su velocidad y la ubicacion de la estado
 
-	Podemos representar cada estado como un vector de N+M+1 booleanos, donde los primeros N valores son donde estan cada arqueologo, los siguientes M valores donde estan los canibales y el ultimo valor representa donde esta la linterna. Y a su vez, cada estado puede ser pensado como el vertice de un grafo y las aristas como el tiempo necesario para ir de un estado inicial a ese.	
+	Podemos representar cada estado como un vector de N+M+1 booleanos, donde los primeros N valores son donde estan cada arqueologo, los siguientes M valores donde estan los canibales y el ultimo valor representa donde esta la linterna. Y a su vez, cada estado puede ser pensado como el vertice de un grafo y las aristas como el tiempo necesario para ir de un estado inicial a ese.
 
 	Formalmente, esto equivale a hallar el camino minimo entre 2 vertices particulares de un grafo.
 
-\subsection{Solucion y Correctitud}	
-	
+\subsection{Solucion y Correctitud}
+	\subsubsection{Solución}
+
 
 	Para resolver el problema, lo que haremos es tener una de prioridad minima de  (Estado,Costo) y usaremos el costo para determinar la prioridad de cada elemento.
 	Empezamos encolando el estado inicial y mientras haya elementos en la cola haremos lo siguiente.
@@ -25,7 +26,7 @@
 	En caso contrario, a partir del estado que obtuvimos, nos generamos todos los siguientes estados posibles junto con el tiempo necesario para llegar del estado inicial a ese y el ciclo vuelve a empezar.
 	En caso de no quedar mas elementos en la cola y no se haya encontrado una solucion se devuelve -1.
 	A continuacion, presentamos un pseudo codigo de nuestro algoritmo.
-	
+
 
 \lstset{basicstyle=\large}
 \begin{lstlisting}
@@ -49,14 +50,14 @@
 	for cadaEstadoSiguientePosible do
 		AgregarCandidato(distancia,candidatos,Tiempo(e),e)
 
-\end{lstlisting} 
+\end{lstlisting}
 
 Seudo codigo para generar todas las siguientes estados posibles
 \lstset{basicstyle=\large}
 
 \begin{lstlisting}
 TO DO
-\end{lstlisting} 
+\end{lstlisting}
 
 \lstset{basicstyle=\large}
 \begin{lstlisting}
@@ -68,17 +69,17 @@ TO DO
 				if t < TiempoActual
 					Borrar(dicc,e)
 					Borrar(cola,<Tiempo,e>)
- 
+
 	Definir(e,costo)
 	Agregar(costo,e)
 
-\end{lstlisting} 
+\end{lstlisting}
 
 Esta funcion tiene un costo de O (Log(n)), buscar en un diccionario arboreo es de orden logaritmico si esta balanceado, comparar 2 enteros es O(1) 2 inserciones
 y en ciertos casos 2 borrados, cada una de esas operaciones es del orden logaritmico
 
 
-Correctitud
+	\subsubsection{Correctitud}
 
 Veamos que el algoritmo es correcto. Vamos a probar que nuestro algoritmo
 obtiene el tiempo necesario para alcanzar cualquier vertice, en particular
@@ -86,23 +87,57 @@ para el vertice que buscamos.
 
 Vamos a usar induccion en la cantidad de nodos visitados en el grafo.
 Sea d(v), el camino obtenido por el algoritmo hasta v , sea L(v), el camino minimo hasta v y sea R el conjunto de nodos visitados hasta el momento . Lo que tenemos que probar es que d(v)=L(v) para todo vertice del grafo. Vamos a probarlo mediante induccion con el siguiente lema
+\\
 
-% Estoy martillando esta dem  
+% Estoy martillando esta dem
 % https://web.engr.oregonstate.edu/~glencora/wiki/uploads/dijkstra-proof.pdf
 
+\begin{center}
+\textbf{Lema :} $\forall$ v $\in$ V , d(v) = L(v)
+\end{center}
 
-Lema : Para todo v $\in$ V , d(v) = L(v)
+\textbf{Caso Base:}
+\\
 
-Caso Base: Un solo nodo visitado
-El unico momento donde tenemos un unico nodo visitado es al comienzo, es decir el nodo donde empezamos, el cual tiene distancia 0 y es correcto.
-Hipotesis Inductiva
+Un solo nodo visitado. El unico momento donde tenemos un unico nodo visitado es al comienzo, es decir
+el nodo donde empezamos, el cual tiene distancia 0 y es correcto trivialmente.
+\\
+
+\textbf{ Inductiva :}
+\\
+
 Nuestra H.I es que para todo nodo explorado hasta el momento, nuestra distancia
 hallada es la minima.
-Paso Inductivo
-Sea u el ultimo nodo agregado a V . Sea V'=V + u, necesitamos probar que d(u) = L(u)
-para terminar.
+
+$Paso$ $Inductivo$:
+Sea u el ultimo nodo agregado a V . Sea V'= V + u, necesitamos probar que d(u) = D_min(u) para terminar.
 Vamos por el absurdo, supongamos que nuestro algoritmo no encuentra el camino minimo,
 supongamos que el camino minimo hasta u es Q y por lo tanto vale que
-Largo(Q)<d(u) 
-Q empieza en V y en algun momento sale de V para llegar a u.Sea xy el primer par de aristas donde Q sale de V. Sea Q' el 
 
+I) $L(Q) < d(u)$
+
+Como Q parte del estado inicial s y s $\in$, entonces sabemos que Q empieza en V y en algun momento sale de V para llegar a u. Sea xy el primer par de aristas donde Q sale de V. Sea $Q_x$ el subcamino de $Q$ con todos sus vértices en V', es decir, el subcamino de Q desde s a x. Entonces:
+
+$L(Q_x)+L(xy) \leq L(Q)$
+
+Aplicando H.I, d(x) es la distancia mínima desde s hasta x: $d(x) \leq L(Q_x)$ y por lo tanto, usando la desigualdad anterior:
+
+II) $d(x)+L(xy) \leq L(Q) $
+
+Como y es vecino de x, ya llame a agregarCandidato (iterando sobre x) para $y$ y se entonces que vale:
+
+III) $d(y) \leq d(x) + L(xy)$
+
+Por último, como u fue el primer elemento sacado de la cola de prioridad que no pertenece a V', tiene menor o igual distancia al estado inicial que el resto de todos los que no pertenecen tampoco a V':
+
+IV) $d(u) \leq d(y) $
+
+Combinando II) con I) tenemos:
+
+$d(x)+L(xy) \leq d(u)$
+
+Usando IV) y III) llegamos a:
+
+$d(x)+L(xy) \leq d(x) + L(xy)$
+
+Absurdo, entonces Q no puede existir y por lo tanto d(u) = D_min(u) (cuadradito de qed)
