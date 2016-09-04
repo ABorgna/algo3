@@ -18,11 +18,11 @@
 		Podemos representar cada estado con dos vectores de tamaño N y M ($A$ y $C$ respectivamente) que indican, con un bool, si la ubicación del i-ésimo arqueólogo $A_i$ o caníbal $C_i$ es la del lado final. Además de una variable para la ubicación de la linterna. Por lo tanto, cuando todas valgan $True$, habremos llegado al lado final (la linterna no puede terminar del lado inicial porque requiere estar presente en todos los cruces). Por lo tanto, por enunciado tendremos que cumplir en cada estado:
 		\\
 
-		$\sum_{i=0}^{N}\beta(A_i) \ge 0 \Rightarrow \sum_{i=0}^{N}\beta(A_i) \ge \sum_{i=0}^{M}\beta(C_i)  $
+		$\sum_{i=0}^{N}\beta(A_i) > 0 \Rightarrow \sum_{i=0}^{N}\beta(A_i) \ge \sum_{i=0}^{M}\beta(C_i)  $
 		\ \ \
 		$\wedge$
 		\ \ \
-		$\sum_{i=0}^{N}\beta(\neg A_i) \ge 0 \Rightarrow \sum_{i=0}^{N}\beta(\neg A_i) \ge \sum_{i=0}^{M}\beta(\neg C_i)$
+		$\sum_{i=0}^{N}\beta(\neg A_i) > 0 \Rightarrow \sum_{i=0}^{N}\beta(\neg A_i) \ge \sum_{i=0}^{M}\beta(\neg C_i)$
 		\\
 
 		Para cada persona $k$, sabemos su velocidad $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
@@ -33,13 +33,11 @@
 \subsection{Solución y Correctitud}
 	\subsubsection{Solución}
 
+	Para resolver el problema, utilizamos una mecánica basada en el algoritmo de Dijkstra para encontrar caminos mínimos en grafos. Lo que hacemos es tener en un $map\langle {estado,\ distancia} \rangle$ que nos va a permitir ir guardando, para cada vértice (estado) visitado, su correspondiente $distancia$ o tiempo mínimo calculado (hasta el momento) desde el estado inicial.
 
-	Para resolver el problema, lo que haremos es tener una cola de prioridad mínima de (Estado, Costo) y usaremos el costo para determinar la prioridad de cada elemento.
-	Empezamos encolando el estado inicial y mientras haya elementos en la cola haremos lo siguiente.
-	Se desencola el primer elemento, se mira su estado, si es el estado que estamos buscando, devolvemos el costo y termina.
-	En caso contrario, a partir del estado que obtuvimos, nos generamos todos los siguientes estados posibles junto con el tiempo necesario para llegar del estado inicial a ese y el ciclo vuelve a empezar.
-	En caso de no quedar mas elementos en la cola y no se haya encontrado una solucion se devuelve -1.
-	A continuacion, presentamos un pseudo codigo de nuestro algoritmo.
+		Además del $map$, también vamos llevando los estados a visitar en un cola de prioridad respecto de los de menor distancia y los vamos desencolando, a diferencia del diccionario donde quedan los estados visitados para evitar pasar dos veces por el mismo vértice.
+		Recorremos el grafo de manera similar al $DFS$ de un $backtracking$: vamos encolando todos los $hijos$ (aquellos que cumplen los requisitos del problema) de cada estado que vamos visitando con su correspondiente distancia. Si uno de ellos ya está encolado, actualizamos su distancia de ser menor la actual. La diferencia es que desencolamos aquellos estados que tienen menor distancia siempre. Esto, como veremos en la subsección de correctitud, nos va a permitir asegurar que, cuando nuestro estado actual sea el final, no haga falta seguir iterando porque efectivamente es la distancia mínima.
+		De no haber conseguido llegar al estado final con los datos de entrada, la cola se vacía (porque se agotan todos los caminos posibles) y se devuelve $-1$.
 
 
 \lstset{basicstyle=\large}
@@ -119,7 +117,7 @@ el estado inicial, el cual tiene distancia 0 (por definición) y es correcto tri
 \emph{\textbf{Hipótesis inductiva: }} Para todo vértice explorado anteriormente (es decir que está en $V$) nuestra distancia hallada es la mínima.
 \\
 
-\emph{Paso Inductivo:} Sea $u$ el último nodo agregado a $V$. Sea $V'= V + u$, necesitamos probar que $dist(u) = D_{min}(u)$ para terminar. Vamos por el absurdo, supongamos que nuestro algoritmo no encuentra el camino minimo: Supongamos que hay un camino más corto hasta $u$ que es $Q$, por lo tanto afirmamos sobre la longitud del camino $Q$, $L(Q)$, que
+\emph{Paso Inductivo:} Sea $u$ el último nodo agregado a $V$. Sea $V'= V + u$, necesitamos probar que $dist(u) = \delta(u)$ para terminar. Vamos por el absurdo, supongamos que nuestro algoritmo no encuentra el camino minimo: Supongamos que hay un camino más corto hasta $u$ que es $Q$, por lo tanto afirmamos sobre la longitud del camino $Q$, $L(Q)$, que
 \\
 \begin{center}
 \textbf{I)} $L(Q) < dist(u)$
@@ -163,3 +161,6 @@ $dist(x)+L(xy) < dist(x) + L(xy)$
 \\
 \end{center}
 \textbf{Absurdo}, entonces $Q$ no puede existir siendo menor a la distancia calculada para $u$ y por lo tanto $dist(u) = \delta(u) \QEDB$
+\\
+
+Por este mismo absurdo también se puede ver por qué la distancia calculada para cualquier vértice al momento de ser desencolado es, necesariamente, su distancia mínima. Al igual que en la demostración, si existiera otro camino más corto donde alguno de sus vértices todavía no fuera visitado, entonces este vértice no podría estar detrás del estado actual (que viene por un camino distinto) en la cola de prioridad. Como este camino alternativo tendría todavía que llegar al estado final, tiene que sumar \textbf{al menos} una arista más, y como este peso es necesariamente positivo entonces la distancia total no puede ser nunca menor que el tope de la cola de prioridad que se corresponde con la distancia mínima calculada para el próximo estado actual. Partiendo de esto, como guardamos para cada vértice visitado su distancia mínima y solamente encolamos en $agregarCandidato$ cuando la nueva distancia de un hijo es menor que la calculada anteriormente, tenemos asegurado que tampoco vamos a pasar por un estado una vez que este fuera visitado con su mínima distancia.
