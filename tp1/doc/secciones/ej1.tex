@@ -28,7 +28,7 @@
 		Para cada persona $k$, sabemos su velocidad $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
 		\\
 
-		* inserte ejemplo aquí *
+		\textbf{\color{red}* inserte ejemplo aquí *}
 
 \subsection{Solución y Correctitud}
 	\subsubsection{Solución}
@@ -107,10 +107,7 @@ Sea $dist(v)$ la distancia desde el estado inicial obtenida por el algoritmo has
 \textbf{Lema: } $\forall$ $v \in$ $V$, $dist(v) = \delta(v)$
 \end{center}
 
-\emph{\textbf{Caso Base:}}
-\\
-
-Un único vértice visitado. El único momento donde tenemos un solo nodo visitado es al comienzo, es decir
+\emph{\textbf{Caso Base: }}  Un único vértice visitado. El único momento donde tenemos un solo nodo visitado es al comienzo, es decir
 el estado inicial, el cual tiene distancia 0 (por definición) y es correcto trivialmente.
 \\
 
@@ -164,3 +161,22 @@ $dist(x)+L(xy) < dist(x) + L(xy)$
 \\
 
 Por este mismo absurdo también se puede ver por qué la distancia calculada para cualquier vértice al momento de ser desencolado es, necesariamente, su distancia mínima. Al igual que en la demostración, si existiera otro camino más corto donde alguno de sus vértices todavía no fuera visitado, entonces este vértice no podría estar detrás del estado actual (que viene por un camino distinto) en la cola de prioridad. Como este camino alternativo tendría todavía que llegar al estado final, tiene que sumar \textbf{al menos} una arista más, y como este peso es necesariamente positivo entonces la distancia total no puede ser nunca menor que el tope de la cola de prioridad que se corresponde con la distancia mínima calculada para el próximo estado actual. Partiendo de esto, como guardamos para cada vértice visitado su distancia mínima y solamente encolamos en $agregarCandidato$ cuando la nueva distancia de un hijo es menor que la calculada anteriormente, tenemos asegurado que tampoco vamos a pasar por un estado una vez que este fuera visitado con su mínima distancia.
+
+\subsection{Complejidad}
+Antes de empezar a iterar tenemos que inicializar los dos vectores de booleanos que determinan posiciones de arqueólogos y caníbales. Esto nos cuesta $\mathcal{O}(N+M)$. \\
+
+El peor caso teórico sería aquel en el que tuvieramos que visitar todos los estados configurables del grafo (asumiendo que todos fueran posibles y no fueran podados) y tener que encolar/actualizar todas las distancias por cada estado generado por cada par posible.
+
+La cantidad de estados totales que tendremos será $2^{N+M+1}$ porque por cada arqueólogo, caníbal y linterna pueden o ser $True$ o $False$. \\
+
+El costo de actualizar una distancia, asumiendo que todos los estados están presentes en el diccioanrio y en el conjunto que usamos como cola de prioridad (ambos implementados sobre $Red/Black Trees$) es logarítimico en su cantidad de elementos: $\mathcal{O}(log(2^{N+M})) = \mathcal{O}(N+M)$. \\
+
+La cantidad de pares de elementos de $A$ es cuadrática en sus elementos (contando la posibilidad de elegir dos veces al mismo, siendo un único elemento que cambie entre estados), ídem para $C$ y para pares mixtos hay $M*N$ combinaciones.
+
+Por lo tanto tenemos un costo de $\mathcal{O}((N^2+M^2+N*M)*(N+M))=\mathcal{O}((N^3+M^3+N*M^2+M*N^2))=\mathcal{O}(N^3+M^3)$ para actualizar todos los estados $hijos$ posibles del estado actual. \\
+
+Luego, en cada iteración desencolamos un estado nuevo estado y lo eliminamos del árbol. Por lo que dijimos antes respecto de los árboles, esto tiene un costo de orden $\mathcal{O}(N+M)$. \\
+
+Juntando todo nos queda una complejidad de $\mathcal{O}(Inicializar\ vectores\ +\ Cantidad\ de\ estados*(Desencolar\ nuevo\ estado\ + Insertar\ hijos)) = \mathcal{O}((N+M)+2^{N+M}((N+M)+(N^3+M^3))) = \mathcal{O}(\ 2^{N+M}*(N^3+M^3)\ )$
+
+\subsection{Análisis experimental}
