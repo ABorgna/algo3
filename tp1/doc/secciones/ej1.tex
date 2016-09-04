@@ -1,26 +1,40 @@
 \section{Problema 1: Cruzando el puente}
 
 \subsection{Introducción}
-	En este problema, Indiana Jones, quien se encuentra en la búsqueda de una antigua civilización persa junto con su grupo de arqueólogos, se alía a una tribu local para poder llegar juntos a la fortaleza que resguarda los secretos que tanto anhelan encontrar. En el camino, deben cruzar un peligroso puente que les presenta las siguientes dificultades:
-	\begin{itemize}
-	\item El estado del puente se ve bastante precario, por lo cual, para evitar riesgos, solo pueden pasar dos personas a la vez
-	\item Es de noche y el grupo cuenta con solo una linterna
-	\item La tribu que los ayuda es conocida por su canibalismo. Si en algún lado del puente quedan más caníbales que arqueólogos, estos terminarán siendo comidos
-	\item Cada persona puede cruzar el puente a una velocidad fija. Si dos personas cruzan el puente, lo harán a la velocidad del que sea más lento
-	\end{itemize}
-	El objetivo del problema es encontrar el tiempo mínimo necesario para que todos los integrantes del equipo lleguen a salvo al otro lado del puente.
+		En este problema Indiana Jones, y sus arqueólogos, se alían a una tribu caníbal local para poder llegar juntos a la fortaleza que resguarda los secretos que tanto anhelan encontrar. Deben cruzar un puente que les presenta las siguientes dificultades:
 
-	En las siguientes secciones, llamaremos estado a la ubicacion de cada arqueologo, junto con su velocidad, la ubicacion de cada canibal junto con su velocidad y la ubicacion de la estado
+			\begin{itemize}
+				\item Solo pueden pasar dos personas a la vez.
+				\item En cada cruce es necesario contar con la única linterna presente.
+				\item No puede suceder que en algún lado del puente queden más caníbales que arqueólogos.
+				\item Cada persona puede cruzar el puente a una velocidad particular. Si dos personas cruzan el puente, lo harán a la velocidad del que sea más lento.
+			\end{itemize}
 
-	Podemos representar cada estado como un vector de N+M+1 booleanos, donde los primeros N valores son donde estan cada arqueologo, los siguientes M valores donde estan los canibales y el ultimo valor representa donde esta la linterna. Y a su vez, cada estado puede ser pensado como el vertice de un grafo y las aristas como el tiempo necesario para ir de un estado inicial a ese.
+		El objetivo del problema es encontrar el tiempo mínimo necesario para que todos los integrantes del equipo lleguen, cumpliendo los requisitos anteriores, al otro lado del puente.
+		\\
 
-	Formalmente, esto equivale a hallar el camino minimo entre 2 vertices particulares de un grafo.
+		En las siguientes secciones llamaremos $estado$ a la ubicación de: la linterna, cada arqueólogo y cada caníbal respecto del lado inicial.
 
-\subsection{Solucion y Correctitud}
+		Podemos representar cada estado con dos vectores de tamaño N y M ($A$ y $C$ respectivamente) que indican, con un bool, si la ubicación del i-ésimo arqueólogo $A_i$ o caníbal $C_i$ es la del lado final. Además de una variable para la ubicación de la linterna. Por lo tanto, cuando todas valgan $True$, habremos llegado al lado final (la linterna no puede terminar del lado inicial porque requiere estar presente en todos los cruces). Por lo tanto, por enunciado tendremos que cumplir en cada estado:
+		\\
+
+		$\sum_{i=0}^{N}\beta(A_i) \ge 0 \Rightarrow \sum_{i=0}^{N}\beta(A_i) \ge \sum_{i=0}^{M}\beta(C_i)  $
+		\ \ \
+		$\wedge$
+		\ \ \
+		$\sum_{i=0}^{N}\beta(\neg A_i) \ge 0 \Rightarrow \sum_{i=0}^{N}\beta(\neg A_i) \ge \sum_{i=0}^{M}\beta(\neg C_i)$
+		\\
+
+		Para cada persona $k$, sabemos su velocidad $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
+		\\
+
+		* inserte ejemplo aquí *
+
+\subsection{Solución y Correctitud}
 	\subsubsection{Solución}
 
 
-	Para resolver el problema, lo que haremos es tener una de prioridad minima de  (Estado,Costo) y usaremos el costo para determinar la prioridad de cada elemento.
+	Para resolver el problema, lo que haremos es tener una cola de prioridad mínima de (Estado, Costo) y usaremos el costo para determinar la prioridad de cada elemento.
 	Empezamos encolando el estado inicial y mientras haya elementos en la cola haremos lo siguiente.
 	Se desencola el primer elemento, se mira su estado, si es el estado que estamos buscando, devolvemos el costo y termina.
 	En caso contrario, a partir del estado que obtuvimos, nos generamos todos los siguientes estados posibles junto con el tiempo necesario para llegar del estado inicial a ese y el ciclo vuelve a empezar.
@@ -81,63 +95,71 @@ y en ciertos casos 2 borrados, cada una de esas operaciones es del orden logarit
 
 	\subsubsection{Correctitud}
 
-Veamos que el algoritmo es correcto. Vamos a probar que nuestro algoritmo
-obtiene el tiempo necesario para alcanzar cualquier vertice, en particular
-para el vertice que buscamos.
+Veamos que el algoritmo es correcto. Vamos a probar que obtiene siempre la distancia mínima a cualquier vértice del grafo. De ser así, podemos asegurar que el menor camino encontrado para el estado final en particular es efectivamente el mínimo.
+\\
 
-Vamos a usar induccion en la cantidad de nodos visitados en el grafo.
-Sea d(v), el camino obtenido por el algoritmo hasta v , sea L(v), el camino minimo hasta v y sea R el conjunto de nodos visitados hasta el momento . Lo que tenemos que probar es que d(v)=L(v) para todo vertice del grafo. Vamos a probarlo mediante induccion con el siguiente lema
+Vamos a usar inducción en la cantidad de vértices (estados) visitados en el grafo.
+Sea $dist(v)$ la distancia desde el estado inicial obtenida por el algoritmo hasta el vértice $v$. Sea $\delta(v)$, el camino mínimo hasta $v$ y sea $V$ el conjunto de vértices visitados hasta el momento: tenemos que probar que $dist(v) = \delta(v)$ para todo vértice del grafo. Vamos a probarlo mediante induccion con el siguiente lema:
 \\
 
 % Estoy martillando esta dem
 % https://web.engr.oregonstate.edu/~glencora/wiki/uploads/dijkstra-proof.pdf
 
 \begin{center}
-\textbf{Lema :} $\forall$ v $\in$ V , d(v) = L(v)
+\textbf{Lema: } $\forall$ $v \in$ $V$, $dist(v) = \delta(v)$
 \end{center}
 
-\textbf{Caso Base:}
+\emph{\textbf{Caso Base:}}
 \\
 
-Un solo nodo visitado. El unico momento donde tenemos un unico nodo visitado es al comienzo, es decir
-el nodo donde empezamos, el cual tiene distancia 0 y es correcto trivialmente.
+Un único vértice visitado. El único momento donde tenemos un solo nodo visitado es al comienzo, es decir
+el estado inicial, el cual tiene distancia 0 (por definición) y es correcto trivialmente.
 \\
 
-\textbf{ Inductiva :}
+\emph{\textbf{Hipótesis inductiva: }} Para todo vértice explorado anteriormente (es decir que está en $V$) nuestra distancia hallada es la mínima.
 \\
 
-Nuestra H.I es que para todo nodo explorado hasta el momento, nuestra distancia
-hallada es la minima.
-
-$Paso$ $Inductivo$:
-Sea u el ultimo nodo agregado a V . Sea V'= V + u, necesitamos probar que d(u) = D_min(u) para terminar.
-Vamos por el absurdo, supongamos que nuestro algoritmo no encuentra el camino minimo,
-supongamos que el camino minimo hasta u es Q y por lo tanto vale que
-
-I) $L(Q) < d(u)$
-
-Como Q parte del estado inicial s y s $\in$, entonces sabemos que Q empieza en V y en algun momento sale de V para llegar a u. Sea xy el primer par de aristas donde Q sale de V. Sea $Q_x$ el subcamino de $Q$ con todos sus vértices en V', es decir, el subcamino de Q desde s a x. Entonces:
-
+\emph{Paso Inductivo:} Sea $u$ el último nodo agregado a $V$. Sea $V'= V + u$, necesitamos probar que $dist(u) = D_{min}(u)$ para terminar. Vamos por el absurdo, supongamos que nuestro algoritmo no encuentra el camino minimo: Supongamos que hay un camino más corto hasta $u$ que es $Q$, por lo tanto afirmamos sobre la longitud del camino $Q$, $L(Q)$, que
+\\
+\begin{center}
+\textbf{I)} $L(Q) < dist(u)$
+\\
+\end{center}
+Como $Q$ parte del estado inicial, que llamaremos $S$, y $S \in V$, entonces sabemos que $Q$ empieza en $V$ y en algún momento sale de $V$ para llegar a $u$. Sea $xy$ la primer arista donde $Q$ sale de $V$. Sea $Q_x$ el subcamino de $Q$ con todos sus vértices en $V$, es decir, el subcamino de $Q$ desde $s$ a $x$. Entonces:
+\\
+\begin{center}
 $L(Q_x)+L(xy) \leq L(Q)$
-
-Aplicando H.I, d(x) es la distancia mínima desde s hasta x: $d(x) \leq L(Q_x)$ y por lo tanto, usando la desigualdad anterior:
-
-II) $d(x)+L(xy) \leq L(Q) $
-
-Como y es vecino de x, ya llame a agregarCandidato (iterando sobre x) para $y$ y se entonces que vale:
-
-III) $d(y) \leq d(x) + L(xy)$
-
-Por último, como u fue el primer elemento sacado de la cola de prioridad que no pertenece a V', tiene menor o igual distancia al estado inicial que el resto de todos los que no pertenecen tampoco a V':
-
-IV) $d(u) \leq d(y) $
-
+\\
+\end{center}
+Aplicando H.I, $dist(x)$ es la distancia mínima desde $S$ hasta $x$: $dist(x) \leq L(Q_x)$ y por lo tanto, usando la desigualdad anterior:
+\\
+\begin{center}
+\textbf{II)} $dist(x)+L(xy) \leq L(Q) $
+\\
+\end{center}
+Como $y$ es vecino del vértice (ya visitado) $x$, ya llamamos a $agregarCandidato$ para $y$ iterando sobre $x$. Por lo tanto, o el camino mínimo que tenemos calculado para $y$ es el mínimo para $x$ seguido de la arista que va de $x$ a $y$, o encontramos en algún momento uno mejor. Por lo que vale:
+\\
+\begin{center}
+\textbf{III)} $dist(y) \leq dist(x) + L(xy)$
+\\
+\end{center}
+Por último, como $u$ fue el primer elemento sacado de la cola de prioridad que no pertenece a $V$, tiene menor o igual distancia al estado inicial que el resto de todos los que no pertenecen tampoco a $V$:
+\\
+\begin{center}
+\textbf{IV)} $dist(u) \le dist(y) $
+\\
+\end{center}
 Combinando II) con I) tenemos:
-
-$d(x)+L(xy) \leq d(u)$
-
+\\
+\begin{center}
+$dist(x)+L(xy) < dist(u)$
+\\
+\end{center}
 Usando IV) y III) llegamos a:
+\\
 
-$d(x)+L(xy) \leq d(x) + L(xy)$
-
-Absurdo, entonces Q no puede existir y por lo tanto d(u) = D_min(u) (cuadradito de qed)
+\begin{center}
+$dist(x)+L(xy) < dist(x) + L(xy)$
+\\
+\end{center}
+\textbf{Absurdo}, entonces $Q$ no puede existir siendo menor a la distancia calculada para $u$ y por lo tanto $dist(u) = \delta(u) \QEDB$
