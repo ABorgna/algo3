@@ -53,23 +53,59 @@
 	Ag(candidatos,0,inicial)
 
 	while candidatos $\neq$ $\emptyset$ do
-
 		actual $\leftarrow$ Min(candidatos)
+		if LosArqueologosFueronComidos(actual)
+			return
 		borrar(actual,candidatos)
 		if actual $=$ res
 			devolver actual.costo
 		else
-	for cadaEstadoSiguientePosible do
-		AgregarCandidato(distancia,candidatos,Tiempo(e),e)
+		hijo $=$ Copia(Nodo)
+		ArqSide $\leftarrow$ Arqueologos que estan del lado de la linterna
+		CanSide $\leftarrow$ Canibales que estan del lado de la linterna
+		hijo.linterna $\leftarrow$ !hijo.linterna 
+
+		for i in ArqSide do
+		actual $\leftarrow$ ArqSide[i] 
+		hijo.actual $\leftarrow$ !hijo.actual
+		tiempo $\leftarrow$ hijo.costo + Arqside[i].velocidad
+		AgregarCandidato(distancia,candidatos,tiempo,hijo)
+			for j=i to ArqSide do
+			actual2 $\leftarrow$ ArqSide[j]
+			hijo.actual2 $\leftarrow$ !hijo.actual2
+			tiempo $\leftarrow$ max{Arqside[i].velocidad,ArqSide[j].velocidad}
+			AgregarCandidato(distancia,candidatos,tiempo,hijo)		
+			hijo.actual2 $\leftarrow$ !hijo.actual2
+		hijo.actual $\leftarrow$ !hijo.actual
+
+
+		for i in CanSide do
+		actual $\leftarrow$ CanSide[i] 
+		hijo.actual $\leftarrow$ !hijo.actual
+		tiempo $\leftarrow$ hijo.costo + Canside[i].velocidad
+		AgregarCandidato(distancia,candidatos,tiempo,hijo)
+			for j=i to ArqSide do
+			actual2 $\leftarrow$ CanSide[j]
+			hijo.actual2 $\leftarrow$ !hijo.actual2
+			tiempo $\leftarrow$ max{Canside[i].velocidad,CanSide[j].velocidad}
+			AgregarCandidato(distancia,candidatos,tiempo,hijo)	
+			hijo.actual2 $\leftarrow$ !hijo.actual2
+		hijo.actual $\leftarrow$ !hijo.actual
+
+		for i in ArqSide do
+		actual $\leftarrow$ ArqSide[i] 
+		hijo.actual $\leftarrow$ !hijo.actual
+			for i in CanSide do
+			actual2 $\leftarrow$ CanSide[j]
+			hijo.actual2 $\leftarrow$ !hijo.actual2
+			tiempo $\leftarrow$ max{Arqside[i].velocidad,CanSide[j].velocidad}
+			AgregarCandidato() 	
+			hijo.actual2 $\leftarrow$ !hijo.actual2
+		hijo.actual $\leftarrow$ !hijo.actual
 
 \end{lstlisting}
 
-Seudo codigo para generar todas las siguientes estados posibles
-\lstset{basicstyle=\large}
 
-\begin{lstlisting}
-TO DO
-\end{lstlisting}
 
 \lstset{basicstyle=\large}
 \begin{lstlisting}
@@ -87,8 +123,7 @@ TO DO
 
 \end{lstlisting}
 
-Esta funcion tiene un costo de O (Log(n)), buscar en un diccionario arboreo es de orden logaritmico si esta balanceado, comparar 2 enteros es O(1) 2 inserciones
-y en ciertos casos 2 borrados, cada una de esas operaciones es del orden logaritmico
+Averiguar pertencia, insercio o borrado de un elemento, es del si se encuentra implementado con algun tipo de arbol balanceado (Como ser AVL o R-B Tree). Lo que no dijimos hasta ahora que es n en este caso. N es la cantidad de elementos, en nuestro caso de estados que tenemos en la cola de pioridad. Como cota superior tenemos (N+M+1) al cuadrado estados. Aplicando propiedades del logaritmo la potencia sale afuera como una constante multiplicando asi que el costo de esta funcion es logaritmico en la cantidad de personas.
 
 
 	\subsubsection{Correctitud}
