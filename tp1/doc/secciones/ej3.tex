@@ -4,11 +4,11 @@
 
 En medio del viaje, nuestros arqueólogos encuentran una sala llena de tesoros que desean llevar a su casa utilizando las mochilas con las que disponen. Deberán distribuir los objetos de manera lo suficientemente eficiente como para maximizar el valor total entre todas las mochilas sabiendo que cada una de estas tiene un tope de peso que pueden llevar.
 
-Dicho formalmente, si tenemos $n$ objetos con peso $p_i$ y valor $v_i$ y $m$ mochilas con capacidad $c_j$, queremos distribuir los $v_i$ en cada mochila $m_j$ de manera tal de maximizar la suma total del valor de cada mochila sin exceder su capacidad de peso.
+Dicho formalmente, si tenemos un conjunto de $n$ objetos $O = \{(p_i,v_i) \quad | \quad 1 \leq i \leq n\}$ con peso $p_i$ y valor $v_i$ y $m$ mochilas con capacidad $c_j$, queremos encontrar distribuir los $o_i$ en cada mochila $M_j$ de manera tal de maximizar $\sum_{j = 0}^m\sum_{o_i \in M_j} v_i$ (es decir, la suma total del valor de cada mochila) sin exceder su capacidad de peso (Osea, $(\sum_{o_i \in M_j} p_i) \leq c_j$).
 
 Este tipo de problema es conocido como Multiple Knapsack.
 
-\subsection{Solcuión y Correctitud}
+\subsection{Solución}
 
 Para solucionar el problema, se utilizó programación dinámica de la siguiente manera:
 
@@ -18,6 +18,35 @@ Para solucionar el problema, se utilizó programación dinámica de la siguiente
 \item Para ver eso, se van probando los objetos uno por uno en cada mochila. Si el objeto $i$ entra en la mochila $j$, se consulta un valor previamente calculado, el cual es el resultante de hacer este mismo procedimiento con la misma configuración de mochilas, con la diferencia de que a la mochila $j$ se le resta el peso del objeto $i$. Si ese valor sumado al valor del objeto $i$ supera al que venía siendo el candidato a valor máximo, será reemplazado por este mismo.
 \end{itemize}
 
-Sobre el último ítem: lo que se hace cuando se consulta el resultado anteriormente calculado es tener en cuenta que hay un invariante en el algoritmo: todos los resultados anteriores son el valor óptimo calculado para la combinación de pesos máximos dada. Entonces, si se pregunta por una combinación en la cual el peso de una de las mochilas es menor, se tiene la seguridad de que eso ya fue calculado y es el mejor valor. Si el objeto con peso $p_i$ entra en la mochila $j$, se trata de encontrar cuál es la mejor combinación con el peso restante de la mochila $j$, dejando a las otras mochilas intactas y sin tener en cuenta al objeto $i$ para luego sumar $p_i$ a la mochila y $v_i$ al valor total. Si eso supera al candidato a máximo que había antes, entonces se vuelve el mejor candidato global y el mejor valor para la combinación actual de capacidades máximas de mochila. De lo contrario, se mantiene al mejor candidato global como estaba y al mismo tiempo el mismo pasa a ser el mejor valor para la combinación actual de mochilas.
+Sobre el último ítem: lo que se hace cuando se consulta el resultado anteriormente calculado es tener en cuenta que hay un invariante en el algoritmo: todos los resultados anteriores son el valor óptimo calculado para la combinación de pesos máximos dada. Entonces, si se pregunta por una combinación en la cual el peso de una de las mochilas es menor, se tiene la seguridad de que eso ya fue calculado y es el mejor valor. Si el objeto con peso $p_i$ entra en la mochila $j$, se trata de encontrar cuál es la mejor combinación con el peso restante de la mochila $j$, dejando a las otras mochilas intactas y sin tener en cuenta al objeto $i$ para luego sumar $p_i$ a la mochila y $v_i$ al valor total. Si eso supera al candidato a máximo que había antes, entonces se vuelve el mejor candidato global y el mejor valor para la combinación actual de capacidades máximas de mochila. De lo contrario, se mantiene al mejor candidato global como estaba y al mismo tiempo pasa a ser el mejor valor para la combinación actual de mochilas.
 
-%TODO: Poner un ejemplo chico para que se entienda mejor
+A continuación se presenta el pseudo-código asociado al algoritmo que resuelve el problema:
+
+\lstset{basicstyle=\large}
+\begin{lstlisting}
+input: mochilas : vector<int>,  objetos : vector<int>
+
+mejorValor $\leftarrow$ crear un vector de $m+1$ dimensiones
+mejorValorGlobal $\leftarrow$ int
+mejorCombinacion $\leftarrow$ de tamanio $m$
+para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$
+	valorCandidato $\leftarrow$ int
+	para todo $i$ con $1 \leq i \leq n$
+		valorAnterior  $\leftarrow$ $mejorValor[w_1][w_2]\ldots[w_m][i-1]$
+		para todo $j$ con $1 \leq j \leq m$
+			si el objeto $i$ entra en la mochila con peso $w_j$
+				valCandidato $\leftarrow$ $mejorValor[w_1]\ldots[w_{j-1}][w_j - p_i][w_{j+1}]\ldots[w_m][i-1]$
+			sino
+				valorCandidato $\leftarrow$ $-1$
+			si valorAnterior < valorCandidato
+				pongo el objeto en la mochila j
+				valorAnterior $\leftarrow$ valorCandidato
+	si valorCandidato $>$ mejorValorGlobal
+		mejorValorGlobal $\leftarrow$ valorCandidato
+		mejorCombinacion $\leftarrow$ p
+
+\end{lstlisting}
+
+\subsubsection{Correctitud}
+
+asdasd
