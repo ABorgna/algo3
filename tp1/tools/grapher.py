@@ -2,6 +2,8 @@
 
 from pylab import log,loglog
 import argparse
+import numpy as np
+import math
 import matplotlib.colors as mplc
 import matplotlib.ticker as mticker
 import matplotlib.pyplot as plt
@@ -21,7 +23,8 @@ class Grapher:
         plt.style.use('ggplot')
 
     def run(self, infile, outfile, mode, modevars, title='', xlabel='',
-            xscale='linear', yscale='linear'):
+            xscale='linear', yscale='linear', polyfit=None, fitdegree=1,
+            exitstatus=[]):
 
         points = []
 
@@ -31,7 +34,7 @@ class Grapher:
             # Last number is the function return value
             # Ignore this datapoint if non zero
             ret = values.pop()
-            if ret != 0:
+            if len(exitstatus) and int(ret) not in exitstatus:
                 continue
 
             # Next is the number of runs
@@ -91,14 +94,16 @@ class Grapher:
         points.sort()
 
         if len(points):
-            self.plotTime(points, outfile, title, xlabel, xscale, yscale)
+            self.plotTime(points, outfile, title, xlabel,
+                    xscale, yscale, polyfit, fitdegree)
         else:
             print("No datapoints available", file=sys.stderr)
 
 
     # Graphs
 
-    def plotTime(self, points, outfile, title, xlabel, xscale, yscale):
+    def plotTime(self, points, outfile, title, xlabel, xscale, yscale,
+            polyfit, fitdegree):
         sets = []
         groups = []
 
@@ -129,6 +134,29 @@ class Grapher:
         fig.set_size_inches((12,9))
 
         ax.plot(xs, ys, 'o', color=self.COLORS[0])
+
+        if polyfit is not None:
+
+            if polyfit == 'linear':
+                scale = lambda y : y
+                scaleback = lambda y : y
+            elif polyfit == 'exp':
+                scale = lambda y : log(y)
+                scaleback = lambda y : math.e**y
+            elif polyfit == 'log':
+                scale = lambda y : math.e**y
+                scaleback = lambda y : log(y)
+            elif polyfit == 'loglog':
+                scale = lambda y : math.e**(math.e**y)
+                scaleback = lambda y : log(log(y))
+
+            coef = np.polyfit(xs, [scale(y) for y in ys], fitdegree)
+
+            fit = lambda x : scaleback(sum([a * x**(fitdegree-i)
+                                 for (i,a) in enumerate(coef)]))
+            ax.plot(xs, [fit(x) for x in xs], color=self.COLORS[2],
+                    linewidth=2)
+
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel("Tiempo")
@@ -141,34 +169,56 @@ class Grapher:
 
 
 if __name__ == "__main__":
+
+    class ValidateMode(argparse.Action):
+        def __call__(self, parser, args, values, option_string=None):
+            valid_modes = ('sum', 'simple')
+            mode = values[0]
+            if mode not in valid_modes:
+                raise ValueError('invalid mode %s' % subject)
+            values = values[1:]
+            setattr(args, self.dest, (mode, values))
+
     parser = argparse.ArgumentParser(
             description="Generate a graph from a benchmark output")
 
-    parser.add_argument('-t','--title', help='Title of the graph')
-    parser.add_argument('-x','--xlabel', help='Label of the x axis')
+    parser.add_argument('-t','--title', help='title of the graph')
+    parser.add_argument('-x','--xlabel', help='label of the x axis')
     parser.add_argument('-X','--xscale', default='linear',
             choices=['linear','log','loglog'],
-            help='Scale of the X axis (linear, log or loglog)')
+            help='scale of the X axis (linear, log or loglog)')
     parser.add_argument('-Y','--yscale', default='linear',
             choices=['linear','log','loglog'],
-            help='Scale of the Y axis (linear, log or loglog)')
+            help='scale of the Y axis (linear, log or loglog)')
+    parser.add_argument('-f','--polyfit',
+            nargs='?', const='linear', default=None,
+            choices=['linear','exp','log','loglog'],
+            help='draw the best polynomial fit')
+    parser.add_argument('-F','--fitdegree', default=1,
+            type=int,help='degree of the polynomial fit')
+    parser.add_argument('-e','--exitstatus', nargs='+',
+            type=int, action='append', default=[],
+            help='use datapoints with exit status N')
 
-    parser.add_argument('-i', help='Input file', nargs='?',
+    parser.add_argument('-i', help='input file', nargs='?',
             type=argparse.FileType('r'),
             default=sys.stdin, dest='infile')
-    parser.add_argument('-o', help='Output file', nargs='?',
+    parser.add_argument('-o', help='output file', nargs='?',
             type=argparse.FileType('wb'),
             default=sys.stdout, dest='outfile')
 
-    parser.add_argument('mode', nargs='?', default='sum',
-            choices=['sum','simple'], help='sum or simple')
-    parser.add_argument('modevars', metavar='var', nargs='*', help='')
+    parser.add_argument('-m','--mode', nargs='+', default=('sum',[]),
+            action=ValidateMode, metavar=('MODE', 'ARGS'), help='TODO')
 
     args = parser.parse_args()
-    if(len(args.modevars) == 1):
-        args.modevars = args.modevars[0].split()
+
+    args.modevars = args.mode[1][0].split() if len(args.mode[1]) == 1 \
+                    else args.mode[1]
+    args.mode = args.mode[0]
+    args.exitstatus = [x for l in args.exitstatus for x in l] # Flatten
 
     g = Grapher()
     g.run(args.infile, args.outfile, args.mode, args.modevars, args.title,
-            args.xlabel, args.xscale, args.yscale)
+            args.xlabel, args.xscale, args.yscale, args.polyfit, args.fitdegree,
+            args.exitstatus)
 

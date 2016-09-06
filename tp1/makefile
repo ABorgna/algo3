@@ -1,6 +1,6 @@
 
 GCC=g++
-CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++14
+CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++14 -march=native
 #CFLAGS= -O0 -Wall -Wextra -ggdb -std=c++14
 VALGRIND=valgrind --leak-check=full
 
@@ -65,11 +65,11 @@ $(DIRS):
 $(BENCHMARKS) : %-bench : $(BENCH_OUT_DIR)/%
 
 $(BENCH_OUT_DIR)/ej1: ej1
-	build/ej1 -a 0:9 0:9 -A 0.01 -c $(call CHECKPOINT,$@) -o $@
+	build/ej1 -a 0:10 0:10 2 1 -A 0.1 -c $(call CHECKPOINT,$@) -o $@
 
-EJ2_BENCH_FN = build/ej2 -a $(2)0:$(2)00:$(2) -A 0.01 -o $(1) -c $(call CHECKPOINT,$(1))
+EJ2_BENCH_FN = build/ej2 -a $(2)0:$(2)00:$(2) 4 1 -A 0.1 -o $(1) -c $(call CHECKPOINT,$(1))
 $(BENCH_OUT_DIR)/ej2: ej2
-	build/ej2 -a 1:100:1 -A 0.01 -o $@-02 -c $(call CHECKPOINT,$@-02)
+	build/ej2 -a 1:100:1 4 1 -A 0.1 -o $@-02 -c $(call CHECKPOINT,$@-02)
 	$(call EJ2_BENCH_FN,$@-03,10)
 	$(call EJ2_BENCH_FN,$@-04,100)
 	$(call EJ2_BENCH_FN,$@-05,1000)
@@ -91,45 +91,49 @@ $(BENCH_OUT_DIR)/ej2: ej2
 
 $(BENCH_OUT_DIR)/ej3: ej3
 	@echo "k0=50, k1=0, k2=0, C=1-5000"
-	build/ej3 -a 50 0 0 1:5000:2 1 1 -A 0.001 -c $(call CHECKPOINT,$@-c1) -o $@-c1
-	@echo "k0=17, k1=17, k2=17, C=1-50"
-	build/ej3 -a 17 17 17 1:50 1 10 -A 0.001 -c $(call CHECKPOINT,$@-c3) -o $@-c3
+	build/ej3 -a 50 0 0 1:5000:2 10 4 -A 0.01 -c $(call CHECKPOINT,$@-c1) -o $@-c1
+	@echo "k0=17, k1=17, k2=17, C=1-100"
+	build/ej3 -a 17 17 17 1:100 10 10 -A 0.01 -c $(call CHECKPOINT,$@-c3) -o $@-c3
 	@echo "k0=1-5000, k1=0, k2=0, C=50"
-	build/ej3 -a 1:5000:2 0 0 50 1 1 -A 0.001 -c $(call CHECKPOINT,$@-k1) -o $@-k1
-	@echo "k0=1-17, k1=0-17, k2=0-17, C=50"
-	build/ej3 -a 1:17 0:17 0:17 50 1 2 -A 0.001 -c $(call CHECKPOINT,$@-full) -o $@-full
-	cat $@-c1 > $@
-	cat $@-c3 >> $@
-	cat $@-k1 >> $@
-	cat $@-full >> $@
+	build/ej3 -a 1:5000:2 0 0 50 10 4 -A 0.01 -c $(call CHECKPOINT,$@-k1) -o $@-k1
+	@echo "k0=1-100, k1=1-100, k2=0, C=50"
+	build/ej3 -a 1:100 0:100 0 50 10 4 -A 0.01 -c $(call CHECKPOINT,$@-k2) -o $@-k2
+	@echo "k0=1-20, k1=1-20, k2=1-20, C=50"
+	build/ej3 -a 1:20 1:20 1:20 50 10 4 -A 0.01 -c $(call CHECKPOINT,$@-k3) -o $@-k3
+	cat $@-* > $@
 
 $(GRAPHS) : %-graph : $(GRAPHS_OUT_DIR)/%
 
 $(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
-	tools/grapher.py -i $< -o $@.png --yscale log -x "Cantidad de gente" \
+	tools/grapher.py -i $< -o $@.png --yscale log \
+		-x "Cantidad de gente" \
 		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales"
+	tools/grapher.py -i $< -o $@-trim.png --yscale log -f exp -e 0 \
+		-x "Cantidad de gente" \
+		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales, cuando existe una solución"
 
 $(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
-	tools/grapher.py -i $< -o $@.png --xscale log -x "Peso de la llave" \
+	tools/grapher.py -i $< -o $@.png --xscale log \
+		-x "Peso de la llave" \
 		-t "Tiempo de ejecucion respecto al peso de la llave"
 
 $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 	tools/grapher.py -i $< -o $@-c1.png -x "Cantidad de objetos" \
-		-t "Una mochila, k=50" simple "50 0 0 +"
+		-t "Una mochila, k=50" --mode simple "50 0 0 +" --polyfit
 	tools/grapher.py -i $< -o $@-c3.png -x "Cantidad de objetos" \
-		-t "Tres mochilas, k=50" simple "17 17 17 +"
+		-t "Tres mochilas, k=50" --mode simple "17 17 17 +" --polyfit
 	tools/grapher.py -i $< -o $@-k1.png -x "Suma de las capacidades" \
-		-t "Una mochila, c=50" simple "+ 0 0 50"
+		-t "Una mochila, c=50" --mode simple "+ 0 0 50" --polyfit
 	tools/grapher.py -i $< -o $@-k2.png -x "Suma de las capacidades" \
-		-t "Dos mochilas, c=50" simple "+ +>0 0 50"
+		-t "Dos mochilas, c=50" --mode simple "+ +>0 0 50" --polyfit --fitdegree 3
 	tools/grapher.py -i $< -o $@-k3.png -x "Suma de las capacidades" \
-		-t "Tres mochilas, c=50" simple "+ +>0 +>0 50"
+		-t "Tres mochilas, c=50" --mode simple "+ +>0 +>0 50" --polyfit --fitdegree 3
 	tools/grapher.py -i $< -o $@-kp1.png -x "Productoria de las capacidades" \
-		-t "Una mochila, c=50" simple "* 0 0 50"
+		-t "Una mochila, c=50" --mode simple "* 0 0 50" --polyfit
 	tools/grapher.py -i $< -o $@-kp2.png -x "Productoria de las capacidades" \
-		-t "Dos mochilas, c=50" simple "* *>0 0 50"
+		-t "Dos mochilas, c=50" --mode simple "* *>0 0 50" --polyfit
 	tools/grapher.py -i $< -o $@-kp3.png -x "Productoria de las capacidades" \
-		-t "Tres mochilas, c=50" simple "* *>0 *>0 50"
+		-t "Tres mochilas, c=50" --mode simple "* *>0 *>0 50" --polyfit
 
 informe: $(GRAPHS)
 	make -C doc/

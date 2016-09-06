@@ -242,7 +242,7 @@ int prob_solve(std::ostream &os) {
 
     os << t << endl;
 
-    return 0;
+    return t == -1 ? 1 : 0;
 }
 
 void prob_reload() {}

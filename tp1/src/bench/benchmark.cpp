@@ -115,7 +115,9 @@ uint64_t measure(vector<uint64_t>& mediciones) {
         // Hasta la décima iteración estimo cuánto más debería seguir midiendo.
         if (lim_nsecs && i < 10) {
             auto it = mediciones.begin();
-            mediciones.resize(max(i + 1, lim_nsecs / *min_element(it, it + i)));
+            uint64_t target = max(i + 1, lim_nsecs / *min_element(it, it + i));
+            if(target > mediciones.size())
+                mediciones.resize(target);
         }
         // Restauro estado inicial.
         eng = eng_copia;
@@ -227,8 +229,11 @@ void generate_measure(ostream& os, const vector<Range>& ranges,
     while(cont) {
         for (uint64_t i = indice_instancia; i < cantidad; i++, num_problema++) {
             cerr << "Problema Nᵒ " << num_problema << ", RNG State: ";
-            print_rng_state(cerr) << endl;
+            print_rng_state(cerr) << " Vars:";
             generator(vars);
+            for (const uint64_t v : vars) cerr << " " << v;
+            cerr << endl;
+
             // Si es all, sino generate
             if (iteraciones)
                 print_measure(os, iteraciones, vars);
