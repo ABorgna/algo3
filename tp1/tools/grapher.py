@@ -114,17 +114,17 @@ class Grapher:
 
         # The original times are in ns
         unit = "s"
-        if maxY < 2e3:
+        if maxY < 1e3:
             unit = "ns"
-        elif maxY < 2e6:
+        elif maxY < 1e6:
             unit = "us"
             ys = [float(y)/1e3 for y in ys]
             maxY = float(maxY)/1e3
-        elif maxY < 2e9:
+        elif maxY < 1e9:
             unit = "ms"
             ys = [float(y)/1e6 for y in ys]
             maxY = float(maxY)/1e6
-        elif maxY < 2e12:
+        elif maxY < 1e12:
             unit = "s"
             ys = [float(y)/1e9 for y in ys]
             maxY = float(maxY)/1e9

@@ -38,6 +38,9 @@ CHECKPOINT = 0`wc -l $(1) 2>/dev/null | sed 's/ .*//'`
 	$(GRAPHS) $(GRAPHS_OUT) \
 	clean tar informe help dirs benchmark graphs
 
+.PRECIOUS: $(BENCHMARKS_OUT) \
+    $(BENCH_OUT_DIR)/ej3-extra2 $(BENCH_OUT_DIR)/ej3-extra3
+
 all: dirs $(EJERCICIOS)
 
 tar: $(ENTREGABLE)
@@ -63,6 +66,10 @@ $(DIRS):
 	mkdir -p $@
 
 $(BENCHMARKS) : %-bench : $(BENCH_OUT_DIR)/%
+
+ej3-bench-extra2: $(BENCH_OUT_DIR)/ej3-extra2
+
+ej3-bench-extra3: $(BENCH_OUT_DIR)/ej3-extra3
 
 $(BENCH_OUT_DIR)/ej1: ej1
 	build/ej1 -a 0:10 0:10 2 1 -A 0.1 -c $(call CHECKPOINT,$@) -o $@
@@ -101,6 +108,18 @@ $(BENCH_OUT_DIR)/ej3: ej3
 	@echo "k0=1-20, k1=1-20, k2=1-20, C=50"
 	build/ej3 -a 1:20 1:20 1:20 50 10 4 -A 0.01 -c $(call CHECKPOINT,$@-k3) -o $@-k3
 	cat $@-* > $@
+
+$(BENCH_OUT_DIR)/ej3-extra2: ej3
+	i=1; while true; do \
+		build/ej3 -a "$$i" "$$i" 0 50 10 1 -A 0.01 -o $@ ;\
+		i=$$(($$i + 1)); \
+		done
+
+$(BENCH_OUT_DIR)/ej3-extra3: ej3
+	i=1; while true; do \
+		build/ej3 -a "$$i" "$$i" "$$i" 50 10 1 -A 0.01 -o $@ ;\
+		i=$$(($$i + 1)); \
+		done
 
 $(GRAPHS) : %-graph : $(GRAPHS_OUT_DIR)/%
 
