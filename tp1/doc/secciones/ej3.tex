@@ -129,3 +129,73 @@ $$p'_j = p_j - o$$
 Se puede ver que $p' \leq p$, así que, por hipótesis inductiva (segundo ítem) el algoritmo propuesto puede resolver el problema para el vector $p'$ y los $n + 1$ objetos. Dejando eso en claro, el algoritmo puede proponer un valor máximo para los $m + 1$ casos mencionados al principio. El máximo de todos esos valores será la solución al poblema con vector $p$ y $n + 1$ objetos.
 
 De esta manera queda probado que, dados un vector de pesos $p$ y $n$ objetos, el algoritmo da una solución correcta para el problema. \QEDB
+
+\subsubsection{Complejidad}
+
+A continuación se muestra una versión simplificada del pseudocódigo para hacer énfasis en poder analizar la cantidad de operaciones que se realizan en el algoritmo.
+
+\lstset{basicstyle=\large}
+\begin{lstlisting}
+$[\ldots]$
+
+para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$ (recorridas en un orden crecinte)
+	$[\ldots]$
+	para todo $i$ desde $1$ hasta $n$
+		$[\ldots]$
+		para todo $j$ desde $1$ hasta $m$
+			[Hacer comparaciones y asignaciones]
+
+$[\ldots]$
+
+\end{lstlisting}
+
+se recuerda que $n$ es la cantidad total de objetos y $m$ la cantidad de mochilas. Por cuestiones de consistencia con respecto al enunciado, las llamaremos $\sum C_i$ y $M$ respectivamente, además de que se nota como $K_i$ al peso original de la mochila $i$.
+
+\begin{itemize}
+\item La primera linea recorre todas las mochilas y hace $K_i$ iteraciones por cada una, con lo cual podemos decir que lo que se encuentra adentro del primer ciclo se ejecuta $\prod K_i$ veces
+
+\item El segundo ciclo que recorre todos los objetos, va desde 1 hasta $n = \sum C_i$
+
+\item El tercer ciclo, que ejecuta una iteración por mochila, por lo cual hace $M$ iteraciones.
+
+\item Lo que se encuentra dentro del tercer ciclo es el siguiente fragmento de código
+
+\lstset{basicstyle=\large}
+\begin{lstlisting}
+si el objeto $i$ entra en la mochila con peso $w_j$
+				valCandidato $\leftarrow$ $mejorValor[w_1]\ldots[w_{j-1}][w_j - p_i][w_{j+1}]\ldots[w_m][i-1]$
+			sino
+				valorCandidato $\leftarrow$ $-1$
+			si valorAnterior < valorCandidato
+				pongo el objeto en la mochila con peso $w_j$
+				valorAnterior $\leftarrow$ valorCandidato
+\end{lstlisting}
+
+Todas son comparaciones y asignaciones en tiempo constante ("poner el objeto en la mochila con peso $w_j$" en el código original es hacer una asignación en un vector) por lo cual esto mismo no influye en el cálculo de complejidad del algoritmo
+\end{itemize}
+
+Teniendo todos estos factores en cuenta, se puede deducir que el algoritmo realiza $\mathcal{O}((\prod K_i) \times M \times \sum C_i)$ operaciones.
+
+A continuación se prueba que la complejidad presentada cumple con la cota de $\mathcal{O}((\sum K_i)^M \times \sum C_i)$ que da el enunciado.
+
+Ambas complejidades comparten la expresión $\sum C_i$ por lo cual la demostración consistira en deducir que $(\prod K_i) \times M = \mathcal{O}((\sum K_i)^M)$
+
+Para simplificar, notaremos $P = \prod K_i$ y $S = (\sum K_i)$
+
+Existe una relación entre $S^M$ y el Teorema multinomial, el cual establece que dados $n, m \in \mathbb{N}$ y $m$ números $x_1, \ldots , x_m$
+
+$$(x_1 + x_2 + \ldots + x_m)^n = \sum_{k_1 + k_2 + \ldots + k_m = n} \binom{n}{k_1, k_2, \ldots , k_m} \prod_{1 \leq t \leq m} x_t^{k_t}$$
+
+donde $\binom{n}{k_1, k_2, \ldots , k_m} = \frac{n!}{k_1! k_2! \ldots k_m!}$
+
+$S$ es un caso particular de este teorema ya que $n = m$. Si bien esta suma puede parecer complicada, nosotros nos centraremos en uno solo de los términos en el cual $k_1 = k_2 = \ldots = k_m = 1$
+
+Se puede ver que esto cumple con la condición de la sumatoria ya que $k_1 + k_2 + \ldots + k_m = m \times k_1 = m = n$
+
+Entonces, reemplazando:
+
+$$ \binom{m}{k_1, k_2, \ldots , k_m} \prod_{1 \leq t \leq m} x_t^{k_t} = \binom{m}{1, 1, \ldots , 1} \prod_{1 \leq t \leq m} x_t^{1} = m! \prod_{1 \leq t \leq m} x_t^{1} $$
+
+Si cambiamos los nombres de las variables del teorema con los nombres de las variables de este problema queda
+
+$$M! \prod K_i = M! \times P \geq M \times P$$
