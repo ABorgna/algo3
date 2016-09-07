@@ -27,19 +27,19 @@ A continuación se presenta el pseudo-código asociado al algoritmo que resuelve
 input: mochilas : vector<int>,  objetos : vector<int>
 
 mejorValor $\leftarrow$ crear un vector de $m+1$ dimensiones
-mejorValorGlobal $\leftarrow$ int
+int mejorValorGlobal
 mejorCombinacion $\leftarrow$ de tamanio $m$
-para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$
-	valorCandidato $\leftarrow$ int
-	para todo $i$ con $1 \leq i \leq n$
+para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$ (recorridas en un orden crecinte)
+	int valorCandidato
+	para todo $i$ desde $1$ hasta $n$
 		valorAnterior  $\leftarrow$ $mejorValor[w_1][w_2]\ldots[w_m][i-1]$
-		para todo $j$ con $1 \leq j \leq m$
+		para todo $j$ desde $1$ hasta $m$
 			si el objeto $i$ entra en la mochila con peso $w_j$
 				valCandidato $\leftarrow$ $mejorValor[w_1]\ldots[w_{j-1}][w_j - p_i][w_{j+1}]\ldots[w_m][i-1]$
 			sino
 				valorCandidato $\leftarrow$ $-1$
 			si valorAnterior < valorCandidato
-				pongo el objeto en la mochila j
+				pongo el objeto en la mochila con peso $w_j$
 				valorAnterior $\leftarrow$ valorCandidato
 	si valorCandidato $>$ mejorValorGlobal
 		mejorValorGlobal $\leftarrow$ valorCandidato
@@ -49,4 +49,83 @@ para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$
 
 \subsubsection{Correctitud}
 
-asdasd
+Para demostrar correctitud del agoritmo, se utiliza inducción doble en la cantidad de objetos y en las combinaciones de pesos parciales de mochilas. Para lo segundo, se define una relación de orden parcial bien fundada de la siguinte manera:
+
+Dadas $m$ mochilas y dos vectores de pesos $p$ y $p'$ de dimensión $m$
+
+$$p \leq p' \Leftrightarrow p_i \leq p'_i \quad \forall \quad 1 \leq i \leq m$$
+
+También, existe un elemento mínimo $0_m$ que cumple
+
+$$0_m < p \quad \forall \quad p \neq 0_m$$
+
+Una vez definida la relación de orden parcial, podemos pasar a la demostración:
+
+\vspace{5mm}
+
+{\Large\textbf{Mochilas: Caso base}}
+
+\vspace{5mm}
+
+Para esta instancia consideramos al menor elemento en nuestro orden de vectores: $0_m$.
+
+\vspace{5mm}
+
+{\large\textbf{Objetos: Caso base}}
+
+\vspace{5mm}
+
+Si tenemos el vector $0_m$ y $0$ objetos, el resultado es trivial ya que el valor máximo es $0$ y para cada mochila se introducen $0$ objetos.
+
+\vspace{5mm}
+
+{\large\textbf{Objetos: Paso inductivo}}
+
+\vspace{5mm}
+
+Para este caso, contamos con el vector $0_m$ y los $n$ primeros objetos. Si separamos alguno de ellos y miramos los $n$ restantes, por hipótesis inductiva, nuestro algoritmo devolverá el mejor valor para esa instancia. Si se mira el objeto $n + 1$, se puede ver que este no entra en ninguna mochila y por ende no se lo tiene en cuenta. Entonces, la solución para $n + 1$ objetos es la misma que para $n$.
+
+\vspace{5mm}
+
+{\Large\textbf{Mochilas: Paso inductivo}}
+
+\vspace{5mm}
+
+Para esta instancia, dado un vector de pesos $p$ cualquiera, queremos probar que el algoritmo resuelve el problema sabiendo que puede hacerlo para cualquier vector menor o igual a $p$.
+
+\vspace{5mm}
+
+{\large\textbf{Objetos: Caso base}}
+
+\vspace{5mm}
+
+Si tenemos el vector $p$ y $0$ objetos, el resultado vuelve a ser trivial y no se necesita utilizar la hipótesis inductiva ya que el valor máximo es $0$ y para cada mochila se introducen $0$ objetos.
+
+\vspace{5mm}
+
+{\large\textbf{Objetos: Paso inductivo}}
+
+\vspace{5mm}
+
+Para esta demostración, resulta importante entender las hipótesis con las que se cuenta:
+
+\begin{itemize}
+\item Para el vector $p$, el algoritmo sabe resolver todas las instancias del probema con $n$ objetos.
+\item Para cualquier vector $p' \leq p$, el algoritmo sabe resolver todas las instancias del problema con $k$ objetos (donde $k$ es cualquier natural que podría ser mayor a $n$)
+\end{itemize}
+
+Entonces, dado el vector $p$ y $n + 1$ objetos, hay $m + 1$ opciones que conciernen al objeto $n + 1$-ésimo: o no se lo pone en ninguna mochila, o se lo pone en alguna de las $m$ mochilas. La opción que genere el valor máximo será la que solucione el problema.
+
+Si no se lo incluye en ninguna mochila, se resuelve el problema para los $n$ primeros objetos y por hipótesis inductiva (primer ítem) el algoritmo brinda la mejor solución para esa instancia.
+
+Luego, el algoritmo pregunta mochila por mochila si, dado el peso de la mochila $j$, el objeto entra. En caso afirmativo, el resultado para la mochila $j$ será una suma entre el valor del objeto $n + 1$ y la solución del algoritmo para un vector $p'$ tal que
+
+$$p'_i = p_i \quad \forall \quad i \neq j$$
+
+y sea $o$ el peso del objeto $n + 1$
+
+$$p'_j = p_j - o$$
+
+Se puede ver que $p' \leq p$, así que, por hipótesis inductiva (segundo ítem) el algoritmo propuesto puede resolver el problema para el vector $p'$ y los $n + 1$ objetos. Dejando eso en claro, el algoritmo puede proponer un valor máximo para los $m + 1$ casos mencionados al principio. El máximo de todos esos valores será la solución al poblema con vector $p$ y $n + 1$ objetos.
+
+De esta manera queda probado que, dados un vector de pesos $p$ y $n$ objetos, el algoritmo da una solución correcta para el problema. \QEDB
