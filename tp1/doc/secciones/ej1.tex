@@ -1,132 +1,118 @@
 \section{Problema 1: Cruzando el puente}
 
-\subsection{Introducción}
-		En este problema Indiana Jones, y sus arqueólogos, se alían a una tribu caníbal local para poder llegar juntos a la fortaleza que resguarda los secretos que tanto anhelan encontrar. Deben cruzar un puente que les presenta las siguientes dificultades:
 
-			\begin{itemize}
-				\item Solo pueden pasar dos personas a la vez.
-				\item En cada cruce es necesario contar con la única linterna presente.
-				\item No puede suceder que en algún lado del puente queden más caníbales que arqueólogos.
-				\item Cada persona puede cruzar el puente a una velocidad particular. Si dos personas cruzan el puente, lo harán a la velocidad del que sea más lento.
-			\end{itemize}
+            \begin{itemize}
+                \item Solo pueden pasar dos personas a la vez.
+                \item En cada cruce es necesario contar con la única linterna presente.
+                \item No puede suceder que en algún lado del puente queden más caníbales que arqueólogos.
+                \item Cada persona puede cruzar el puente a una velocidad particular. Si dos personas cruzan el puente, lo harán a la velocidad del que sea más lento.
+            \end{itemize}
 
-		El objetivo del problema es encontrar el tiempo mínimo necesario para que todos los integrantes del equipo lleguen, cumpliendo los requisitos anteriores, al otro lado del puente.
-		\\
+        El objetivo del problema es encontrar el tiempo mínimo necesario para que todos los integrantes del equipo lleguen, cumpliendo los requisitos anteriores, al otro lado del puente.
+        \\
 
-		En las siguientes secciones llamaremos $estado$ a la ubicación de: la linterna, cada arqueólogo y cada caníbal respecto del lado inicial.
+        En las siguientes secciones llamaremos $estado$ a la ubicación de: la linterna, cada arqueólogo y cada caníbal respecto del lado inicial.
 
-		Podemos representar cada estado con dos vectores de tamaño N y M ($A$ y $C$ respectivamente) que indican, con un bool, si la ubicación del i-ésimo arqueólogo $A_i$ o caníbal $C_i$ es la del lado final. Además de una variable para la ubicación de la linterna. Por lo tanto, cuando todas valgan $True$, habremos llegado al lado final (la linterna no puede terminar del lado inicial porque requiere estar presente en todos los cruces). Por lo tanto, por enunciado tendremos que cumplir en cada estado:
-		\\
+        Podemos representar cada estado como una tupla $(A,C,L)$, donde $A$ y $C$ son dos vectores de tamaño N y M respectivamente que indican, con un bool, si la ubicación del i-ésimo arqueólogo $A_i$ o caníbal $C_i$ es la del lado final y $L$  indica la ubicación de la linterna. Por lo tanto, cuando todas valgan $True$, habremos llegado al lado final (la linterna no puede terminar del lado inicial porque requeriría que alguien la haya llevado en el último cruce). Ademas, por enunciado, un estado válido tendrá que cumplir:
+        \\
 
-		$\sum_{i=0}^{N}\beta(A_i) > 0 \Rightarrow \sum_{i=0}^{N}\beta(A_i) \ge \sum_{i=0}^{M}\beta(C_i)  $
-		\ \ \
-		$\wedge$
-		\ \ \
-		$\sum_{i=0}^{N}\beta(\neg A_i) > 0 \Rightarrow \sum_{i=0}^{N}\beta(\neg A_i) \ge \sum_{i=0}^{M}\beta(\neg C_i)$
-		\\
+        $\sum_{i=0}^{N}\beta(A_i) > 0 \Rightarrow \sum_{i=0}^{N}\beta(A_i) \ge \sum_{i=0}^{M}\beta(C_i)  $
+        \ \ \
+        $\wedge$
+        \ \ \
+        $\sum_{i=0}^{N}\beta(\neg A_i) > 0 \Rightarrow \sum_{i=0}^{N}\beta(\neg A_i) \ge \sum_{i=0}^{M}\beta(\neg C_i)$
+        \\
 
-		Para cada persona $k$, sabemos su velocidad $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
-		\\
-
-		\textbf{\color{red}* inserte ejemplo aquí *}
+        Para cada persona $k$, sabemos su velocidad $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
+        \\
 
 \subsection{Solución y Correctitud}
-	\subsubsection{Solución}
+    \subsubsection{Solución}
 
-	Para resolver el problema, utilizamos una mecánica basada en el algoritmo de Dijkstra para encontrar caminos mínimos en grafos. Lo que hacemos es tener en un $map\langle {estado,\ distancia} \rangle$ que nos va a permitir ir guardando, para cada vértice (estado) visitado, su correspondiente $distancia$ o tiempo mínimo calculado (hasta el momento) desde el estado inicial.
+    Para resolver el problema, utilizamos una mecánica basada en el algoritmo de Dijkstra para encontrar caminos mínimos en grafos. La idea es recorrer el grafo empezando desde el estado inicial, conservando el invariante de que conocemos la distancia mínima desde el inicio hasta todos los nodos ya visitados.
 
-		Además del $map$, también vamos llevando los estados a visitar en un cola de prioridad respecto de los de menor distancia y los vamos desencolando, a diferencia del diccionario donde quedan los estados visitados para evitar pasar dos veces por el mismo vértice.
-		Recorremos el grafo de manera similar al $DFS$ de un $backtracking$: vamos encolando todos los $hijos$ (aquellos que cumplen los requisitos del problema) de cada estado que vamos visitando con su correspondiente distancia. Si uno de ellos ya está encolado, actualizamos su distancia de ser menor la actual. La diferencia es que desencolamos aquellos estados que tienen menor distancia siempre. Esto, como veremos en la subsección de correctitud, nos va a permitir asegurar que, cuando nuestro estado actual sea el final, no haga falta seguir iterando porque efectivamente es la distancia mínima.
-		De no haber conseguido llegar al estado final con los datos de entrada, la cola se vacía (porque se agotan todos los caminos posibles) y se devuelve $-1$.
+    Para ello mantenemos un $map\langle {estado,\ distancia} \rangle$ donde almacenamos los estados ya visitados o candidatos a visitar y su mejor distancia conocida desde el inicio, y un $set$ de tuplas $(distancia, estado)$ ordenado por distancia donde almacenamos los posibles candidatos para el siguiente paso de nuestro recorrido, los vecinos al subgrafo de nodos visitados, y la mejor distancia conocida.
 
+    Recorremos el grafo seleccionando siempre de entre nuestros candidatos el que menor distancia conocida tenga. Como todas las aristas tienen peso positivo, cualquier otro camino que descubramos mas tarde hasta el nodo tendrá una distancia mayor, por lo que podemos asegurar que ya encontramos la mínima. Para cada estado que visitamos debemos corroborar que sea válido, ignorándolo si no cumple las propiedades detalladas anteriormente. Si por lo contrario es un estado válido podemos agregar a la lista de candidatos todos sus vecinos para los cuales la distancia resultante de agregar la arista incidente al camino mínimo que llega al nodo actual es menor a la mejor distancia conocida, reemplazando su entrada como candidato si ya existiera una.
 
-\lstset{basicstyle=\large}
+    Si en algún momento visitamos el nodo final, ya sabemos la distancia mínima hasta este por nuestro invariante y podemos detener la búsqueda. Si por otro lado nos quedamos sin candidatos antes de llegar al nodo final podemos asegurar que no existe un camino hasta este, y por lo tanto no existe solución.
+\\
+
 \begin{lstlisting}
-	TiempoMinimo (Vector<int> arq, vector<int> can,estado res)
+def TiempoMinimo (vector<int> arq, vector<int> can)
+    map<estado,int> $menorDistancia$
+    set<(distancia,estado)> $candidatos$
+    marcar la $menorDistancia$ al estado inicial como 0
+    agregar el estado inicial a $candidatos$
 
-	TotalArq $\leftarrow$ arq.size
-	TotalCan $\leftarrow$ can.size
-	inicial $\leftarrow$ vector(TotalArq+TotalCan+1,false)
-	distancia $\leftarrow$ CrearDicc(estado,int)
-	candidatos $\leftarrow$ CrearConj(int,estado)
-	Definir(distancia,inicial,0)
-	Ag(candidatos,0,inicial)
+    while quedan candidatos:
+        ($dist$,$actual$) $\leftarrow$ min($candidatos$)
+        borrar ($dist$,$actual$) de $candidatos$
+        if $actual$ es el estado final: return $dist$
 
-	while candidatos $\neq$ $\emptyset$ do
-		actual $\leftarrow$ Min(candidatos)
-		if LosArqueologosFueronComidos(actual)
-			return
-		borrar(actual,candidatos)
-		if actual $=$ res
-			devolver actual.costo
-		else
-		hijo $=$ Copia(Nodo)
-		ArqSide $\leftarrow$ Arqueologos que estan del lado de la linterna
-		CanSide $\leftarrow$ Canibales que estan del lado de la linterna
-		hijo.linterna $\leftarrow$ !hijo.linterna 
+        contar cantidad de arqueologos y canibales de cada lado
+        if hay mas canibales que arqueologos de un lado: continue // es un estado invalido
 
-		for i in ArqSide do
-		actual $\leftarrow$ ArqSide[i] 
-		hijo.actual $\leftarrow$ !hijo.actual
-		tiempo $\leftarrow$ hijo.costo + Arqside[i].velocidad
-		AgregarCandidato(distancia,candidatos,tiempo,hijo)
-			for j=i to ArqSide do
-			actual2 $\leftarrow$ ArqSide[j]
-			hijo.actual2 $\leftarrow$ !hijo.actual2
-			tiempo $\leftarrow$ max{Arqside[i].velocidad,ArqSide[j].velocidad}
-			AgregarCandidato(distancia,candidatos,tiempo,hijo)		
-			hijo.actual2 $\leftarrow$ !hijo.actual2
-		hijo.actual $\leftarrow$ !hijo.actual
+        estado $hijo$ $\leftarrow$ $actual$
+        $hijo$.linterna $\leftarrow$ $\neg actual$.linterna
+        for $i$ in [0... $arq$.size() ):
+            if $actual$.arqueologos[$i$] $\neq actual$.linterna: continue
+            $hijo$.arqueologos[$i$] $\leftarrow$ $hijo$.linterna
+            for $j$ in [$i$... $arq$.size() ):
+                if $actual$.arqueologos[$j$] $\neq actual$.linterna: continue
+                $hijo$.arqueologos[$j$] $\leftarrow$ $hijo$.linterna
+                $distanciaCandidato \leftarrow$ $dist$ + max(arq[$i$],arq[$j$])
+                if $hijo$ tiene $menorDistancia$:
+                    if $menorDistancia$[$hijo$] $\leq$ $distanciaCandidato$:
+                        if $i \neq j$: $hijo$.arqueologos[$j$] $\leftarrow$ $actual$.linterna
+                        continue
+                    borrar ($menorDistancia$[$hijo$], $hijo$) de $candidatos$
+                $menorDistancia$[$hijo$] $\leftarrow$ $distanciaCandidato$
+                agregar ($distanciaCandidato$, $hijo$) a $candidatos$
+                if $i \neq j$:
+                    $hijo$.arqueologos[$j$] $\leftarrow$ $actual$.linterna
+            $hijo$.arqueologos[$i$] $\leftarrow$ $actual$.linterna
+        for $i$ in [0... $can$.size() ):
+            if $actual$.canibales[$i$] $\neq actual$.linterna: continue
+            $hijo$.canibales[$i$] $\leftarrow$ $hijo$.linterna
+            for $j$ in [$i$... $can$.size() ):
+                if $actual$.canibales[$j$] $\neq actual$.linterna: continue
+                $hijo$.canibales[$j$] $\leftarrow$ $hijo$.linterna
+                $distanciaCandidato \leftarrow$ $dist$ + max(can[$i$],can[$j$])
+                if $hijo$ tiene $menorDistancia$:
+                    if $menorDistancia$[$hijo$] $\leq$ $distanciaCandidato$:
+                        if $i \neq j$: $hijo$.canibales[$j$] $\leftarrow$ $actual$.linterna
+                        continue
+                    borrar ($menorDistancia$[$hijo$], $hijo$) de $candidatos$
+                $menorDistancia$[$hijo$] $\leftarrow$ $distanciaCandidato$
+                agregar ($distanciaCandidato$, $hijo$) a $candidatos$
+                if $i \neq j$:
+                    $hijo$.canibales[$j$] $\leftarrow$ $actual$.linterna
+            $hijo$.canibales[$i$] $\leftarrow$ $actual$.linterna
+        for $i$ in [0... $arq$.size() ):
+            if $actual$.arqueologos[$i$] $\neq actual$.linterna: continue
+            $hijo$.arqueologos[$i$] $\leftarrow$ $hijo$.linterna
+            for $j$ in [$0$... $can$.size() ):
+                if $actual$.canibales[$j$] $\neq actual$.linterna: continue
+                $hijo$.canibales[$j$] $\leftarrow$ $hijo$.linterna
+                $distanciaCandidato \leftarrow$ $dist$ + max(arq[$i$],can[$j$])
+                if $hijo$ tiene $menorDistancia$:
+                    if $menorDistancia$[$hijo$] $\leq$ $distanciaCandidato$:
+                        $hijo$.canibales[$j$] $\leftarrow$ $actual$.linterna
+                        continue
+                    borrar ($menorDistancia$[$hijo$], $hijo$) de $candidatos$
+                $menorDistancia$[$hijo$] $\leftarrow$ $distanciaCandidato$
+                agregar ($distanciaCandidato$, $hijo$) a $candidatos$
+                $hijo$.canibales[$j$] $\leftarrow$ $actual$.linterna
+            $hijo$.arqueologos[$i$] $\leftarrow$ $actual$.linterna
 
-
-		for i in CanSide do
-		actual $\leftarrow$ CanSide[i] 
-		hijo.actual $\leftarrow$ !hijo.actual
-		tiempo $\leftarrow$ hijo.costo + Canside[i].velocidad
-		AgregarCandidato(distancia,candidatos,tiempo,hijo)
-			for j=i to ArqSide do
-			actual2 $\leftarrow$ CanSide[j]
-			hijo.actual2 $\leftarrow$ !hijo.actual2
-			tiempo $\leftarrow$ max{Canside[i].velocidad,CanSide[j].velocidad}
-			AgregarCandidato(distancia,candidatos,tiempo,hijo)	
-			hijo.actual2 $\leftarrow$ !hijo.actual2
-		hijo.actual $\leftarrow$ !hijo.actual
-
-		for i in ArqSide do
-		actual $\leftarrow$ ArqSide[i] 
-		hijo.actual $\leftarrow$ !hijo.actual
-			for i in CanSide do
-			actual2 $\leftarrow$ CanSide[j]
-			hijo.actual2 $\leftarrow$ !hijo.actual2
-			tiempo $\leftarrow$ max{Arqside[i].velocidad,CanSide[j].velocidad}
-			AgregarCandidato() 	
-			hijo.actual2 $\leftarrow$ !hijo.actual2
-		hijo.actual $\leftarrow$ !hijo.actual
+    return -1 // no hay solucion
 
 \end{lstlisting}
 
+Como tanto el $map$ usado para almacenar las distancias como el $set$ de candidatos están implementados internamente con un $RB-tree$, las operaciones de inserción, borrado y búsqueda son de orden logarítmico en la cantidad de elementos y se puede acceder al mínimo en tiempo constante.
 
-
-\lstset{basicstyle=\large}
-\begin{lstlisting}
-	AgregarCandidato (Diccionario (estado,int) dicc ,Conjunto(int,estado) cola,int t, estado e)
-
-	esta $\leftarrow$ esta?(dicc,e)
-	if esta
-			TiempoActual $\leftarrow$ Obtener(dicc,e)
-				if t < TiempoActual
-					Borrar(dicc,e)
-					Borrar(cola,<Tiempo,e>)
-
-	Definir(e,costo)
-	Agregar(costo,e)
-
-\end{lstlisting}
-
-Averiguar pertencia, insercio o borrado de un elemento, es del si se encuentra implementado con algun tipo de arbol balanceado (Como ser AVL o R-B Tree). Lo que no dijimos hasta ahora que es n en este caso. N es la cantidad de elementos, en nuestro caso de estados que tenemos en la cola de pioridad. Como cota superior tenemos (N+M+1) al cuadrado estados. Aplicando propiedades del logaritmo la potencia sale afuera como una constante multiplicando asi que el costo de esta funcion es logaritmico en la cantidad de personas.
-
-
-	\subsubsection{Correctitud}
+    \subsubsection{Correctitud}
 
 Veamos que el algoritmo es correcto. Vamos a probar que obtiene siempre la distancia mínima a cualquier vértice del grafo. De ser así, podemos asegurar que el menor camino encontrado para el estado final en particular es efectivamente el mínimo.
 \\
