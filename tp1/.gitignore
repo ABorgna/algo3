@@ -1,5 +1,8 @@
 build/*
 
 entregable.tar.gz
-test.log
+*.log
+
+bench/ej2
+bench/ej3
 
