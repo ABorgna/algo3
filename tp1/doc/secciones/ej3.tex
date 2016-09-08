@@ -194,8 +194,28 @@ Se puede ver que esto cumple con la condición de la sumatoria ya que $k_1 + k_2
 
 Entonces, reemplazando:
 
-$$ \binom{m}{k_1, k_2, \ldots , k_m} \prod_{1 \leq t \leq m} x_t^{k_t} = \binom{m}{1, 1, \ldots , 1} \prod_{1 \leq t \leq m} x_t^{1} = m! \prod_{1 \leq t \leq m} x_t^{1} $$
+$$ \binom{m}{k_1, k_2, \ldots , k_m} \prod_{1 \leq t \leq m} x_t^{k_t} = \binom{m}{1, 1, \ldots , 1} \prod_{1 \leq t \leq m} x_t^{1} = m! \prod_{1 \leq t \leq m} x_t $$
 
 Si cambiamos los nombres de las variables del teorema con los nombres de las variables de este problema queda
 
 $$M! \prod K_i = M! \times P \geq M \times P$$
+
+Como $S^M \geq M \times P$, queda demostrado que $M \times P = M \times \prod K_i = \mathcal{O}((\sum K_i)^M)$ y entonces la complejidad propuesta cumple con la cota establecida por el ejercicio.\QEDB
+
+\subsection{Análisis Experimental}
+
+A continuación se presentan una serie de experimentos que ponen a prueba el algoritmo propuesto en esta sección y ayudan a probar que la complejidad temporal propuesta anteriormente es correcta.
+
+\subsubsection{Variando $\sum C_i$}
+
+Dejando fijas las capacidades máximas de cada mochila, se obtuvieron los siguientes resultados de tiempo de ejecución en función de $\sum C_i$ para una y tres mochilas:
+
+[Gráficos de tiempo en función de la suma]
+
+Como puede verse, el algoritmo presenta un comportamiento lineal con respecto a la cantidad de objetos, lo cual es entendible ya que si dejásemos fijos los demás parámetros, la complejidad temporal sería $\mathcal{O}(\sum C_i)$. %Por ahí chamuyé re mal acá. No se que más poner D:
+
+\subsubsection{Variando $\prod K_i$}
+
+Dejando fija la cantidad de objetos, se obtuvieron los siguientes resultados de tiempo de ejecución en función de $\prod K_i$ para una, dos y tres mochilas:
+
+[Gráficos de tiempo en función de la productoria]
