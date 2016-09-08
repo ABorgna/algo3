@@ -127,7 +127,7 @@ $$
 	[...]
 	\end{lstlisting}
 	
-	Por lo tanto en cada iteración conseguimos, mediante el algoritmo clásico de conversión de base mediante división, el próximo dígito. Cuando $P \geq 0$ entonces el ciclo termina y como $P$ decrementa a un tercio en cada iteración, esto significa que el ciclo se ejecuta un orden de $log_3(P)$ veces. 
+	Por lo tanto en cada iteración conseguimos, mediante el algoritmo clásico de conversión de base mediante división, el próximo dígito. Cuando $P \leq 0$ entonces el ciclo termina y como $P$ decrementa a un tercio en cada iteración, esto significa que el ciclo se ejecuta un orden de $log_3(P)$ veces. 
 	\\
 	
 	En el cuerpo del ciclo todas las operaciones aritméticas que se realizan son constantes en complejidad temporal (asumimos $mod$ incluída), pero también se realiza hasta una inserción en las secuencias $izq$ y $der$ por ciclo. Ambas secuencias las implementamos con el tipo $vector$ y, por lo tanto, la inserción corresponde a la operación $push\_back(elem)$. Esta operación tiene complejidad temporal constante amortizada, aunque podrían suceder 'reubicaciónes' que hicieran que para esa llamada en particular el costo sea lineal. Vamos a analizar partiendo de la complejidad amortizada, considerando que también se podría usar un array de tamaño $\left \lfloor{log_3(P)}\right \rfloor + 2$ ($\left \lfloor{log_3(P)}\right \rfloor + 1$ por la representación de P en base 3 y un 'bit' más por si hay un acarreo) y tener acceso constante en general.
