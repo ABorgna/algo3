@@ -201,3 +201,15 @@ Luego, en cada iteración desencolamos un estado nuevo estado y lo eliminamos de
 Juntando todo nos queda una complejidad de $\mathcal{O}(Inicializar\ vectores\ +\ Cantidad\ de\ estados*(Desencolar\ nuevo\ estado\ + Insertar\ hijos)) = \mathcal{O}((N+M)+2^{N+M}((N+M)+(N^3+M^3))) = \mathcal{O}(\ 2^{N+M}*(N^3+M^3)\ )$
 
 \subsection{Análisis experimental}
+
+En la anterior sección teorizamos un peor caso que forzaba a visitar y procesar cada estado que fuera posible dentro del grafo suponiendo que además también forzaría a actualizar, para las dos estructuras, todos los hijos de estos estados en cada iteración. Intentando buscar alguna manera de arreglar las velocidades de cada vector para generar condiciones similares (como por ejemplo, que el último estado en visitarse sea el final) nos encontramos con que no es trivial encontrar semejantes disposiciones. Aún así, apelando a ese análisis de complejidad, podemos aprovechar que se separa de la consideración de las velocidades (en tanto se generen estos peores casos) y termina siendo en función de los tamaños de los vectores. Por lo tanto generamos casos de test sobre combinaciones de tamaños para ambos vectores y randomizando las velocidades de cada componente. A partir de la cantidad de repeticiones podríamos llegar a considerar la \emph{probabilidad} de que se generen algunos de los peores casos mencionados anteriormente.	
+\\
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej1}
+	\end{figure}
+
+Las muestras se toman a partir de todas las combinaciones posibles de entre 0 y 10 elementos por cada vector, con al menos 2 repeticiones por caso. Es por esto que se pueden ver 'outliers' de muy bajo tiempo de ejecución, que se corresponden a los casos donde la cantidad de caníbales es mayor a la de arqueólogos y por lo tanto la poda de estados que no cumplan las condiciones de mayoría de arqueólogos por cada lado acaba por recortar todos los candidatos en las primeras iteraciones. 
+
+Recordando que en la sección previa llegamos a una complejidad de orden $ \mathcal{O}(\ 2^{N+M}*(N^3+M^3)\ )$ y consideramos un eje de coordenadas $x = M + N$, sería acorde que si la cota estuviera bien ajustada pudieramos observar para cada combinación de tamaños de valor $x$ un tiempo de ejecución resultante de orden $ 2^{x}x^3 $. Por lo tanto, tomando un eje $y$ exponencial y despreciando el término cúbico, esperaríamos ver un gráfico lineal. Esto se condice con nuestras muestras.

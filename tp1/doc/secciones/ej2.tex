@@ -139,4 +139,14 @@
 
 \subsection{Análisis experimental}
 
+	Al ser $P$ la única variable sobre la cual depende del funcionamiento general del algoritmo, sobre la cual se sugiere por enunciado interpretar un rango $1 \leq P \leq 10^{15}$, nuestros tests para analizar dicho funcionamiento se centran en probar distintos valores de esta variable. Además, como cada rama dentro del cuerpo del $for$ del algoritmo tiene el mismo orden de complejidad (considerando las inserciones en los vectores en su complejidad amortizada, como ya explicamos anteriormente), no se distinguen 'peores casos' para valores de $P$.
+	\\
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej2}
+	\end{figure}
+	
+	Los casos se generan con el criterio de distribuir, en intervalos con la pinta $[10^i$..$10^i+1]$ para $0 < i < 20$ donde la cota superior se debe a la capacidad del tipo \emph{uint64_t} de $c++$, 90 muestras cada $10^{i-1}$ valores de $P$ \footnote{Para el intervalo de 0 a 10, son 10 mediciones para cada valor entero.}. La razón de esto es que en la sección anterior sugerimos una complejidad de orden logarítmico sobre el tamaño de la variable $P$ y una manera de contrastar empíricamente esto es notar un crecimiento lineal en el tiempo de ejecución para un eje de coordenadas exponencial para $P$, como podemos apreciar efectivamente en la imagen.
+
 \newpage
