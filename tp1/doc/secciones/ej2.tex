@@ -8,11 +8,13 @@
 	Por la naturaleza del problema, donde nos interesa determinar únicamente la pertencia de cada potencia en el total de las que usamos para nivelar la balanza (y distinguir a qué lado de la balanza van) la representación del estado final de cada platillo por separado mediante conjuntos disjuntos resulta apropiada. Llamaremos $I$ al conjunto final de las potencias sobre el platillo izquierdo y $D$ a aquellas de la derecha. Además, como cada plato es contrapeso del otro, el estado de la balanza respecto de uno de los platillos se interpreta como su carga menos la del opuesto.
 	\\
 
-	A partir de dichas representaciones, dado un valor de $P$, queremos encontrar dos conjuntos disjuntos de potencias de base 3 $I$ y $D$ tales que recreen el estado de la balanza original con una única carga $P$ a la a izquierda. En operatoria:
-	\\
+	A partir de dichas representaciones, dado un valor de $P$, queremos encontrar dos conjuntos disjuntos de potencias de base 3 $I$ y $D$ tales que recreen el estado de la balanza original con una única carga $P$ a la izquierda. Formalmente:
 
-	$\sum I$ - $\sum D$ = $P$ \ \ $\wedge$ \ \ $I \cap D = \emptyset$
-	\\
+$$
+    I,D \subset \{3^n \;|\; n \in \mathbb{N}_0 \} \;\; \land \;\;
+    \sum I - \sum D = P \;\; \land \;\;
+    I \cap D = \emptyset
+$$
 
 	Por ejemplo, para $P$ = 34 el par de conjuntos $\left \langle I,D  \right \rangle$ = $\left \langle \{27,9,1\},\{3\}  \right \rangle$ es solución porque \\
 	$\{27,9,1\} \cap \{3\} = \emptyset \ \wedge \ 34 = \sum I - \sum D = (27+9+1)-(3)$.
@@ -50,7 +52,7 @@
     hayCarry $\leftarrow$ false				
     exponente $\leftarrow$ 0
 
-    for digito in (P en base 3):
+    for digito in <$a_0$... $a_{ \left \lfloor{log(P)}\right \rfloor + 1}$>:
         if hayCarry:
             digito $\leftarrow$ digito + 1
             digito $\leftarrow$ digito $mod$ 3
@@ -125,7 +127,7 @@
 	[...]
 	\end{lstlisting}
 	
-	Por lo tanto en cada iteración conseguimos, mediante el algoritmo clásico de conversión de base mediante división, el próximo dígito. Cuando $P \geq 0$ entonces el ciclo termina y como $P$ decrementa en un tercio en cada iteración, esto significa que el ciclo se ejecuta un orden de $log_3(P)$ veces. 
+	Por lo tanto en cada iteración conseguimos, mediante el algoritmo clásico de conversión de base mediante división, el próximo dígito. Cuando $P \geq 0$ entonces el ciclo termina y como $P$ decrementa a un tercio en cada iteración, esto significa que el ciclo se ejecuta un orden de $log_3(P)$ veces. 
 	\\
 	
 	En el cuerpo del ciclo todas las operaciones aritméticas que se realizan son constantes en complejidad temporal (asumimos $mod$ incluída), pero también se realiza hasta una inserción en las secuencias $izq$ y $der$ por ciclo. Ambas secuencias las implementamos con el tipo $vector$ y, por lo tanto, la inserción corresponde a la operación $push\_back(elem)$. Esta operación tiene complejidad temporal constante amortizada, aunque podrían suceder 'reubicaciónes' que hicieran que para esa llamada en particular el costo sea lineal. Vamos a analizar partiendo de la complejidad amortizada, considerando que también se podría usar un array de tamaño $\left \lfloor{log_3(P)}\right \rfloor + 2$ ($\left \lfloor{log_3(P)}\right \rfloor + 1$ por la representación de P en base 3 y un 'bit' más por si hay un acarreo) y tener acceso constante en general.
@@ -141,12 +143,13 @@
 
 	Al ser $P$ la única variable sobre la cual depende del funcionamiento general del algoritmo, sobre la cual se sugiere por enunciado interpretar un rango $1 \leq P \leq 10^{15}$, nuestros tests para analizar dicho funcionamiento se centran en probar distintos valores de esta variable. Además, como cada rama dentro del cuerpo del $for$ del algoritmo tiene el mismo orden de complejidad (considerando las inserciones en los vectores en su complejidad amortizada, como ya explicamos anteriormente), no se distinguen 'peores casos' para valores de $P$.
 	\\
-	
-	\begin{figure}[H]
-		\centering
-		\includegraphics[width=\textwidth]{ej2}
-	\end{figure}
-	
-	Los casos se generan con el criterio de distribuir, en intervalos con la pinta $[10^i$..$10^i+1]$ para $0 < i < 20$ donde la cota superior se debe a la capacidad del tipo \emph{uint64_t} de $c++$, 90 muestras cada $10^{i-1}$ valores de $P$ \footnote{Para el intervalo de 0 a 10, son 10 mediciones para cada valor entero.}. La razón de esto es que en la sección anterior sugerimos una complejidad de orden logarítmico sobre el tamaño de la variable $P$ y una manera de contrastar empíricamente esto es notar un crecimiento lineal en el tiempo de ejecución para un eje de coordenadas exponencial para $P$, como podemos apreciar efectivamente en la imagen.
 
-\newpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{ej2}
+    \caption{Tiempo de ejecución del algoritmo en función de P}
+    \label{fig:ej2-fig}
+\end{figure}
+
+Los casos se generan con el criterio de distribuir, en los intervalos $[10^i$..$10^i+1]$ para $0 < i < 19$ (la cota superior se debe a la capacidad del tipo \emph{uint64_t} de $c++$), un caso cada $10^{i-1}$ valores de $P$ \footnote{Para el intervalo de 0 a 10, son 10 mediciones para cada valor entero.}. La razón de esto es que en la sección anterior sugerimos una complejidad de orden logarítmico sobre el tamaño de la variable $P$ y una manera de contrastar empíricamente esto es notar un crecimiento lineal en el tiempo de ejecución para un eje de coordenadas exponencial para $P$, como podemos apreciar efectivamente en la figura \ref{fig:ej2-fig}.
+
