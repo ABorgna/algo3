@@ -1,9 +1,9 @@
 #include <interfaz.h>
 
 #include <math.h>
-#include <cassert>
 #include <stdint.h>
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <queue>
@@ -36,19 +36,15 @@ vector<uint32_t> arq;
 vector<uint32_t> can;
 
 bool agregarCandidato(map<estado, uint32_t> &dist,
-                      set<pair<uint32_t, estado>> &candidatos,
-                      estado &hijo, uint32_t peso);
+                      set<pair<uint32_t, estado>> &candidatos, estado &hijo,
+                      uint32_t peso);
 
 int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
-    // Cantidades
-    uint32_t totArq = arq.size();
-    uint32_t totCan = can.size();
-
     // Empiezan todos del lado izquierdo
-    estado inicial(totArq, totCan);
+    estado inicial(arq.size(), can.size());
     estado objetivo;
-    objetivo.arq = vector<bool>(totArq, true);
-    objetivo.can = vector<bool>(totCan, true);
+    objetivo.arq = vector<bool>(arq.size(), true);
+    objetivo.can = vector<bool>(can.size(), true);
     objetivo.linterna = true;
 
     // Distancia minima hasta el estado
@@ -74,30 +70,22 @@ int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
         }
 
         // Hacemos un population count
-        uint32_t arqThisSide = 0;
-        uint32_t canThisSide = 0;
-        uint32_t arqOtherSide = 0;
-        uint32_t canOtherSide = 0;
+        uint32_t arqIzq = 0;
+        uint32_t canIzq = 0;
 
-        uint32_t popcount = 0;
-        for (uint32_t i = 0; i < totArq; i++)
+        for (uint32_t i = 0; i < arq.size(); i++)
             if (nodo.arq[i])
-                popcount++;
-        arqThisSide = nodo.linterna ? totArq - popcount : popcount;
-        arqOtherSide = totArq - arqOtherSide;
-
-        popcount = 0;
-        for (uint32_t i = 0; i < totCan; i++)
+                arqIzq++;
+        for (uint32_t i = 0; i < can.size(); i++)
             if (nodo.can[i])
-                popcount++;
-        canThisSide = nodo.linterna ? totCan - popcount : popcount;
-        canOtherSide = totCan - canOtherSide;
+                canIzq++;
 
         // Checkeamos que no sea un caso invalido
-        if(arqThisSide > 0 && arqThisSide < canThisSide) {
+        if ((arq.size() - arqIzq > 0) &&
+            (arq.size() - arqIzq) < (can.size() - canIzq)) {
             continue;
         }
-        if(arqOtherSide > 0 && arqOtherSide < canOtherSide) {
+        if (arqIzq > 0 && arqIzq < canIzq) {
             continue;
         }
 
@@ -105,13 +93,13 @@ int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
         estado hijo = nodo;
         hijo.linterna = !hijo.linterna;
 
-        for (uint32_t i = 0; i < totArq; i++) {
+        for (uint32_t i = 0; i < arq.size(); i++) {
             // Checkear si está de este lado
             if (nodo.arq[i] != nodo.linterna)
                 continue;
 
             hijo.arq[i] = !nodo.linterna;
-            for (uint32_t j = i; j < totArq; j++) {
+            for (uint32_t j = i; j < arq.size(); j++) {
                 if (nodo.arq[j] != nodo.linterna)
                     continue;
                 hijo.arq[j] = !nodo.linterna;
@@ -123,19 +111,20 @@ int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
                 // Agregamos este hijo a la lista
                 agregarCandidato(dist, candidatos, hijo, distancia);
 
-                if(i!=j) hijo.arq[j] = nodo.linterna;
+                if (i != j)
+                    hijo.arq[j] = nodo.linterna;
             }
             // Lo volvemos a como estaba
             hijo.arq[i] = nodo.linterna;
         }
 
-        for (uint32_t i = 0; i < totCan; i++) {
+        for (uint32_t i = 0; i < can.size(); i++) {
             // Checkear si está de este lado
             if (nodo.can[i] != nodo.linterna)
                 continue;
 
             hijo.can[i] = !nodo.linterna;
-            for (uint32_t j = i; j < totCan; j++) {
+            for (uint32_t j = i; j < can.size(); j++) {
                 if (nodo.can[j] != nodo.linterna)
                     continue;
                 hijo.can[j] = !nodo.linterna;
@@ -147,19 +136,20 @@ int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
                 // Agregamos este hijo a la lista
                 agregarCandidato(dist, candidatos, hijo, distancia);
 
-                if(i!=j) hijo.can[j] = nodo.linterna;
+                if (i != j)
+                    hijo.can[j] = nodo.linterna;
             }
             // Lo volvemos a como estaba
             hijo.can[i] = nodo.linterna;
         }
 
-        for (uint32_t i = 0; i < totArq; i++) {
+        for (uint32_t i = 0; i < arq.size(); i++) {
             // Checkear si está de este lado
             if (nodo.arq[i] != nodo.linterna)
                 continue;
 
             hijo.arq[i] = !nodo.linterna;
-            for (uint32_t j = 0; j < totCan; j++) {
+            for (uint32_t j = 0; j < can.size(); j++) {
                 if (nodo.can[j] != nodo.linterna)
                     continue;
                 hijo.can[j] = !nodo.linterna;
@@ -182,9 +172,8 @@ int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
 }
 
 bool agregarCandidato(map<estado, uint32_t> &dist,
-                      set<pair<uint32_t, estado>> &candidatos,
-                      estado &hijo, uint32_t distancia) {
-
+                      set<pair<uint32_t, estado>> &candidatos, estado &hijo,
+                      uint32_t distancia) {
     auto s = dist.find(hijo);
     if (s != dist.end()) {
         // El hijo ya tiene una distancia
@@ -194,7 +183,7 @@ bool agregarCandidato(map<estado, uint32_t> &dist,
         if (distancia < distVieja) {
             // Hay que borrar la posición en la cola de candidatos
             // para insertarlo de nuevo
-            auto p = candidatos.find({distVieja,hijo});
+            auto p = candidatos.find({distVieja, hijo});
             candidatos.erase(p);
             dist.erase(dist.find(hijo));
         } else {
@@ -203,8 +192,8 @@ bool agregarCandidato(map<estado, uint32_t> &dist,
         }
     }
 
-    dist.insert({hijo,distancia});
-    candidatos.insert({distancia,hijo});
+    dist.insert({hijo, distancia});
+    candidatos.insert({distancia, hijo});
 
     return true;
 }
@@ -213,7 +202,7 @@ bool agregarCandidato(map<estado, uint32_t> &dist,
  * Funciones del framework de testeo
  **************************************/
 
-void prob_load(std::istream& is) {
+void prob_load(std::istream &is) {
     uint32_t cantArq;
     uint32_t cantCan;
     arq.resize(0);
@@ -256,16 +245,14 @@ vector<uint64_t> prob_vars() {
     return res;
 }
 
-void prob_print_input(std::ostream& os) {
-    for(auto v : prob_vars()) os << v << " ";
+void prob_print_input(std::ostream &os) {
+    for (auto v : prob_vars()) os << v << " ";
     os << endl;
 }
 
-vector<Option> prob_custom_options() {
-    return {};
-}
+vector<Option> prob_custom_options() { return {}; }
 
-void generator_random(const std::vector<uint64_t>& v) {
+void generator_random(const std::vector<uint64_t> &v) {
     prob_reload();
 
     uint64_t cantArq = v[0];
@@ -274,16 +261,13 @@ void generator_random(const std::vector<uint64_t>& v) {
     arq.resize(0);
     can.resize(0);
 
-    for(uint64_t i=0; i<cantArq; i++) {
-        arq.push_back(rnd(1,1000000));
+    for (uint64_t i = 0; i < cantArq; i++) {
+        arq.push_back(rnd(1, 1000000));
     }
 
-    for(uint64_t i=0; i<cantCan; i++) {
-        can.push_back(rnd(1,1000000));
+    for (uint64_t i = 0; i < cantCan; i++) {
+        can.push_back(rnd(1, 1000000));
     }
 }
 
-vector<Generator> prob_generators() {
-    return {{"random", generator_random}};
-}
-
+vector<Generator> prob_generators() { return {{"random", generator_random}}; }
