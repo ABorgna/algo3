@@ -204,13 +204,27 @@ Como $S^M \geq M \times P$, queda demostrado que $M \times P = M \times \prod K_
 
 \subsection{Análisis Experimental}
 
-A continuación se presentan una serie de experimentos que ponen a prueba el algoritmo propuesto en esta sección y ayudan a probar que la complejidad temporal propuesta anteriormente es correcta.
+A continuación se presentan una serie de experimentos que ponen a prueba el algoritmo propuesto en esta sección y ayudan a mostrar que la complejidad temporal propuesta anteriormente es correcta.
+Dado que la cantidad de operaciones que realiza el algoritmo depende de más de una variable, se separa el análisis en varias secciones en las cuales varía una sola de las variables y el resto se dejan fijas.
 
 \subsubsection{Variando $\sum C_i$}
 
-Dejando fijas las capacidades máximas de cada mochila, se obtuvieron los siguientes resultados de tiempo de ejecución en función de $\sum C_i$ para una y tres mochilas:
+Dejando fijas las capacidades máximas de cada mochila, se obtuvieron los siguientes resultados de tiempo de ejecución en función de $\sum C_i$ para una, dos y tres mochilas:
 
-[Gráficos de tiempo en función de la suma]
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-c1}
+	\end{figure}
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-c2}
+	\end{figure}
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-c3}
+	\end{figure}
 
 Como puede verse, el algoritmo presenta un comportamiento lineal con respecto a la cantidad de objetos, lo cual es entendible ya que si dejásemos fijos los demás parámetros, la complejidad temporal sería $\mathcal{O}(\sum C_i)$. %Por ahí chamuyé re mal acá. No se que más poner D:
 
@@ -218,4 +232,37 @@ Como puede verse, el algoritmo presenta un comportamiento lineal con respecto a 
 
 Dejando fija la cantidad de objetos, se obtuvieron los siguientes resultados de tiempo de ejecución en función de $\prod K_i$ para una, dos y tres mochilas:
 
-[Gráficos de tiempo en función de la productoria]
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-k1}
+	\end{figure}
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-k2}
+	\end{figure}
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-k3}
+	\end{figure}	
+
+Esto muestra que si se varía la productoria total de las mochilas, el algoritmo vuelve a presentar un comportamiento lineal, lo cual puede explicarse porque dejando fijas todas las demás variables, el algoritmo tendría una complejidad de $\mathcal{O}(\prod K_i)$
+
+Para profundizar más el análisis, se hicieron más experimentos en los que $k_i = k_j$ y se van aumentando de forma lineal todos juntos, de forma tal que $\prod K_i = K_i^M$
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-k2a}
+	\end{figure}	
+
+Aquí se ve que el gráfico presenta un comportamiento cuadrático del algoritmo.
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=\textwidth]{ej3-k3a}
+	\end{figure}	
+
+Y aquí se ve que el gráfico presenta un comportamiento cúbico del algoritmo.
+
+Esto comprueba una vez más las hipótesis de complejidad que fueron presentadas en la sección anterior, ya que evidencia aún más la presencia de la productoria como factor determinante en el tiempo de ejecución.
