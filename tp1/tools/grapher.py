@@ -22,19 +22,17 @@ class Grapher:
     def __init__(self):
         plt.style.use('ggplot')
 
-    def run(self, infile, outfile, mode, modevars, title='', xlabel='',
-            xscale='linear', yscale='linear', polyfit=None, fitdegree=1,
-            exitstatus=[]):
+    def run(self, args):
 
-        points = []
+        pointsSet = {}
 
-        for line in infile:
+        for line in args.infile:
             values = [int(x) for x in line.split()]
 
             # Last number is the function return value
             # Ignore this datapoint if non zero
             ret = values.pop()
-            if len(exitstatus) and int(ret) not in exitstatus:
+            if len(args.exitstatus) and int(ret) not in args.exitstatus:
                 continue
 
             # Next is the number of runs
@@ -46,17 +44,17 @@ class Grapher:
             # What's left is the original variables
             x = None
 
-            if mode == 'sum':
+            if args.mode == 'sum':
                 x = sum(values)
 
-            elif mode == 'simple':
-                if len(values) != len(modevars):
+            elif args.mode == 'simple':
+                if len(values) != len(args.modevars):
                     print('Incorrect number of variables for mode "simple", expected',
-                            len(values), 'but got', len(modevars), file=sys.stderr)
+                            len(values), 'but got', len(args.modevars), file=sys.stderr)
                     sys.exit(2)
 
                 x = 0
-                for mv, v in zip(modevars,values):
+                for mv, v in zip(args.modevars,values):
                     valid = True
                     use = False
 
@@ -89,84 +87,94 @@ class Grapher:
                 continue
 
             point = (x,time)
-            points.append(point)
 
-        points.sort()
+            if not args.colorize:
+                ret = 0
+            if not ret in pointsSet:
+                pointsSet[ret] = []
+            pointsSet[ret].append(point)
 
-        if len(points):
-            self.plotTime(points, outfile, title, xlabel,
-                    xscale, yscale, polyfit, fitdegree)
+        for k in pointsSet.keys():
+            pointsSet[k].sort()
+
+        if len(pointsSet):
+            self.plotTime(pointsSet, args)
         else:
             print("No datapoints available", file=sys.stderr)
 
-
     # Graphs
 
-    def plotTime(self, points, outfile, title, xlabel, xscale, yscale,
-            polyfit, fitdegree):
-        sets = []
-        groups = []
+    def plotTime(self, pointsSet, args):
 
-        xs = [x for x,y in points]
-        ys = [y for x,y in points]
-
-        maxY = max(ys)
+        maxY = max([points[-1][1] for points in pointsSet.values()])
 
         # The original times are in ns
         unit = "s"
         if maxY < 1e3:
             unit = "ns"
+            scale = 1
         elif maxY < 1e6:
             unit = "us"
-            ys = [float(y)/1e3 for y in ys]
-            maxY = float(maxY)/1e3
+            scale = 1e3
         elif maxY < 1e9:
             unit = "ms"
-            ys = [float(y)/1e6 for y in ys]
-            maxY = float(maxY)/1e6
+            scale = 1e6
         elif maxY < 1e12:
             unit = "s"
-            ys = [float(y)/1e9 for y in ys]
-            maxY = float(maxY)/1e9
+            scale = 1e9
+
+        pointsSet = {k: [(x,float(y)/scale) for x,y in points]
+                        for k,points in pointsSet.items()}
+        maxY = float(maxY)/scale
 
         # Plot the data
         fig, ax = plt.subplots()
         fig.set_size_inches((12,9))
 
-        ax.plot(xs, ys, 'o', color=self.COLORS[0])
+        for k, points in pointsSet.items():
+            xs = [x for x,y in points]
+            ys = [y for x,y in points]
 
-        if polyfit is not None:
+            ax.plot(xs, ys, 'o', color=self.COLORS[k*6 % len(self.COLORS)],
+                    label= "Hay solución" if k == 0 else "No hay solución")
 
-            if polyfit == 'linear':
+        if args.polyfit is not None and 0 in pointsSet:
+            xs = [x for x,y in pointsSet[0]]
+            ys = [y for x,y in pointsSet[0]]
+
+            if args.polyfit == 'linear':
                 scale = lambda y : y
                 scaleback = lambda y : y
-            elif polyfit == 'exp':
+            elif args.polyfit == 'exp':
                 scale = lambda y : log(y)
                 scaleback = lambda y : math.e**y
-            elif polyfit == 'log':
+            elif args.polyfit == 'log':
                 scale = lambda y : math.e**y
                 scaleback = lambda y : log(y)
-            elif polyfit == 'loglog':
+            elif args.polyfit == 'loglog':
                 scale = lambda y : math.e**(math.e**y)
                 scaleback = lambda y : log(log(y))
 
-            coef = np.polyfit(xs, [scale(y) for y in ys], fitdegree)
+            coef = np.polyfit(xs, [scale(y) for y in ys], args.fitdegree)
 
-            fit = lambda x : scaleback(sum([a * x**(fitdegree-i)
+            fit = lambda x : scaleback(sum([a * x**(args.fitdegree-i)
                                  for (i,a) in enumerate(coef)]))
             ax.plot(xs, [fit(x) for x in xs], color=self.COLORS[2],
                     linewidth=2)
 
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
+        ax.set_title(args.title)
+        ax.set_xlabel(args.xlabel)
         ax.set_ylabel("Tiempo")
-        ax.set_xscale(xscale)
-        ax.set_yscale(yscale)
+        ax.set_xscale(args.xscale)
+        ax.set_yscale(args.yscale)
         ax.set_ylim(ymin=0)
+
+        if len(pointsSet) > 1:
+            ax.legend(loc='best')
+
         ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%g'+unit))
 
-        fig.savefig(outfile, format='png')
-
+        fig.savefig(args.outfile, format='png')
 
 if __name__ == "__main__":
 
@@ -199,6 +207,8 @@ if __name__ == "__main__":
     parser.add_argument('-e','--exitstatus', nargs='+',
             type=int, action='append', default=[],
             help='use datapoints with exit status N')
+    parser.add_argument('-C','--colorize', action='store_true', default=False,
+            help='enable/disable using diferent colors for each exitstatus')
 
     parser.add_argument('-i', help='input file', nargs='?',
             type=argparse.FileType('r'),
@@ -218,7 +228,5 @@ if __name__ == "__main__":
     args.exitstatus = [x for l in args.exitstatus for x in l] # Flatten
 
     g = Grapher()
-    g.run(args.infile, args.outfile, args.mode, args.modevars, args.title,
-            args.xlabel, args.xscale, args.yscale, args.polyfit, args.fitdegree,
-            args.exitstatus)
+    g.run(args)
 

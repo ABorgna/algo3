@@ -137,10 +137,10 @@ $(BENCH_OUT_DIR)/ej3-extra3: ej3
 $(GRAPHS) : %-graph : $(GRAPHS_OUT_DIR)/%
 
 $(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
-	tools/grapher.py -i $< -o $@.png --yscale log \
+	tools/grapher.py -i $< -o $@.png --yscale log --colorize \
 		-x "Cantidad de gente" \
 		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales"
-	tools/grapher.py -i $< -o $@-trim.png --yscale log -f exp -e 0 \
+	tools/grapher.py -i $< -o $@-trim.png --yscale log -e 0 \
 		-x "Cantidad de gente" \
 		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales, cuando existe una solución"
 
