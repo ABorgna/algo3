@@ -230,21 +230,24 @@ Dejando fijas las capacidades máximas de cada mochila, se obtuvieron los siguie
 		\centering
 		\includegraphics[width=\textwidth]{ej3-c1}
 		\caption{Tiempo de ejecución del algoritmo en función de $\sum C_i$ para una mochila}
+		\label{fig:ej3-c1-fig}
 	\end{figure}
 
 \begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{ej3-c2}
 		\caption{Tiempo de ejecución del algoritmo en función de $\sum C_i$ para dos mochilas}
+		\label{fig:ej3-c2-fig}
 	\end{figure}
 
 \begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{ej3-c3}
 		\caption{Tiempo de ejecución del algoritmo en función de $\sum C_i$ para tres mochilas}
+		\label{fig:ej3-c3-fig}
 	\end{figure}
 
-Como puede verse, el algoritmo presenta un comportamiento lineal con respecto a la cantidad de objetos, lo cual es entendible ya que si dejásemos fijos los demás parámetros, la complejidad temporal sería $\mathcal{O}(\sum C_i)$. %Por ahí chamuyé re mal acá. No se que más poner D:
+Como puede verse en las figuras \ref{fig:ej3-c1-fig}, \ref{fig:ej3-c2-fig} y \ref{fig:ej3-c3-fig}, el algoritmo presenta un comportamiento lineal con respecto a la cantidad de objetos, lo cual es entendible ya que si dejásemos fijos los demás parámetros, la complejidad temporal sería $\mathcal{O}(\sum C_i)$. %Por ahí chamuyé re mal acá. No se que más poner D:
 
 \subsubsection{Variando $\prod K_i$}
 
@@ -254,21 +257,24 @@ Dejando fija la cantidad de objetos, se obtuvieron los siguientes resultados de 
 		\centering
 		\includegraphics[width=\textwidth]{ej3-k1}
 		\caption{Tiempo de ejecución del algoritmo en función de $\prod K_i$ para una mochila}
+		\label{fig:ej3-k1-fig}
 	\end{figure}
 
 \begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{ej3-k2}
 		\caption{Tiempo de ejecución del algoritmo en función de $\prod K_i$ para dos mochilas}
+		\label{fig:ej3-k2-fig}
 	\end{figure}
 
 \begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{ej3-k3}
 		\caption{Tiempo de ejecución del algoritmo en función de $\prod K_i$ para tres mochilas}
+		\label{fig:ej3-k3-fig}
 	\end{figure}	
 
-Esto muestra que si se varía la productoria total de las mochilas, el algoritmo vuelve a presentar un comportamiento lineal, lo cual puede explicarse porque dejando fijas todas las demás variables, el algoritmo tendría una complejidad de $\mathcal{O}(\prod K_i)$
+Las figuras \ref{fig:ej3-k1-fig}, \ref{fig:ej3-k2-fig} y \ref{fig:ej3-k3-fig} muestran que si se varía la productoria total de las mochilas, el algoritmo vuelve a presentar un comportamiento lineal, lo cual puede explicarse porque dejando fijas todas las demás variables, el algoritmo tendría una complejidad de $\mathcal{O}(\prod K_i)$
 
 \newpage
 
@@ -278,16 +284,14 @@ Para profundizar más el análisis, se hicieron más experimentos en los que $k_
 		\centering
 		\includegraphics[width=\textwidth]{ej3-k2a}
 		\caption{Tiempo de ejecución del algoritmo en función de $K_i$ para dos mochilas. La curva naranja corresponde a un ajuste polinomial de grado 2.}
+		\label{fig:ej3-k2a-fig}
 	\end{figure}	
-
-Aquí se ve que el gráfico presenta un comportamiento cuadrático del algoritmo.
 
 \begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{ej3-k3a}
 		\caption{Tiempo de ejecución del algoritmo en función de $K_i$ para tres mochilas. La curva naranja corresponde a un ajuste polinomial de grado 3.}
+		\label{fig:ej3-k3a-fig}
 	\end{figure}	
 
-Y aquí se ve que el gráfico presenta un comportamiento cúbico del algoritmo.
-
-Esto comprueba una vez más las hipótesis de complejidad que fueron presentadas en la sección anterior, ya que evidencia aún más la presencia de la productoria como factor determinante en el tiempo de ejecución.
+En la figura \ref{fig:ej3-k2a-fig} el gráfico presenta un comportamiento cuadrático del algoritmo, y en la figura \ref{fig:ej3-k3a-fig} se ve que el gráfico presenta un comportamiento cúbico. Esto comprueba una vez más las hipótesis de complejidad que fueron presentadas en la sección anterior, ya que evidencia aún más la presencia de la productoria como factor determinante en el tiempo de ejecución.
