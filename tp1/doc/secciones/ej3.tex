@@ -4,11 +4,13 @@
 
 En medio del viaje, nuestros arqueólogos encuentran una sala llena de tesoros que desean llevar a su casa utilizando las mochilas con las que disponen. Deberán distribuir los objetos de manera lo suficientemente eficiente como para maximizar el valor total entre todas las mochilas sabiendo que cada una de estas tiene un tope de peso que pueden llevar.
 
-Dicho formalmente, si tenemos un conjunto de $n$ objetos $O = \{(p_i,v_i) \quad | \quad 1 \leq i \leq n\}$ con peso $p_i$ y valor $v_i$ y $m$ mochilas con capacidad $c_j$, queremos encontrar distribuir los $o_i$ en cada mochila $M_j$ de manera tal de maximizar $\sum_{j = 0}^m\sum_{o_i \in M_j} v_i$ (es decir, la suma total del valor de cada mochila) sin exceder su capacidad de peso (Osea, $(\sum_{o_i \in M_j} p_i) \leq c_j$).
+Dicho formalmente, si tenemos un conjunto de $n$ objetos $O = \{(p_i,v_i) \quad | \quad 1 \leq i \leq n\}$ con peso $p_i$ y valor $v_i$ y $m$ mochilas con capacidad $K_j$, queremos encontrar distribuir los $o_i$ en cada mochila $M_j$ de manera tal de maximizar $\sum_{j = 0}^m\sum_{o_i \in M_j} v_i$ (es decir, la suma total del valor de cada mochila) sin exceder su capacidad de peso (Osea, $(\sum_{o_i \in M_j} p_i) \leq K_j$).
 
 Este tipo de problema es conocido como Multiple Knapsack.
 
 \subsection{Solución}
+
+Antes de presentar la solución se aclara que, a diferencia de como se presenta en el enunciado, se tienen en cuenta a todos los tesoros como si fueran distintos. Es decir, por ejemplo, si hay 4 unidades de un mismo tesoro, se tienen en cuenta a cada uno como tesoros distintos de igual peso y valor.
 
 Para solucionar el problema, se utilizó programación dinámica de la siguiente manera:
 
@@ -28,7 +30,7 @@ input: mochilas : vector<int>,  objetos : vector<int>
 
 mejorValor $\leftarrow$ crear un vector de $m+1$ dimensiones
 int mejorValorGlobal
-mejorCombinacion $\leftarrow$ de tamanio $m$
+mejorCombinacion $\leftarrow$ vector de longitud $m$
 para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$ (recorridas en un orden crecinte)
 	int valorCandidato
 	para todo $i$ desde $1$ hasta $n$
@@ -55,9 +57,9 @@ Dadas $m$ mochilas y dos vectores de pesos $p$ y $p'$ de dimensión $m$
 
 $$p \leq p' \Leftrightarrow p_i \leq p'_i \quad \forall \quad 1 \leq i \leq m$$
 
-También, existe un elemento mínimo $0_m$ que cumple
+También, existe un elemento mínimo $0_m$ que es el vector con ceros en todas sus coordenadas y cumple
 
-$$0_m < p \quad \forall \quad p \neq 0_m$$
+$$0_m \leq p \quad \forall p$$
 
 Una vez definida la relación de orden parcial, podemos pasar a la demostración:
 
@@ -111,7 +113,7 @@ Para esta demostración, resulta importante entender las hipótesis con las que 
 
 \begin{itemize}
 \item Para el vector $p$, el algoritmo sabe resolver todas las instancias del probema con $n$ objetos.
-\item Para cualquier vector $p' \leq p$, el algoritmo sabe resolver todas las instancias del problema con $k$ objetos (donde $k$ es cualquier natural que podría ser mayor a $n$)
+\item Para cualquier vector $p' \leq p$, el algoritmo sabe resolver todas las instancias del problema con $k$ objetos (donde $k$ es cualquier natural que podría ser mayor a $n$, aunque eso no se usa en esta demostración)
 \end{itemize}
 
 Entonces, dado el vector $p$ y $n + 1$ objetos, hay $m + 1$ opciones que conciernen al objeto $n + 1$-ésimo: o no se lo pone en ninguna mochila, o se lo pone en alguna de las $m$ mochilas. La opción que genere el valor máximo será la que solucione el problema.
@@ -126,13 +128,13 @@ y sea $o$ el peso del objeto $n + 1$
 
 $$p'_j = p_j - o$$
 
-Se puede ver que $p' \leq p$, así que, por hipótesis inductiva (segundo ítem) el algoritmo propuesto puede resolver el problema para el vector $p'$ y los $n + 1$ objetos. Dejando eso en claro, el algoritmo puede proponer un valor máximo para los $m + 1$ casos mencionados al principio. El máximo de todos esos valores será la solución al poblema con vector $p$ y $n + 1$ objetos.
+Se puede ver que $p' \leq p$, así que, por hipótesis inductiva (segundo ítem) el algoritmo propuesto puede resolver el problema para el vector $p'$ y los $n$ primeros objetos. Dejando eso en claro, el algoritmo puede proponer un valor máximo para los $m + 1$ casos mencionados al principio. El máximo de todos esos valores será la solución al poblema con vector $p$ y $n + 1$ objetos.
 
 De esta manera queda probado que, dados un vector de pesos $p$ y $n$ objetos, el algoritmo da una solución correcta para el problema. \QEDB
 
 \subsubsection{Complejidad}
 
-A continuación se muestra una versión simplificada del pseudocódigo para hacer énfasis en poder analizar la cantidad de operaciones que se realizan en el algoritmo.
+A continuación se muestra una versión simplificada del pseudocódigo para hacer énfasis en la cantidad de operaciones que se realizan en el algoritmo.
 
 \lstset{basicstyle=\large}
 \begin{lstlisting}
@@ -156,7 +158,7 @@ se recuerda que $n$ es la cantidad total de objetos y $m$ la cantidad de mochila
 
 \item El segundo ciclo que recorre todos los objetos, va desde 1 hasta $n = \sum C_i$
 
-\item El tercer ciclo, que ejecuta una iteración por mochila, por lo cual hace $M$ iteraciones.
+\item El tercer ciclo ejecuta una iteración por mochila, por lo cual hace $M$ iteraciones.
 
 \item Lo que se encuentra dentro del tercer ciclo es el siguiente fragmento de código
 
@@ -171,36 +173,40 @@ si el objeto $i$ entra en la mochila con peso $w_j$
 				valorAnterior $\leftarrow$ valorCandidato
 \end{lstlisting}
 
-Todas son comparaciones y asignaciones en tiempo constante ("poner el objeto en la mochila con peso $w_j$" en el código original es hacer una asignación en un vector) por lo cual esto mismo no influye en el cálculo de complejidad del algoritmo
+Todas son comparaciones y asignaciones en tiempo constante (``poner el objeto en la mochila con peso $w_j$'' es hacer una asignación en un vector) por lo cual esto mismo no influye en el cálculo de complejidad del algoritmo
 \end{itemize}
 
 Teniendo todos estos factores en cuenta, se puede deducir que el algoritmo realiza $\mathcal{O}((\prod K_i) \times M \times \sum C_i)$ operaciones.
 
-A continuación se prueba que la complejidad presentada cumple con la cota de $\mathcal{O}((\sum K_i)^M \times \sum C_i)$ que da el enunciado.
+A continuación se prueba que la complejidad presentada cumple con la cota de $\mathcal{O}((\sum K_i)^M \times \sum C_i)$ establecida por el enunciado.
 
-Ambas complejidades comparten la expresión $\sum C_i$ por lo cual la demostración consistira en deducir que $(\prod K_i) \times M = \mathcal{O}((\sum K_i)^M)$
+Ambas complejidades comparten la expresión $\sum C_i$ por lo cual la demostración consistirá en deducir que $(\prod K_i) \times M = \mathcal{O}((\sum K_i)^M)$
 
-Para simplificar, notaremos $P = \prod K_i$ y $S = (\sum K_i)$
+Para simplificar, notaremos $P = \prod K_i$ y $S = (\sum K_i)^M$
 
-Existe una relación entre $S^M$ y el Teorema multinomial, el cual establece que dados $n, m \in \mathbb{N}$ y $m$ números $x_1, \ldots , x_m$
+Existe una relación entre $S$ y el Teorema multinomial, el cual establece que dados $n, m \in \mathbb{N}$ y $m$ números $x_1, \ldots , x_m$
 
 $$(x_1 + x_2 + \ldots + x_m)^n = \sum_{k_1 + k_2 + \ldots + k_m = n} \binom{n}{k_1, k_2, \ldots , k_m} \prod_{1 \leq t \leq m} x_t^{k_t}$$
 
 donde $\binom{n}{k_1, k_2, \ldots , k_m} = \frac{n!}{k_1! k_2! \ldots k_m!}$
 
-$S$ es un caso particular de este teorema ya que $n = m$. Si bien esta suma puede parecer complicada, nosotros nos centraremos en uno solo de los términos en el cual $k_1 = k_2 = \ldots = k_m = 1$
+$S$ es un caso particular de este teorema ya que $n = m$. Si bien esta suma puede parecer complicada, nosotros nos centraremos en uno solo de los términos en el cual $k_1 = k_2 = \ldots = k_m = 1$. Llamaremos a ese término $S_1$.
 
-Se puede ver que esto cumple con la condición de la sumatoria ya que $k_1 + k_2 + \ldots + k_m = m \times k_1 = m = n$
+Se puede ver que esto cumple con la condición de la sumatoria ya que
+
+$$k_1 + k_2 + \ldots + k_m = 1 + 1 + \ldots + 1 = m = n$$
 
 Entonces, reemplazando:
 
-$$ \binom{m}{k_1, k_2, \ldots , k_m} \prod_{1 \leq t \leq m} x_t^{k_t} = \binom{m}{1, 1, \ldots , 1} \prod_{1 \leq t \leq m} x_t^{1} = m! \prod_{1 \leq t \leq m} x_t $$
+$$S_1 = \binom{m}{k_1, k_2, \ldots , k_m} \prod_{1 \leq t \leq m} x_t^{k_t} = \binom{m}{1, 1, \ldots , 1} \prod_{1 \leq t \leq m} x_t^{1} = m! \prod_{1 \leq t \leq m} x_t $$
+
+Notar que si $x_i \geq 0 \quad \forall \quad i$ entonces $S \geq S_1$
 
 Si cambiamos los nombres de las variables del teorema con los nombres de las variables de este problema queda
 
 $$M! \prod K_i = M! \times P \geq M \times P$$
 
-Como $S^M \geq M \times P$, queda demostrado que $M \times P = M \times \prod K_i = \mathcal{O}((\sum K_i)^M)$ y entonces la complejidad propuesta cumple con la cota establecida por el ejercicio.\QEDB
+Como $S \geq S_1 \geq M \times P$, queda demostrado que $M \times P = M \times \prod K_i = \mathcal{O}((\sum K_i)^M)$ y entonces la complejidad propuesta cumple con la cota establecida por el ejercicio.\QEDB
 
 \subsection{Análisis Experimental}
 
