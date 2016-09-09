@@ -1,0 +1,396 @@
+\section{Códigos Fuente}
+\subsection{Ejercicio 1}
+
+\lstset{language=C++,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#}
+}
+
+\begin{lstlisting}[ basicstyle=\small]
+    #include <math.h>
+    #include <stdint.h>
+    #include <algorithm>
+    #include <cassert>
+    #include <iostream>
+    #include <map>
+    #include <queue>
+    #include <set>
+    #include <tuple>
+    #include <vector>
+
+    using namespace std;
+
+    // Hay 2^(N+M) estados posibles
+    typedef struct estado_t {
+        // Para todo, true = del lado derecho
+        vector<bool> arq;
+        vector<bool> can;
+        bool linterna = false;
+
+        estado_t(){};
+        estado_t(uint32_t n, uint32_t m) : arq(n), can(m) {}
+
+        // La priority_queue requiere <
+        bool operator<(const struct estado_t &o) const {
+            return tie(linterna, arq, can) < tie(o.linterna, o.arq, o.can);
+        }
+        bool operator==(const struct estado_t &o) const {
+            return tie(linterna, arq, can) == tie(o.linterna, o.arq, o.can);
+        }
+    } estado;
+
+    vector<uint32_t> arq;
+    vector<uint32_t> can;
+
+    bool agregarCandidato(map<estado, uint32_t> &dist,
+                          set<pair<uint32_t, estado>> &candidatos, estado &hijo,
+                          uint32_t peso);
+
+    int64_t tiempoMinimo(const vector<uint32_t> &arq, const vector<uint32_t> &can) {
+        // Empiezan todos del lado izquierdo
+        estado inicial(arq.size(), can.size());
+        estado objetivo;
+        objetivo.arq = vector<bool>(arq.size(), true);
+        objetivo.can = vector<bool>(can.size(), true);
+        objetivo.linterna = true;
+
+        // Distancia minima hasta el estado
+        map<estado, uint32_t> dist;
+        dist.insert({inicial, 0});
+
+        // Mantenemos la lista de candidatos a explorar,
+        // y vemos siempre el mas cercano primero
+        set<pair<uint32_t, estado>> candidatos;
+        candidatos.insert(make_pair(0, inicial));
+
+        int64_t res = -1;
+        while (!candidatos.empty()) {
+            auto p = candidatos.begin();
+            uint32_t costo = p->first;
+            estado nodo = p->second;
+            candidatos.erase(p);
+
+            // Llegamos a la solucion
+            if (nodo == objetivo) {
+                res = costo;
+                break;
+            }
+
+            // Hacemos un population count
+            uint32_t arqIzq = 0;
+            uint32_t canIzq = 0;
+
+            for (uint32_t i = 0; i < arq.size(); i++)
+                if (nodo.arq[i])
+                    arqIzq++;
+            for (uint32_t i = 0; i < can.size(); i++)
+                if (nodo.can[i])
+                    canIzq++;
+
+            // Checkeamos que no sea un caso invalido
+            if ((arq.size() - arqIzq > 0) &&
+                (arq.size() - arqIzq) < (can.size() - canIzq)) {
+                continue;
+            }
+            if (arqIzq > 0 && arqIzq < canIzq) {
+                continue;
+            }
+
+            // Generamos los pasos posibles a partir de donde estamos
+            estado hijo = nodo;
+            hijo.linterna = !hijo.linterna;
+
+            for (uint32_t i = 0; i < arq.size(); i++) {
+                // Checkear si esta de este lado
+                if (nodo.arq[i] != nodo.linterna)
+                    continue;
+
+                hijo.arq[i] = !nodo.linterna;
+                for (uint32_t j = i; j < arq.size(); j++) {
+                    if (nodo.arq[j] != nodo.linterna)
+                        continue;
+                    hijo.arq[j] = !nodo.linterna;
+
+                    // El movimiento siempre cuesta la menor de las velocidades
+                    uint32_t costoExtra = max(arq[i], arq[j]);
+                    uint32_t distancia = costo + costoExtra;
+
+                    // Agregamos este hijo a la lista
+                    agregarCandidato(dist, candidatos, hijo, distancia);
+
+                    if (i != j)
+                        hijo.arq[j] = nodo.linterna;
+                }
+                // Lo volvemos a como estaba
+                hijo.arq[i] = nodo.linterna;
+            }
+
+            for (uint32_t i = 0; i < can.size(); i++) {
+                // Checkear si esta de este lado
+                if (nodo.can[i] != nodo.linterna)
+                    continue;
+
+                hijo.can[i] = !nodo.linterna;
+                for (uint32_t j = i; j < can.size(); j++) {
+                    if (nodo.can[j] != nodo.linterna)
+                        continue;
+                    hijo.can[j] = !nodo.linterna;
+
+                    // El movimiento siempre cuesta la menor de las velocidades
+                    uint32_t costoExtra = max(can[i], can[j]);
+                    uint32_t distancia = costo + costoExtra;
+
+                    // Agregamos este hijo a la lista
+                    agregarCandidato(dist, candidatos, hijo, distancia);
+
+                    if (i != j)
+                        hijo.can[j] = nodo.linterna;
+                }
+                // Lo volvemos a como estaba
+                hijo.can[i] = nodo.linterna;
+            }
+
+            for (uint32_t i = 0; i < arq.size(); i++) {
+                // Checkear si esta de este lado
+                if (nodo.arq[i] != nodo.linterna)
+                    continue;
+
+                hijo.arq[i] = !nodo.linterna;
+                for (uint32_t j = 0; j < can.size(); j++) {
+                    if (nodo.can[j] != nodo.linterna)
+                        continue;
+                    hijo.can[j] = !nodo.linterna;
+
+                    // El movimiento siempre cuesta la menor de las velocidades
+                    uint32_t costoExtra = max(arq[i], can[j]);
+                    uint32_t distancia = costo + costoExtra;
+
+                    // Agregamos este hijo a la lista
+                    agregarCandidato(dist, candidatos, hijo, distancia);
+
+                    hijo.can[j] = nodo.linterna;
+                }
+                // Lo volvemos a como estaba
+                hijo.arq[i] = nodo.linterna;
+            }
+        }
+
+        return res;
+    }
+\end{lstlisting}
+\begin{lstlisting}[ basicstyle=\small]
+    bool agregarCandidato(map<estado, uint32_t> &dist,
+                          set<pair<uint32_t, estado>> &candidatos, estado &hijo,
+                          uint32_t distancia) {
+        auto s = dist.find(hijo);
+        if (s != dist.end()) {
+            // El hijo ya tiene una distancia
+            // lo agregamos solo si la distancia resultante es menor
+            uint32_t distVieja = s->second;
+
+            if (distancia < distVieja) {
+                // Hay que borrar la posicion en la cola de candidatos
+                // para insertarlo de nuevo
+                auto p = candidatos.find({distVieja, hijo});
+                candidatos.erase(p);
+                dist.erase(dist.find(hijo));
+            } else {
+                // La distancia anterior ya era mejor que venir por este camino
+                return false;
+            }
+        }
+
+        dist.insert({hijo, distancia});
+        candidatos.insert({distancia, hijo});
+
+        return true;
+    }
+\end{lstlisting}
+
+\newpage
+%-------------------------------------------------------------------
+%-------------------------------------------------------------------
+%-------------------------------------------------------------------
+\subsection{Ejercicio 2}
+
+\begin{lstlisting}[ basicstyle=\small]
+      #include <math.h>
+      #include <stdint.h>
+      #include <iostream>
+      #include <set>
+      #include <vector>
+
+      using namespace std;
+
+      uint64_t peso;
+
+      void balancear(uint64_t peso, vector<uint8_t> &izq, vector<uint8_t> &der) {
+          // peso = sum(3^izq) - sum(3^der)
+
+          bool carry = false;
+          uint8_t exponente = 0;
+
+          // Recorremos los dígitos en base 3, empezando por el menos significativo
+          while (peso > 0) {
+              uint8_t digito = peso % 3;
+              peso /= 3;
+
+              // Le sumamos una pesa al dígito anterior, y quedo un carry
+              if (carry) {
+                  digito += 1;
+                  digito %= 3;
+
+                  // Checkear si se genero otro carry mas
+                  carry = digito == 0;
+              }
+
+              if (digito == 2) {
+                  // A cada dígito '2' del peso hay que sumarle 1
+
+                  // Agregamos una pesa con este exponente
+                  der.push_back(exponente);
+
+                  // Actualizamos el peso
+                  digito = 0;
+                  carry = true;
+
+              } else if (digito == 1) {
+                  // Si quedo un 1 agregamos una pesa del otro lado, para
+                  // contrarestarlo
+                  izq.push_back(exponente);
+              }
+
+              exponente++;
+          }
+
+          if (carry)
+              izq.push_back(exponente);
+      }
+\end{lstlisting}
+
+\newpage
+%-------------------------------------------------------------------
+%-------------------------------------------------------------------
+%-------------------------------------------------------------------
+\subsection{Ejercicio 3}
+
+\begin{lstlisting}[ basicstyle=\small]
+#include <stdint.h>
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <set>
+#include <vector>
+#include <math.h>
+
+using namespace std;
+
+typedef struct mkp_object_t {
+    uint64_t id;
+    uint64_t weight;
+    int64_t value;
+} mkp_object;
+
+vector<uint64_t> bins(3,0);
+vector<mkp_object> objects;
+
+uint64_t mkp(vector<uint64_t> bins, vector<mkp_object> const &objetos,
+             vector<vector<uint64_t>> &resultIds) {
+    // O(pi(bins) * count(objects) )
+
+    // Si hay menos de 3 mochilas, consideramos las siguientes como
+    // de tamano 0
+
+    // Para cada combinacion de k_i pesos de las mochilas, con 0 <= k_i <=
+    // capacidad(i)
+    // calculamos el mayor valor conseguible ocupando exactamente ese espacio
+    //
+    // En cada combinacion, para cada 0 <= j <= cantidad de objetos,
+    // calculamos el optimo usando los primeros j objetos.
+
+    vector<vector<vector<vector<int64_t>>>> mejorValor(
+        bins[0] + 1,
+        vector<vector<vector<int64_t>>>(
+            bins[1] + 1,
+            vector<vector<int64_t>>(bins[2] + 1,
+                                    vector<int64_t>(objetos.size() + 1, -1))));
+
+    vector<vector<vector<vector<int64_t>>>> binObjeto(
+        bins[0] + 1,
+        vector<vector<vector<int64_t>>>(
+            bins[1] + 1,
+            vector<vector<int64_t>>(bins[2] + 1,
+                                    vector<int64_t>(objetos.size() + 1, -1))));
+
+    // 0 objetos en mochilas de tamano 0 tienen valor 0
+    mejorValor[0][0][0][0] = 0;
+
+    int64_t valorMax = 0;
+    vector<uint64_t> sizesMax(3, 0);
+
+    for (uint64_t w0 = 0; w0 <= bins[0]; w0++) {
+        for (uint64_t w1 = 0; w1 <= bins[1]; w1++) {
+            for (uint64_t w2 = 0; w2 <= bins[2]; w2++) {
+                // Para cada primeros j objetos buscamos el máximo
+                for (uint64_t j = 1; j <= objetos.size(); j++) {
+                    const mkp_object &obj = objetos[j - 1];
+
+                    // Decidimos si conviene poner el objeto en una mochila o no
+                    // usarlo
+                    int64_t valCandidato, valor = mejorValor[w0][w1][w2][j - 1];
+
+                    valCandidato = obj.weight > w0 ? -1 :
+                        mejorValor[w0 - obj.weight][w1][w2][j - 1] + obj.value;
+                    if (valor < valCandidato) {
+                        binObjeto[w0][w1][w2][j] = 0;
+                        valor = valCandidato;
+                    }
+
+                    valCandidato = obj.weight > w1 ? -1 :
+                        mejorValor[w0][w1 - obj.weight][w2][j - 1] + obj.value;
+                    if (valor < valCandidato) {
+                        binObjeto[w0][w1][w2][j] = 1;
+                        valor = valCandidato;
+                    }
+
+                    valCandidato = obj.weight > w2 ? -1 :
+                        mejorValor[w0][w1][w2 - obj.weight][j - 1] + obj.value;
+                    if (valor < valCandidato) {
+                        binObjeto[w0][w1][w2][j] = 2;
+                        valor = valCandidato;
+                    }
+
+                    mejorValor[w0][w1][w2][j] = valor;
+                }
+
+                // Mantenemos el máximo valor visto
+                if (valorMax < mejorValor[w0][w1][w2][objetos.size()]) {
+                    valorMax = mejorValor[w0][w1][w2][objetos.size()];
+                    sizesMax = {w0, w1, w2};
+                }
+            }
+        }
+    }
+
+    // Escribimos los ids del resultado
+    resultIds.resize(bins.size());
+
+    for(uint64_t j=objetos.size(); j > 0; j--) {
+        int64_t bin = binObjeto[sizesMax[0]][sizesMax[1]][sizesMax[2]][j];
+        if (bin != -1) {
+            resultIds[bin].push_back(objetos[j-1].id);
+            sizesMax[bin] -= objetos[j-1].weight;
+        }
+    }
+
+    // Como recorrimos los objetos desde el ultimo hay que invertir el array
+    // (se pide ordenado)
+    for (auto &v : resultIds) {
+        reverse(v.begin(), v.end());
+    }
+    return valorMax;
+}
+\end{lstlisting}
