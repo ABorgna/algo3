@@ -26,12 +26,12 @@
         Para cada persona $k$, sabemos su tiempo de cruce $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
         \\
         
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=12.0cm]{grafo-ej1}
-    \caption{Grafo de estados correspondiente a un ejemplo con dos arqueólogos con valores de demora \{3,7\} y un caníbal con demora de 40. La primer componente de cada estado determina la cantidad de arqueólogos del lado inicial, la segunda la cantidad de caníbales y la tercera la linterna. Demora mínima: 50.}
-    \label{fig:ej1-graph}
-\end{figure}
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=12.0cm]{grafo-ej1}
+%    \caption{Grafo de estados correspondiente a un ejemplo con dos arqueólogos con valores de demora \{3,7\} y un caníbal con demora de 40. La primer componente de cada estado determina la cantidad de arqueólogos del lado inicial, la segunda la cantidad de caníbales y la tercera la linterna. Demora mínima: 50.}
+%    \label{fig:ej1-graph}
+%\end{figure}
 
 
 \subsection{Solución y Correctitud}
@@ -126,7 +126,7 @@ Veamos que el algoritmo es correcto. Vamos a probar que obtiene siempre la dista
 \\
 
 Vamos a usar inducción en la cantidad de vértices (estados) visitados en el grafo.
-Sea $dist(v)$ la distancia desde el estado inicial obtenida por el algoritmo hasta el vértice $v$. Sea $\delta(v)$, el peso del camino mínimo hasta $v$ y sea $V$ el conjunto de vértices visitados hasta el momento: tenemos que probar que $dist(v) = \delta(v)$ para todo vértice del grafo. Vamos a probarlo mediante induccion con el siguiente lema:
+Sea $dist(v)$ la distancia desde el estado inicial obtenida por el algoritmo hasta el vértice $v$. Sea $\delta(v)$, el peso del camino mínimo hasta $v$ y sea $V$ el conjunto de vértices visitados hasta el momento: tenemos que probar que $dist(v) = \delta(v)$ para todo vértice del grafo. Vamos a probarlo mediante inducción con el siguiente lema:
 \\
 
 % Estoy martillando esta dem
@@ -143,7 +143,7 @@ el estado inicial, el cual tiene distancia 0 (por definición) y es correcto tri
 \emph{\textbf{Hipótesis inductiva: }} Para todo vértice explorado anteriormente (es decir que está en $V$) nuestra distancia hallada es la mínima.
 \\
 
-\emph{Paso Inductivo:} Sea $u$ el último nodo agregado a $V$. Sea $V'= V + u$, necesitamos probar que $dist(u) = \delta(u)$ para terminar. Vamos por el absurdo, supongamos que nuestro algoritmo no encuentra el camino minimo: Supongamos que hay un camino más corto hasta $u$ que es $Q$, por lo tanto afirmamos sobre la longitud del camino $Q$, $L(Q)$, que
+\emph{Paso Inductivo:} Sea $u$ el último nodo agregado a $V$. Sea $V'= V + u$, necesitamos probar que $dist(u) = \delta(u)$ para terminar. Vamos por el absurdo, supongamos que nuestro algoritmo no encuentra el camino mínimo: Supongamos que hay un camino más corto hasta $u$ que es $Q$, por lo tanto afirmamos sobre la longitud del camino $Q$, $L(Q)$, que
 \\
 \begin{center}
 \textbf{I)} $L(Q) < dist(u)$
@@ -194,11 +194,11 @@ Por este mismo absurdo también se puede ver por qué la distancia calculada par
 \subsection{Complejidad}
 Antes de empezar a iterar tenemos que inicializar los dos vectores de booleanos que determinan posiciones de arqueólogos y caníbales. Esto nos cuesta $\mathcal{O}(N+M)$. \\
 
-El peor caso teórico sería aquel en el que tuvieramos que visitar todos los estados configurables del grafo (asumiendo que todos fueran posibles y no fueran podados) y tener que encolar/actualizar todas las distancias por cada estado generado por cada par posible.
+El peor caso teórico sería aquel en el que tuviéramos que visitar todos los estados configurables del grafo (asumiendo que todos fueran posibles y no fueran podados) y tener que encolar/actualizar todas las distancias por cada estado generado por cada par posible.
 
 La cantidad de estados totales que tendremos será $2^{N+M+1}$ porque por cada arqueólogo, caníbal y linterna pueden o ser $True$ o $False$. \\
 
-El costo de actualizar una distancia, asumiendo que todos los estados están presentes en el diccioanrio y en el conjunto que usamos como cola de prioridad (ambos implementados sobre $Red/Black Trees$) es logarítimico en su cantidad de elementos: $\mathcal{O}(log(2^{N+M})) = \mathcal{O}(N+M)$. \\
+El costo de actualizar una distancia, asumiendo que todos los estados están presentes en el diccionario y en el conjunto que usamos como cola de prioridad (ambos implementados sobre $Red/Black Trees$) es logarítmico en su cantidad de elementos: $\mathcal{O}(log(2^{N+M})) = \mathcal{O}(N+M)$. \\
 
 La cantidad de pares de elementos de $A$ es cuadrática en sus elementos (contando la posibilidad de elegir dos veces al mismo, siendo un único elemento que cambie entre estados), ídem para $C$ y para pares mixtos hay $M*N$ combinaciones.
 
@@ -216,11 +216,11 @@ En la anterior sección teorizamos un peor caso que forzaba a visitar y procesar
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{ej1}
-    \caption{Tiempo de ejecución en función de la suma de cantidad de arqueólogos y cantidad de caníbales. Las velocidades de cada uno son generadas a partir de una distribución uniforme en cada muestra}
+    \caption{Tiempo de ejecución en función de la suma de cantidad de arqueólogos y cantidad de caníbales. Las velocidades de cada uno son generadas a partir de una distribución uniforme en cada muestra. Cada medición es el tiempo mínimo de 10 corridas.}
     \label{fig:ej1-fig}
 \end{figure}
 
 Las muestras de la figura \ref{fig:ej1-fig} se toman a partir de todas las combinaciones posibles de entre 0 y 10 elementos por cada vector, con al menos 2 repeticiones por caso. Es por esto que se pueden ver 'outliers' de muy bajo tiempo de ejecución, que se corresponden a los casos donde la cantidad de caníbales es mayor a la de arqueólogos y por lo tanto la poda de estados que no cumplan las condiciones de mayoría de arqueólogos por cada lado acaba por recortar todos los candidatos en las primeras iteraciones. 
 
-Recordando que en la sección previa llegamos a una complejidad de orden $ \mathcal{O}(\ 2^{N+M}*(N^3+M^3)\ )$ y consideramos un eje de coordenadas $x = M + N$, sería acorde que si la cota estuviera bien ajustada pudieramos observar para cada combinación de tamaños de valor $x$ un tiempo de ejecución resultante de orden $ 2^{x}x^3 $. Por lo tanto, tomando un eje $y$ exponencial y despreciando el término cúbico, esperaríamos ver un gráfico lineal. Esto se condice con nuestras muestras.
+Recordando que en la sección previa llegamos a una complejidad de orden $ \mathcal{O}(\ 2^{N+M}*(N^3+M^3)\ )$ y consideramos un eje de coordenadas $x = M + N$, sería acorde que si la cota estuviera bien ajustada pudiéramos observar para cada combinación de tamaños de valor $x$ un tiempo de ejecución resultante de orden $ 2^{x}x^3 $. Por lo tanto, tomando un eje $y$ exponencial y despreciando el término cúbico, esperaríamos ver un gráfico lineal. Esto se condice con nuestras muestras.
 

@@ -5,7 +5,7 @@
 	El siguiente obstáculo del grupo de arqueólogos consiste en reconstruir el estado de una balanza de dos platillos con una carga $P$ del lado izquierdo utilizando únicamente pesas de distintas potencias de 3. Además la solución propuesta debe tener complejidad temporal del orden $\mathcal{O}(\sqrt(P))$
 	\\
 
-	Por la naturaleza del problema, donde nos interesa determinar únicamente la pertencia de cada potencia en el total de las que usamos para nivelar la balanza (y distinguir a qué lado de la balanza van) la representación del estado final de cada platillo por separado mediante conjuntos disjuntos resulta apropiada. Llamaremos $I$ al conjunto final de las potencias sobre el platillo izquierdo y $D$ a aquellas de la derecha. Además, como cada plato es contrapeso del otro, el estado de la balanza respecto de uno de los platillos se interpreta como su carga menos la del opuesto.
+	Por la naturaleza del problema, donde nos interesa determinar únicamente la pertenencia de cada potencia en el total de las que usamos para nivelar la balanza (y distinguir a qué lado de la balanza van) la representación del estado final de cada platillo por separado mediante conjuntos disjuntos resulta apropiada. Llamaremos $I$ al conjunto final de las potencias sobre el platillo izquierdo y $D$ a aquellas de la derecha. Además, como cada plato es contrapeso del otro, el estado de la balanza respecto de uno de los platillos se interpreta como su carga menos la del opuesto.
 	\\
 
 	A partir de dichas representaciones, dado un valor de $P$, queremos encontrar dos conjuntos disjuntos de potencias de base 3 $I$ y $D$ tales que recreen el estado de la balanza original con una única carga $P$ a la izquierda. Formalmente:
@@ -34,7 +34,7 @@ $$
 	La algoritmia de la solución trata en recorrer, desde el menos significativo, cada uno de los dígitos $a_i$ de $A_3$, la representación ternaria de $P$, y determinar para ambos conjuntos si $3^{i}$ pertenece a alguno. Como la base está implícita, únicamente guardamos los índices o exponentes $i$ a medida que los recorremos, quedando ordenados crecientemente, y nos encargamos luego de reproducir los verdaderos elementos de $I$ y $D$ elevando 3 a cada exponente. Entonces usamos secuencias $der$ e $izq$ que cumplen:
 	\\
 
-	$D = \bigcup_{j=0}^{|der|-1} \{3^{der_{j}}\}  $   \  \ \ \ (idem para $izq$ con $I$)
+	$D = \bigcup_{j=0}^{|der|-1} \{3^{der_{j}}\}  $   \  \ \ \ (ídem para $izq$ con $I$)
 	\\
 
 	Manteniendo la idea del primer caso, cuando el dígito $a_i$ sea 1 entonces agregamos el exponente $i$ al conjunto $I$, de ser 0 seguimos recorriendo. De este modo seguimos tomando a $A_3$ como base para $I$ aprovechando que tomar los términos de la descomposición polinómica de $P$ para $I$ y $D = \emptyset$ siempre cumple la condición $\sum I$ - $\sum D$ = $P$. Nos queda ver cómo deshacernos de los términos con coeficientes iguales a 2.
@@ -44,10 +44,9 @@ $$
 	Esto, visto desde la resta de ambos conjuntos, significa sumar $3^{i}$ tanto para $\sum I$ como $\sum D$. Por invariante de la iteración (hasta ahora solamente nos ocupamos de los dígitos anteriores, por lo que $i \notin der \cup izq$), si consideramos las sumas de ambos conjuntos como una descomposición polinómica base 3, este término valía 0 para $\sum D$ y $2*3^{i}$ para $\sum I$, quedando $3^{i}$ y $(2+1)*3^{i} = 3^{i+1}$ respectivamente y viendo además que de este modo no repetimos exponentes entre $I$ y $D$ ($3^i$ pertenece a $D$ pero no a $I$).
 	\\
 	
-	Por lo tanto, distribuyendo restas algebráicamente válidas de la pinta ($3^{i}-3^{i}$) entre $I$ y $D$ pudimos mantener la idea que satisfacía originalmente $\sum I$ - $\sum D$ = $P$ partiendo de $D$ = $\emptyset$ e $I$ como los monomios de la descomposición polinómica base 3 de $P$, de tal modo que fuimos 'pateando' los términos con coeficientes de valor 2 a términos de mayor grado y manteniendo los dos conjuntos con intersección vacía. En el pseudocódigo siguiente se ve más claro incluso por qué nunca se cuenta el mismo exponente para ambos conjuntos.
+	Por lo tanto, distribuyendo restas algebraicamente válidas de la pinta ($3^{i}-3^{i}$) entre $I$ y $D$ pudimos mantener la idea que satisfacía originalmente $\sum I$ - $\sum D$ = $P$ partiendo de $D$ = $\emptyset$ e $I$ como los monomios de la descomposición polinómica base 3 de $P$, de tal modo que fuimos 'pateando' los términos con coeficientes de valor 2 a términos de mayor grado y manteniendo los dos conjuntos con intersección vacía. En el pseudocódigo siguiente se ve más claro incluso por qué nunca se cuenta el mismo exponente para ambos conjuntos.
 \\
 \\
-\lstset{basicstyle=\large}
 \begin{lstlisting}
     hayCarry $\leftarrow$ false				
     exponente $\leftarrow$ 0
@@ -114,9 +113,9 @@ $$
 
 \newpage
 \subsection{Complejidad}
-	El pseudocódigo no incluye el ciclo final que se encarga de convertir $der$ e $izq$ en la secuencia ordenada de elementos de $I$ y $D$. Esto se hace iterando de principio a fín cada vector y devolviendo por salida estándar $3^{\ elem \ actual}$ en cada iteración. Considerando a la operación pow($base$, $exp$) constante, el costo del ciclo es $\mathcal{O} (|der| + |izq|)$. Más adelante vamos a ver que ambas longitudes son orden de $log_3(P)$.
+	El pseudocódigo no incluye el ciclo final que se encarga de convertir $der$ e $izq$ en la secuencia ordenada de elementos de $I$ y $D$. Esto se hace iterando de principio a fin cada vector y devolviendo por salida estándar $3^{\ elem \ actual}$ en cada iteración. Considerando a la operación pow($base$, $exp$) constante, el costo del ciclo es $\mathcal{O} (|der| + |izq|)$. Más adelante vamos a ver que ambas longitudes son orden de $log_3(P)$.
 	
-	Otra cosa que no incluímos en el pseudocódigo (por una leve simplificación) es cómo se consigue la representación base 3 de $P$ que iteramos. La guarda original del ciclo corresponde a:
+	Otra cosa que no incluimos en el pseudocódigo (por una leve simplificación) es cómo se consigue la representación base 3 de $P$ que iteramos. La guarda original del ciclo corresponde a:
 	
 	%\lstset{basicstyle=\large}
 	\begin{lstlisting}
@@ -130,14 +129,14 @@ $$
 	Por lo tanto en cada iteración conseguimos, mediante el algoritmo clásico de conversión de base mediante división, el próximo dígito. Cuando $P \leq 0$ entonces el ciclo termina y como $P$ decrementa a un tercio en cada iteración, esto significa que el ciclo se ejecuta un orden de $log_3(P)$ veces. 
 	\\
 	
-	En el cuerpo del ciclo todas las operaciones aritméticas que se realizan son constantes en complejidad temporal (asumimos $mod$ incluída), pero también se realiza hasta una inserción en las secuencias $izq$ y $der$ por ciclo. Ambas secuencias las implementamos con el tipo $vector$ y, por lo tanto, la inserción corresponde a la operación $push\_back(elem)$. Esta operación tiene complejidad temporal constante amortizada, aunque podrían suceder 'reubicaciónes' que hicieran que para esa llamada en particular el costo sea lineal. Vamos a analizar partiendo de la complejidad amortizada, considerando que también se podría usar un array de tamaño $\left \lfloor{log_3(P)}\right \rfloor + 2$ ($\left \lfloor{log_3(P)}\right \rfloor + 1$ por la representación de P en base 3 y un 'bit' más por si hay un acarreo) y tener acceso constante en general.
+	En el cuerpo del ciclo todas las operaciones aritméticas que se realizan son constantes en complejidad temporal (asumimos $mod$ incluida), pero también se realiza hasta una inserción en las secuencias $izq$ y $der$ por ciclo. Ambas secuencias las implementamos con el tipo $vector$ y, por lo tanto, la inserción corresponde a la operación $push\_back(elem)$. Esta operación tiene complejidad temporal constante amortizada, aunque podrían suceder 'reubicaciones' que hicieran que para esa llamada en particular el costo sea lineal. Vamos a analizar partiendo de la complejidad amortizada, considerando que también se podría usar un array de tamaño $\left \lfloor{log_3(P)}\right \rfloor + 2$ ($\left \lfloor{log_3(P)}\right \rfloor + 1$ por la representación de P en base 3 y un 'bit' más por si hay un acarreo) y tener acceso constante en general.
 	
 	Entonces nuestro ciclo se va a ejecutar $\mathcal{O} (log(P))$ veces, con guarda y cuerpo $\mathcal{O} (1)$. Lo que nos deja un ciclo con complejidad temporal $\mathcal{O} (log(P))$ y luego un proceso encargado de imprimir salidas estándar de costo $\mathcal{O} (|der| + |izq|)$. Pero, como ya anticipamos, ambas longitudes son $\mathcal{O} (log(P))$ porque solamente vamos a iterar una cantidad logarítmica (respecto de P) de dígitos y no puede haber ninguno (por correctitud respecto del enunciado) repetido en ambos vectores. Por lo tanto nos queda una complejidad final de $\mathcal{O} (log(P))$.
 	\\
 	
 	Nos resta ver que $\mathcal{O} (log(P))$ = $\mathcal{O} (\sqrt(P))$ para probar que cumplimos con los requisitos de complejidad del problema inicial.
 	
-	Por propiedades de logarítmos $log(P) = 2log(\sqrt(P))$ y usando que $\forall \ x > 0, \ log(x) < x$ nos queda que $ P > 0 \Longrightarrow log(P) < 2\sqrt(P)$, y por lo tanto podemos asegurar $log(P) \in \mathcal{O} (\sqrt(P))$. 
+	Por propiedades de logaritmos $log(P) = 2log(\sqrt(P))$ y usando que $\forall \ x > 0, \ log(x) < x$ nos queda que $ P > 0 \Longrightarrow log(P) < 2\sqrt(P)$, y por lo tanto podemos asegurar $log(P) \in \mathcal{O} (\sqrt(P))$. 
 
 \subsection{Análisis experimental}
 
@@ -147,7 +146,7 @@ $$
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{ej2}
-    \caption{Tiempo de ejecución del algoritmo en función de P}
+    \caption{Tiempo de ejecución del algoritmo en función de P. Cada medición es el tiempo mínimo de 10 corridas.}
     \label{fig:ej2-fig}
 \end{figure}
 

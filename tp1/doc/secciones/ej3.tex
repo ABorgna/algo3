@@ -15,23 +15,26 @@ Antes de presentar la solución se aclara que, a diferencia de como se presenta 
 Para solucionar el problema, se utilizó programación dinámica de la siguiente manera:
 
 \begin{itemize}
-\item Se empieza suponiendo que todas las mochilas tienen capacidad 0. Se van haciendo pruebas y se va aumentando en 1 el tamaño de cada una hasta llegar a la capacidad máxima original de todas las mochilas (en otras palabras, se prueba con todas las combinaciones de tamaños posibles)
+\item Se empieza suponiendo que todas las mochilas tienen capacidad 0. Se van haciendo pruebas y se va aumentando en 1 el tamaño de alguna una hasta llegar a la capacidad máxima original de todas las mochilas (en otras palabras, se prueba con todas las combinaciones de tamaños posibles)
 \item Estas pruebas consisten en ver, dada una combinación de capacidades máximas, cuál es la combinación de objetos que genera el máximo valor sin superar la cota de ninguna mochila.
 \item Para ver eso, se van probando los objetos uno por uno en cada mochila. Si el objeto $i$ entra en la mochila $j$, se consulta un valor previamente calculado, el cual es el resultante de hacer este mismo procedimiento con la misma configuración de mochilas, con la diferencia de que a la mochila $j$ se le resta el peso del objeto $i$. Si ese valor sumado al valor del objeto $i$ supera al que venía siendo el candidato a valor máximo, será reemplazado por este mismo.
 \end{itemize}
 
 Sobre el último ítem: lo que se hace cuando se consulta el resultado anteriormente calculado es tener en cuenta que hay un invariante en el algoritmo: todos los resultados anteriores son el valor óptimo calculado para la combinación de pesos máximos dada. Entonces, si se pregunta por una combinación en la cual el peso de una de las mochilas es menor, se tiene la seguridad de que eso ya fue calculado y es el mejor valor. Si el objeto con peso $p_i$ entra en la mochila $j$, se trata de encontrar cuál es la mejor combinación con el peso restante de la mochila $j$, dejando a las otras mochilas intactas y sin tener en cuenta al objeto $i$ para luego sumar $p_i$ a la mochila y $v_i$ al valor total. Si eso supera al candidato a máximo que había antes, entonces se vuelve el mejor candidato global y el mejor valor para la combinación actual de capacidades máximas de mochila. De lo contrario, se mantiene al mejor candidato global como estaba y al mismo tiempo pasa a ser el mejor valor para la combinación actual de mochilas.
 
+Para simplificar el algoritmo consideraremos $valorMaximo = -1$ para representar los casos donde no existe una combinación de los objetos disponibles en las mochilas tal que complete el peso requerido en cada una.
+
 A continuación se presenta el pseudo-código asociado al algoritmo que resuelve el problema:
 
-\lstset{basicstyle=\large}
+\newpage
+
 \begin{lstlisting}
 input: mochilas : vector<int>,  objetos : vector<int>
 
 mejorValor $\leftarrow$ crear un vector de $m+1$ dimensiones
 int mejorValorGlobal
 mejorCombinacion $\leftarrow$ vector de longitud $m$
-para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$ (recorridas en un orden crecinte)
+para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$ (recorridas en un orden creciente)
 	int valorCandidato
 	para todo $i$ desde $1$ hasta $n$
 		valorAnterior  $\leftarrow$ $mejorValor[w_1][w_2]\ldots[w_m][i-1]$
@@ -41,7 +44,7 @@ para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$ (recorridas en u
 			sino
 				valorCandidato $\leftarrow$ $-1$
 			si valorAnterior < valorCandidato
-				pongo el objeto en la mochila con peso $w_j$
+				pongo el objeto en la mochila con peso $w_j$ para esta combinacion
 				valorAnterior $\leftarrow$ valorCandidato
 	si valorCandidato $>$ mejorValorGlobal
 		mejorValorGlobal $\leftarrow$ valorCandidato
@@ -51,7 +54,7 @@ para toda combinacion $p$ de pesos de mochilas $w_1 \ldots w_m$ (recorridas en u
 
 \subsubsection{Correctitud}
 
-Para demostrar correctitud del agoritmo, se utiliza inducción doble en la cantidad de objetos y en las combinaciones de pesos parciales de mochilas. Para lo segundo, se define una relación de orden parcial bien fundada de la siguinte manera:
+Para demostrar correctitud del algoritmo, se utiliza inducción doble en la cantidad de objetos y en las combinaciones de pesos parciales de mochilas. Para lo segundo, se define una relación de orden parcial bien fundada de la siguiente manera:
 
 Dadas $m$ mochilas y dos vectores de pesos $p$ y $p'$ de dimensión $m$
 
@@ -61,7 +64,7 @@ También, existe un elemento mínimo $0_m$ que es el vector con ceros en todas s
 
 $$0_m \leq p \quad \forall p$$
 
-Una vez definida la relación de orden parcial, podemos pasar a la demostración:
+Una vez definida la relación de orden parcial, podemos pasar a la demostración usando inducción estructural:
 
 \vspace{5mm}
 
@@ -93,7 +96,7 @@ Para este caso, contamos con el vector $0_m$ y los $n$ primeros objetos. Si sepa
 
 \vspace{5mm}
 
-Para esta instancia, dado un vector de pesos $p$ cualquiera, queremos probar que el algoritmo resuelve el problema sabiendo que puede hacerlo para cualquier vector menor o igual a $p$.
+Para esta instancia, dado un vector de pesos $p \neq 0_m$ cualquiera, queremos probar que el algoritmo resuelve el problema sabiendo que puede hacerlo para cualquier vector menor o igual a $p$.
 
 \vspace{5mm}
 
@@ -101,7 +104,7 @@ Para esta instancia, dado un vector de pesos $p$ cualquiera, queremos probar que
 
 \vspace{5mm}
 
-Si tenemos el vector $p$ y $0$ objetos, el resultado vuelve a ser trivial y no se necesita utilizar la hipótesis inductiva ya que el valor máximo es $0$ y para cada mochila se introducen $0$ objetos.
+Si tenemos el vector $p$ y $0$ objetos, el resultado vuelve a ser trivial y no se necesita utilizar la hipótesis inductiva ya que existe una mochila con peso $> 0$, pero $0$ objetos para llenarla. Por lo tanto no hay solución y representamos el mejor valor con $-1$.
 
 \vspace{5mm}
 
@@ -112,8 +115,8 @@ Si tenemos el vector $p$ y $0$ objetos, el resultado vuelve a ser trivial y no s
 Para esta demostración, resulta importante entender las hipótesis con las que se cuenta:
 
 \begin{itemize}
-\item Para el vector $p$, el algoritmo sabe resolver todas las instancias del probema con $n$ objetos.
-\item Para cualquier vector $p' \leq p$, el algoritmo sabe resolver todas las instancias del problema con $k$ objetos (donde $k$ es cualquier natural que podría ser mayor a $n$, aunque eso no se usa en esta demostración)
+\item Para el vector $p$, el algoritmo sabe resolver todas las instancias del problema con $n$ objetos.
+\item Para cualquier vector $p' < p$, el algoritmo sabe resolver todas las instancias del problema con $k$ objetos (donde $k$ es cualquier natural que podría ser mayor a $n$, aunque eso no se usa en esta demostración)
 \end{itemize}
 
 Entonces, dado el vector $p$ y $n + 1$ objetos, hay $m + 1$ opciones que conciernen al objeto $n + 1$-ésimo: o no se lo pone en ninguna mochila, o se lo pone en alguna de las $m$ mochilas. La opción que genere el valor máximo será la que solucione el problema.
@@ -128,15 +131,20 @@ y sea $o$ el peso del objeto $n + 1$
 
 $$p'_j = p_j - o$$
 
-Se puede ver que $p' \leq p$, así que, por hipótesis inductiva (segundo ítem) el algoritmo propuesto puede resolver el problema para el vector $p'$ y los $n$ primeros objetos. Dejando eso en claro, el algoritmo puede proponer un valor máximo para los $m + 1$ casos mencionados al principio. El máximo de todos esos valores será la solución al poblema con vector $p$ y $n + 1$ objetos.
+Y, si no existía una solución para $p'_j$ usando los $n$ primeros objetos, tampoco existirá si queremos poner el objeto $n+1$ en la mochila $j$.
 
-De esta manera queda probado que, dados un vector de pesos $p$ y $n$ objetos, el algoritmo da una solución correcta para el problema. \QEDB
+Se puede ver que $p' \leq p$, así que, por hipótesis inductiva (segundo ítem) el algoritmo propuesto puede resolver el problema para el vector $p'$ y los $n$ primeros objetos. Dejando eso en claro, el algoritmo puede proponer un valor máximo para los $m + 1$ casos mencionados al principio. El máximo de todos esos valores será la solución al problema con vector $p$ y $n + 1$ objetos.
+
+De esta manera queda probado que, dados un vector de pesos $p$ y $n$ objetos, el algoritmo da una solución correcta para el problema.
+
+Si mantenemos una variable con el mejor valor visto entre todas las combinaciones calculadas tendremos al final el resultado buscado.
+
+\QEDB
 
 \subsubsection{Complejidad}
 
 A continuación se muestra una versión simplificada del pseudocódigo para hacer énfasis en la cantidad de operaciones que se realizan en el algoritmo.
 
-\lstset{basicstyle=\large}
 \begin{lstlisting}
 $[\ldots]$
 
@@ -162,14 +170,13 @@ se recuerda que $n$ es la cantidad total de objetos y $m$ la cantidad de mochila
 
 \item Lo que se encuentra dentro del tercer ciclo es el siguiente fragmento de código
 
-\lstset{basicstyle=\large}
 \begin{lstlisting}
 si el objeto $i$ entra en la mochila con peso $w_j$
 				valCandidato $\leftarrow$ $mejorValor[w_1]\ldots[w_{j-1}][w_j - p_i][w_{j+1}]\ldots[w_m][i-1]$
 			sino
 				valorCandidato $\leftarrow$ $-1$
 			si valorAnterior < valorCandidato
-				pongo el objeto en la mochila con peso $w_j$
+				pongo el objeto en la mochila con peso $w_j$ para esta combinacion
 				valorAnterior $\leftarrow$ valorCandidato
 \end{lstlisting}
 
@@ -180,7 +187,7 @@ Teniendo todos estos factores en cuenta, se puede deducir que el algoritmo reali
 
 A continuación se prueba que la complejidad presentada cumple con la cota de $\mathcal{O}((\sum K_i)^M \times \sum C_i)$ establecida por el enunciado.
 
-Ambas complejidades comparten la expresión $\sum C_i$ por lo cual la demostración consistirá en deducir que $(\prod K_i) \times M = \mathcal{O}((\sum K_i)^M)$
+Ambas complejidades comparten la expresión $\sum C_i$ por lo cual la demostración consistirá en deducir que $(\prod K_i) \times M \in \mathcal{O}((\sum K_i)^M)$
 
 Para simplificar, notaremos $P = \prod K_i$ y $S = (\sum K_i)^M$
 
@@ -206,12 +213,14 @@ Si cambiamos los nombres de las variables del teorema con los nombres de las var
 
 $$M! \prod K_i = M! \times P \geq M \times P$$
 
-Como $S \geq S_1 \geq M \times P$, queda demostrado que $M \times P = M \times \prod K_i = \mathcal{O}((\sum K_i)^M)$ y entonces la complejidad propuesta cumple con la cota establecida por el ejercicio.\QEDB
+Como $S \geq S_1 \geq M \times P$, queda demostrado que $M \times P = M \times \prod K_i \in \mathcal{O}((\sum K_i)^M)$ y entonces la complejidad propuesta cumple con la cota establecida por el ejercicio.\QEDB
 
 \subsection{Análisis Experimental}
 
 A continuación se presentan una serie de experimentos que ponen a prueba el algoritmo propuesto en esta sección y ayudan a mostrar que la complejidad temporal propuesta anteriormente es correcta.
 Dado que la cantidad de operaciones que realiza el algoritmo depende de más de una variable, se separa el análisis en varias secciones en las cuales varía una sola de las variables y el resto se dejan fijas.
+
+Para cada una de las mediciones se realizaron 10 iteraciones de un mismo caso y se registró el tiempo mínimo que tardó en ejecutarse.
 
 \subsubsection{Variando $\sum C_i$}
 
@@ -261,12 +270,14 @@ Dejando fija la cantidad de objetos, se obtuvieron los siguientes resultados de 
 
 Esto muestra que si se varía la productoria total de las mochilas, el algoritmo vuelve a presentar un comportamiento lineal, lo cual puede explicarse porque dejando fijas todas las demás variables, el algoritmo tendría una complejidad de $\mathcal{O}(\prod K_i)$
 
+\newpage
+
 Para profundizar más el análisis, se hicieron más experimentos en los que $k_i = k_j$ y se van aumentando de forma lineal todos juntos, de forma tal que $\prod K_i = K_i^M$
 
 \begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{ej3-k2a}
-		\caption{Tiempo de ejecución del algoritmo en función de $K_i$ para dos mochilas}
+		\caption{Tiempo de ejecución del algoritmo en función de $K_i$ para dos mochilas. La curva naranja corresponde a un ajuste polinomial de grado 2.}
 	\end{figure}	
 
 Aquí se ve que el gráfico presenta un comportamiento cuadrático del algoritmo.
@@ -274,7 +285,7 @@ Aquí se ve que el gráfico presenta un comportamiento cuadrático del algoritmo
 \begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{ej3-k3a}
-		\caption{Tiempo de ejecución del algoritmo en función de $K_i$ para tres mochilas}
+		\caption{Tiempo de ejecución del algoritmo en función de $K_i$ para tres mochilas. La curva naranja corresponde a un ajuste polinomial de grado 3.}
 	\end{figure}	
 
 Y aquí se ve que el gráfico presenta un comportamiento cúbico del algoritmo.
