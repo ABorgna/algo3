@@ -23,8 +23,16 @@
         $\sum_{i=0}^{N}\beta(\neg A_i) > 0 \Rightarrow \sum_{i=0}^{N}\beta(\neg A_i) \ge \sum_{i=0}^{M}\beta(\neg C_i)$
         \\
 
-        Para cada persona $k$, sabemos su velocidad $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
+        Para cada persona $k$, sabemos su tiempo de cruce $V_k$. También sabemos que la demora de llevar el par $\left \langle {X, Y} \right \rangle$, con $\{X,Y\} \subseteq A \cup C$ de un lado a otro corresponde a $Max\{ V_{X}, V_{Y}  \}$ y es, a su vez, la distancia entre dos estados distintos. De este modo, podemos modelar todas las secuencias de viajes posibles como un digrafo ponderado con estados como vértices y donde cada arista es un viaje con peso equivalente a la distancia entre sus vértices adyacentes. De este grafo, finalmente, buscamos la distancia mínima de todos los caminos desde el estado inicial al final que cumplen los requisitos comentados al principio.
         \\
+        
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12.0cm]{grafo-ej1}
+    \caption{Grafo de estados correspondiente a un ejemplo con dos arqueólogos con valores de demora \{3,7\} y un caníbal con demora de 40. La primer componente de cada estado determina la cantidad de arqueólogos del lado inicial, la segunda la cantidad de caníbales y la tercera la linterna. Demora mínima: 50.}
+    \label{fig:ej1-graph}
+\end{figure}
+
 
 \subsection{Solución y Correctitud}
     \subsubsection{Solución}
