@@ -233,12 +233,12 @@
           bool carry = false;
           uint8_t exponente = 0;
 
-          // Recorremos los dígitos en base 3, empezando por el menos significativo
+          // Recorremos los digitos en base 3, empezando por el menos significativo
           while (peso > 0) {
               uint8_t digito = peso % 3;
               peso /= 3;
 
-              // Le sumamos una pesa al dígito anterior, y quedo un carry
+              // Le sumamos una pesa al digito anterior, y quedo un carry
               if (carry) {
                   digito += 1;
                   digito %= 3;
@@ -248,7 +248,7 @@
               }
 
               if (digito == 2) {
-                  // A cada dígito '2' del peso hay que sumarle 1
+                  // A cada digito '2' del peso hay que sumarle 1
 
                   // Agregamos una pesa con este exponente
                   der.push_back(exponente);
