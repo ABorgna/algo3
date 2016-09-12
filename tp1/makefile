@@ -53,7 +53,7 @@ benchmarks: $(BENCHMARKS)
 graphs: $(GRAPHS)
 
 $(ENTREGABLE): informe
-	tar -czf $@ src -C doc informe.pdf
+	tar -czf $@ makefile tools src -C doc informe.pdf
 
 $(EJERCICIOS) : % : build/%
 
