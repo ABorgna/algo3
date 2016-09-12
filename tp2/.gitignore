@@ -1,0 +1,11 @@
+build/*
+
+entregable.tar.gz
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+bench/ej2
+bench/ej3
+
