@@ -1,5 +1,5 @@
-#include <interfaz.h>
 #include <generator.h>
+#include <interfaz.h>
 #include <pcg.h>
 #include <algorithm>
 #include <cmath>
@@ -116,7 +116,7 @@ uint64_t measure(vector<uint64_t>& mediciones) {
         if (lim_nsecs && i < 10) {
             auto it = mediciones.begin();
             uint64_t target = max(i + 1, lim_nsecs / *min_element(it, it + i));
-            if(target > mediciones.size())
+            if (target > mediciones.size())
                 mediciones.resize(target);
         }
         // Restauro estado inicial.
@@ -130,22 +130,24 @@ void print_measure(ostream& os, uint64_t iteraciones,
     vector<uint64_t> times(iteraciones);
     uint64_t res = measure(times);
     for (const uint64_t v : vars) os << v << " ";
-    os << *min_element(times.begin(), times.end())
-       << " " << times.size() << " " << res << endl;
+    os << *min_element(times.begin(), times.end()) << " " << times.size() << " "
+       << res << endl;
 }
 
 int compare_streams(ostream& os, istream& resultados, istream& respuestas) {
     int64_t n, m;
+    int64_t count = 0;
     while (resultados >> n) {
         if (!(respuestas >> m)) {
             os << "Incorrecto. Resultado: " << n << " sobrante" << endl;
             return EXIT_FAILURE;
         }
         if (n != m) {
-            os << "Incorrecto. Resultado: " << n << " ≠ " << m << endl;
+            os << "Incorrecto. Resultado Nro " << count << ": " << n << " ≠ "
+               << m << endl;
             return EXIT_FAILURE;
         }
-        os << "Correcto. Resultado: " << n << endl;
+        count++;
     }
     if (!resultados.eof()) {
         os << "Incorrecto. No se pudo leer un número entero" << endl;
@@ -159,9 +161,9 @@ int test_correct(ostream& os, istream& is, istream& respuestas) {
     for (uint64_t valor = 0; load_next(is); valor++) {
         resultado.clear();
         prob_solve(resultado);
-        os << "Valor Nro " << valor << endl;
+        os << "Caso nro " << valor << endl;
         if (compare_streams(os, resultado, respuestas)) {
-            cerr << "Discrepancia en el valor Nro " << valor << endl;
+            cerr << "Discrepancia en el caso nro " << valor << endl;
             return EXIT_FAILURE;
         }
     }
@@ -170,7 +172,7 @@ int test_correct(ostream& os, istream& is, istream& respuestas) {
         cerr << "El problema otorgó menos resultados de los esperados" << endl;
         return EXIT_FAILURE;
     }
-    cerr << "Correctitud verificada" << endl;
+    cerr << "OK!" << endl;
     return EXIT_SUCCESS;
 }
 
@@ -214,8 +216,8 @@ void measure_multiple(ostream& os, istream& is, uint64_t iteraciones) {
 }
 
 void generate_measure(ostream& os, const vector<Range>& ranges,
-        uint64_t iteraciones, uint64_t cantidad,
-        GeneratorCall generator) {
+                      uint64_t iteraciones, uint64_t cantidad,
+                      GeneratorCall generator) {
     log_generate(cantidad, ranges);
     vector<uint64_t> vars = get_vars_begin(ranges);
     const uint64_t indice_range = num_problema / cantidad;
@@ -226,7 +228,7 @@ void generate_measure(ostream& os, const vector<Range>& ranges,
     bool cont = true;
     for (uint64_t i = 0; i < indice_range && cont; i++)
         cont = increment_ranges(vars, ranges);
-    while(cont) {
+    while (cont) {
         for (uint64_t i = indice_instancia; i < cantidad; i++, num_problema++) {
             cerr << "Problema Nᵒ " << num_problema << ", RNG State: ";
             print_rng_state(cerr) << " Vars:";

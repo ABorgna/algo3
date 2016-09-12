@@ -129,8 +129,20 @@ vector<uint64_t> prob_vars() {
 }
 
 void prob_print_input(std::ostream &os) {
-    for (auto v : prob_vars()) os << v << " ";
-    os << endl;
+    os << m << " " << n << " " << pmax << endl;
+
+    for(int64_t y=0; y<m; y++) {
+        for(int64_t x=0; x<n; x++) {
+            if(origen.x == x and origen.y == y) {
+                cout << 'o';
+            } else if (destino.x == x and destino.y == y) {
+                cout << 'x';
+            } else {
+                cout << (mapa[y][x] ? '#' : '.');
+            }
+        }
+        cout << endl;
+    }
 }
 
 vector<Option> prob_custom_options() { return {}; }

@@ -67,7 +67,9 @@ $(DIRS):
 	mkdir -p $@
 
 $(TESTS) : %-test : %
-	find test/ -name '$^.*.test' -exec sh -c '$(OUT_DIR)/$^ -i $$0 -t $${0/\.test/.res}' {}  \;
+	@find test/ -name '$^.*.test' -exec sh -c \
+		'echo "---- Test" $${0#test/} "----" && \
+		$(OUT_DIR)/$^ -i $$0 -t $${0%.test}.res' {}  \;
 
 $(BENCHMARKS) : %-bench : $(BENCH_OUT_DIR)/%
 
