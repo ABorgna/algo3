@@ -22,6 +22,8 @@ EXTRA_SOURCES = $(SRC_DIR)/bench/benchmark.cpp $(SRC_DIR)/bench/pcg.cpp
 BINARIOS = $(EJERCICIOS:%=$(OUT_DIR)/%)
 EXTRA_OBJS = $(EXTRA_SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
+TESTS = $(EJERCICIOS:%=%-test)
+
 BENCHMARKS = $(EJERCICIOS:%=%-bench)
 BENCHMARKS_OUT = $(EJERCICIOS:%=$(BENCH_OUT_DIR)/%)
 
@@ -35,14 +37,16 @@ ENTREGABLE=entregable.tar.gz
 CHECKPOINT = 0`wc -l $(1) 2>/dev/null | sed 's/ .*//'`
 
 .PHONY: all $(EJERCICIOS) $(BENCHMARKS) $(BENCHMARKS_OUT) \
-	$(GRAPHS) $(GRAPHS_OUT) \
-	clean tar informe help dirs benchmark graphs
+	$(GRAPHS) $(GRAPHS_OUT) $(TESTS) \
+	clean tar informe help dirs benchmark graphs tests
 
 all: dirs $(EJERCICIOS)
 
 tar: $(ENTREGABLE)
 
 dirs: $(DIRS)
+
+tests: $(TESTS)
 
 benchmarks: $(BENCHMARKS)
 
@@ -61,6 +65,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 $(DIRS):
 	mkdir -p $@
+
+$(TESTS) : %-test : %
+	find test/ -name '$^.*.test' -exec sh -c '$(OUT_DIR)/$^ -i $$0 -t $${0/\.test/.res}' {}  \;
 
 $(BENCHMARKS) : %-bench : $(BENCH_OUT_DIR)/%
 
@@ -88,13 +95,14 @@ informe: $(GRAPHS)
 	make -C doc/
 
 help:
-	@echo "make 			para compilar los ejercicios"
-	@echo "make ejX 		para compilar uno solo"
-	@echo "make benchmarks 	para correr los benchmarks"
-	@echo "make ejX-bech 	para correr el benchmark de un ejercicio"
-	@echo "make graphs 		para generar todos los graficos"
-	@echo "make ejX-graph 	para generar los graficos de un ejercicio"
-	@echo "make tar 		para generar el archivo entregable"
+	@echo "make 			compilar los ejercicios"
+	@echo "make ejX 		compilar uno solo"
+	@echo "make ejX-test	correr los tests disponibles"
+	@echo "make benchmarks 	correr los benchmarks"
+	@echo "make ejX-bech 	correr el benchmark de un ejercicio"
+	@echo "make graphs 		generar todos los graficos"
+	@echo "make ejX-graph 	generar los graficos de un ejercicio"
+	@echo "make tar 		generar el archivo entregable"
 
 clean:
 	rm -f build/*
