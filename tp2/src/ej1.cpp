@@ -126,7 +126,7 @@ int prob_solve(std::ostream &os) {
 void prob_reload() {}
 
 vector<uint64_t> prob_vars() {
-    return {(uint64_t)n, (uint64_t)m, (uint64_t)pmax};
+    return {(uint64_t)m, (uint64_t)n, (uint64_t)pmax};
 }
 
 void prob_print_input(std::ostream &os) {
@@ -149,11 +149,11 @@ void prob_print_input(std::ostream &os) {
 vector<Option> prob_custom_options() { return {}; }
 
 void generator_random(const std::vector<uint64_t> &v) {
-    n = v[0];
-    m = v[1];
+    m = v[0];
+    n = v[1];
     pmax = v[2];
 
-    generateDungeon(n, m, 0.6, mapa);
+    generateDungeon(m, n, 0.6, mapa);
 
     int64_t x, y;
 

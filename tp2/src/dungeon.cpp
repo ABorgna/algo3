@@ -3,7 +3,7 @@
 
 #include <vector>
 
-void generateDungeon(int64_t n, int64_t m, double density,
+void generateDungeon(int64_t m, int64_t n, double density,
                      std::vector<std::vector<bool>> &maze) {
     maze.resize(0);
     maze.reserve(m);
