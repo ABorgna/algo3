@@ -75,6 +75,8 @@ uint64_t diff(timespec start, timespec end) {
     return seconds * 1000000000ULL + end.tv_nsec - start.tv_nsec;
 }
 
+uint64_t rnd() { return pcg64_random(&eng); }
+
 uint64_t rnd(uint64_t inicio, uint64_t fin) {
     return pcg64_bounded(&eng, fin - inicio + 1) + inicio;
 }
@@ -237,10 +239,12 @@ void generate_measure(ostream& os, const vector<Range>& ranges,
             cerr << endl;
 
             // Si es all, sino generate
-            if (iteraciones)
+            if (iteraciones) {
                 print_measure(os, iteraciones, vars);
-            else
+            } else {
                 prob_print_input(os);
+                prob_solve(os);
+            }
         }
         indice_instancia = 0;
         cont = increment_ranges(vars, ranges);

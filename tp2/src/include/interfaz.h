@@ -33,6 +33,7 @@ void prob_print_input(std::ostream& os);
 std::vector<Option> prob_custom_options();
 
 // Esta función devuelve números aleatorios en el rango [inicio, fin]
+uint64_t rnd();
 uint64_t rnd(uint64_t inicio, uint64_t fin);
 
 // Esta función devuelve la diferencia entre dos tiempos

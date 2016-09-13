@@ -1,3 +1,4 @@
+#include <dungeon.h>
 #include <interfaz.h>
 
 #include <math.h>
@@ -131,9 +132,9 @@ vector<uint64_t> prob_vars() {
 void prob_print_input(std::ostream &os) {
     os << m << " " << n << " " << pmax << endl;
 
-    for(int64_t y=0; y<m; y++) {
-        for(int64_t x=0; x<n; x++) {
-            if(origen.x == x and origen.y == y) {
+    for (int64_t y = 0; y < m; y++) {
+        for (int64_t x = 0; x < n; x++) {
+            if (origen.x == x and origen.y == y) {
                 cout << 'o';
             } else if (destino.x == x and destino.y == y) {
                 cout << 'x';
@@ -147,6 +148,18 @@ void prob_print_input(std::ostream &os) {
 
 vector<Option> prob_custom_options() { return {}; }
 
-void generator_random(const std::vector<uint64_t> &v) {}
+void generator_random(const std::vector<uint64_t> &v) {
+    n = v[0];
+    m = v[1];
+    pmax = v[2];
 
-vector<Generator> prob_generators() { return {}; }
+    pair<int64_t, int64_t> s(origen.x, origen.y);
+    pair<int64_t, int64_t> e(destino.x, destino.y);
+
+    generateDungeon(n, m, 0.6, mapa, s, e);
+
+    origen = {s.first, s.second};
+    destino = {e.first, e.second};
+}
+
+vector<Generator> prob_generators() { return {{"random", &generator_random}}; }
