@@ -153,13 +153,19 @@ void generator_random(const std::vector<uint64_t> &v) {
     m = v[1];
     pmax = v[2];
 
-    pair<int64_t, int64_t> s(origen.x, origen.y);
-    pair<int64_t, int64_t> e(destino.x, destino.y);
+    generateDungeon(n, m, 0.6, mapa);
 
-    generateDungeon(n, m, 0.6, mapa, s, e);
+    int64_t x, y;
 
-    origen = {s.first, s.second};
-    destino = {e.first, e.second};
+    x = rnd(1, n - 2);
+    y = rnd(1, m - 2);
+    mapa[y][x] = false;
+    origen = {x, y};
+
+    x = rnd(1, n - 2);
+    y = rnd(1, m - 2);
+    mapa[y][x] = false;
+    destino = {x, y};
 }
 
 vector<Generator> prob_generators() { return {{"random", &generator_random}}; }

@@ -4,9 +4,7 @@
 #include <vector>
 
 void generateDungeon(int64_t n, int64_t m, double density,
-                     std::vector<std::vector<bool>> &maze,
-                     std::pair<int64_t, int64_t> &start,
-                     std::pair<int64_t, int64_t> &end) {
+                     std::vector<std::vector<bool>> &maze) {
     maze.resize(0);
     maze.reserve(m);
 
@@ -38,16 +36,4 @@ void generateDungeon(int64_t n, int64_t m, double density,
             }
         }
     }
-
-    int64_t x, y;
-
-    x = rnd(1, n - 2);
-    y = rnd(1, m - 2);
-    maze[y][x] = false;
-    start = {x, y};
-
-    x = rnd(1, n - 2);
-    y = rnd(1, m - 2);
-    maze[y][x] = false;
-    end = {x, y};
 }
