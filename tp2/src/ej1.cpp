@@ -153,7 +153,7 @@ void generator_random(const std::vector<uint64_t> &v) {
     n = v[1];
     pmax = v[2];
 
-    generateDungeon(m, n, 0.6, mapa);
+    generateDungeon<bool>(m, n, 0.6, mapa, true, false);
 
     int64_t x, y;
 
