@@ -17,8 +17,7 @@ INCLUDES = $(SRC_DIR)/include/
 CFLAGS += -I $(INCLUDES)
 
 EJERCICIOS = ej1 ej2 ej3
-EXTRA_SOURCES = $(SRC_DIR)/bench/benchmark.cpp $(SRC_DIR)/bench/pcg.cpp \
-				$(SRC_DIR)/dungeon.cpp
+EXTRA_SOURCES = $(SRC_DIR)/bench/benchmark.cpp $(SRC_DIR)/bench/pcg.cpp
 
 BINARIOS = $(EJERCICIOS:%=$(OUT_DIR)/%)
 EXTRA_OBJS = $(EXTRA_SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
