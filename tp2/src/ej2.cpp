@@ -105,21 +105,9 @@ void generator_random(const std::vector<uint64_t> &v) {
             int vecinos = n + s + w + e;
 
             // Si una pared conecta menos de dos salas, es irrompible
-            if (vecinos < 2 or vecinos > 3) {
+            if (vecinos != 2) {
                 makeNumber = false;
-
-            } else if (vecinos == 3) {
-                if (!n and sw and se)
-                    makeNumber = false;
-                if (!s and nw and ne)
-                    makeNumber = false;
-                if (!w and se and ne)
-                    makeNumber = false;
-                if (!e and sw and nw)
-                    makeNumber = false;
-
-            } else if (vecinos == 2) {
-
+            } else {
                 if(n and s) {
                     if(nw and sw and mapa[y][x-1] != -1)
                         makeNumber = false;
