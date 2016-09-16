@@ -37,7 +37,7 @@ int reventarDaistrah() {
 
         if (est_actual == (int64_t) n - 1) {
             return t_actual;
-        }
+        } 
 
         for (auto a : adj[est_actual]) {
             estacion vecino = a.first;
@@ -55,7 +55,7 @@ int reventarDaistrah() {
 
             tiempoMin[vecino] = nuevo;
             candidatos.insert({nuevo, vecino});
-            padre[vecino] = t_actual;
+            padre[vecino] = est_actual;
         }
     }
 
@@ -70,14 +70,14 @@ void prob_load(std::istream &is) {
     int64_t m;
     is >> n >> m;
 
-    adj.reserve(m);
+    adj = vector<vector<pair<estacion, tiempo>>>(n, vector<pair<estacion, tiempo>>());
 
 
     for (int i = 0; i < m; i++) {
         estacion desde, hasta;
         tiempo peso;
         is >> desde >> hasta >> peso;
-        adj[desde].push_back({hasta, peso});
+        adj[desde-1].push_back({hasta-1, peso});
     }
 }
 
@@ -86,12 +86,12 @@ int prob_solve(std::ostream &os) {
 
     os << res << endl;
 
-    if (res) {
+    if (res != -1) {
         vector<estacion> estaciones;
-        estacion pred = padre[n-1];
+        estacion pred = n-1;
 
         while (pred != -1) {
-            estaciones.push_back(pred);
+            estaciones.insert(estaciones.begin(), pred);
             pred = padre[pred];
         }
 
