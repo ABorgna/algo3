@@ -16,7 +16,7 @@ using namespace std;
 typedef int64_t estacion;
 typedef int64_t tiempo;
 
-int64_t n;
+uint64_t n;
 vector<vector<pair<estacion, tiempo>>> adj;
 vector<estacion> padre;  // estacion -> <tiempo en llegar / predecesora>
 
@@ -35,26 +35,27 @@ int reventarDaistrah() {
         estacion est_actual = it->second;
         candidatos.erase(it);
 
-        if (est_actual == n - 1) {
+        if (est_actual == (int64_t) n - 1) {
             return t_actual;
         }
 
         for (auto a : adj[est_actual]) {
             estacion vecino = a.first;
-            tiempo peso = a.second;
+            tiempo nuevo = t_actual + a.second;
 
             tiempo anterior = tiempoMin[vecino];
 
             if (anterior >= 0) {
-                if(peso >= anterior)
+                if(nuevo >= anterior)
                     continue;
 
                 // Been there, done that
                 candidatos.erase({anterior, vecino});
             }
 
-            tiempoMin[vecino] = peso;
-            candidatos.insert({peso, vecino});
+            tiempoMin[vecino] = nuevo;
+            candidatos.insert({nuevo, vecino});
+            padre[vecino] = t_actual;
         }
     }
 
@@ -65,18 +66,82 @@ int reventarDaistrah() {
  * Funciones del framework de testeo
  **************************************/
 
-void prob_load(std::istream &is) {}
+void prob_load(std::istream &is) {
+    int64_t m;
+    is >> n >> m;
 
-int prob_solve(std::ostream &os) {}
+    adj.reserve(m);
+
+
+    for (int i = 0; i < m; i++) {
+        estacion desde, hasta;
+        tiempo peso;
+        is >> desde >> hasta >> peso;
+        adj[desde].push_back({hasta, peso});
+    }
+}
+
+int prob_solve(std::ostream &os) {
+    int res = reventarDaistrah();
+
+    os << res << endl;
+
+    if (res) {
+        vector<estacion> estaciones;
+        estacion pred = padre[n-1];
+
+        while (pred != -1) {
+            estaciones.push_back(pred);
+            pred = padre[pred];
+        }
+
+        os << estaciones.size() << endl;
+
+        for (uint64_t i = 0; i < estaciones.size(); i++) {
+            if (i) os << " ";
+            os << estaciones[i]+1;
+        }
+        os << endl;
+    }
+
+    return res;
+}
 
 void prob_reload() {}
 
-vector<uint64_t> prob_vars() {}
+vector<uint64_t> prob_vars() {
+    uint64_t m = 0;
+    for (uint64_t i = 0; i < adj.size(); i++) {
+        m += adj[i].size();
+    }
+    return {n, m};
+}
 
-void prob_print_input(std::ostream &os) {}
+void prob_print_input(std::ostream &os) {
+    os << n;
+
+    uint64_t m = 0;
+    for (uint64_t i = 0; i < adj.size(); i++) {
+        m += adj[i].size();
+    }
+
+    os << m << endl;
+}
 
 vector<Option> prob_custom_options() { return {}; }
 
 void generator_random(const std::vector<uint64_t> &v) {}
 
-vector<Generator> prob_generators() { return {}; }
+void generator_completo(const std::vector<uint64_t> &v) {
+    n = v[0];
+
+    for (uint64_t i = 0; i < n; i++) {
+        for (uint64_t j = 0; j < n; j++) {
+            if (i == j) continue;
+            adj[j].push_back({i, rnd(1, 1000)});
+            adj[i].push_back({j, rnd(1, 1000)});
+        }
+    }
+}
+
+vector<Generator> prob_generators() { return {{"random", generator_completo}}; }
