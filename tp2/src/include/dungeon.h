@@ -12,7 +12,10 @@ void generateDungeon(int64_t m, int64_t n, double density,
     maze.resize(0);
     maze.reserve(m);
 
-    uint64_t p = density * UINT64_MAX;
+    double kf = density / (-3 * density * density + 6 * density + 1);
+    double uf = kf * 2;
+    uint64_t k = kf * UINT64_MAX;
+    uint64_t u = uf * UINT64_MAX;
 
     for (int64_t y = 0; y < m; y++) {
         maze.push_back(std::vector<T>(n, empty));
@@ -36,7 +39,7 @@ void generateDungeon(int64_t m, int64_t n, double density,
             }
 
             //if (rnd() < (up or left ? p : p/4)) {
-            if (rnd() < (up or left ? 0.498753 * UINT64_MAX : 0.12468 * UINT64_MAX)) {
+            if (rnd() < (up or left ? u : k)) {
                 maze[y][x] = wall;
             }
         }
