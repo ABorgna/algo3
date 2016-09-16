@@ -21,7 +21,7 @@ vector<vector<pair<estacion, tiempo>>> adj;
 vector<estacion> padre;  // estacion -> <tiempo en llegar / predecesora>
 
 int reventarDaistrah() {
-    vector<tiempo> tiempoMin(n,-1);
+    vector<tiempo> tiempoMin(n, -1);
     set<pair<tiempo, estacion>> candidatos;
     padre = vector<estacion>(n);
 
@@ -35,9 +35,9 @@ int reventarDaistrah() {
         estacion est_actual = it->second;
         candidatos.erase(it);
 
-        if (est_actual == (int64_t) n - 1) {
+        if (est_actual == (int64_t)n - 1) {
             return t_actual;
-        } 
+        }
 
         for (auto a : adj[est_actual]) {
             estacion vecino = a.first;
@@ -46,7 +46,7 @@ int reventarDaistrah() {
             tiempo anterior = tiempoMin[vecino];
 
             if (anterior >= 0) {
-                if(nuevo >= anterior)
+                if (nuevo >= anterior)
                     continue;
 
                 // Been there, done that
@@ -70,14 +70,14 @@ void prob_load(std::istream &is) {
     int64_t m;
     is >> n >> m;
 
-    adj = vector<vector<pair<estacion, tiempo>>>(n, vector<pair<estacion, tiempo>>());
-
+    adj = vector<vector<pair<estacion, tiempo>>>(
+        n, vector<pair<estacion, tiempo>>());
 
     for (int i = 0; i < m; i++) {
         estacion desde, hasta;
         tiempo peso;
         is >> desde >> hasta >> peso;
-        adj[desde-1].push_back({hasta-1, peso});
+        adj[desde - 1].push_back({hasta - 1, peso});
     }
 }
 
@@ -88,7 +88,7 @@ int prob_solve(std::ostream &os) {
 
     if (res != -1) {
         vector<estacion> estaciones;
-        estacion pred = n-1;
+        estacion pred = n - 1;
 
         while (pred != -1) {
             estaciones.insert(estaciones.begin(), pred);
@@ -98,8 +98,9 @@ int prob_solve(std::ostream &os) {
         os << estaciones.size() << endl;
 
         for (uint64_t i = 0; i < estaciones.size(); i++) {
-            if (i) os << " ";
-            os << estaciones[i]+1;
+            if (i)
+                os << " ";
+            os << estaciones[i] + 1;
         }
         os << endl;
     }
@@ -110,38 +111,51 @@ int prob_solve(std::ostream &os) {
 void prob_reload() {}
 
 vector<uint64_t> prob_vars() {
-    uint64_t m = 0;
-    for (uint64_t i = 0; i < adj.size(); i++) {
-        m += adj[i].size();
-    }
-    return {n, m};
+    return {n};
 }
 
 void prob_print_input(std::ostream &os) {
-    os << n;
-
     uint64_t m = 0;
-    for (uint64_t i = 0; i < adj.size(); i++) {
-        m += adj[i].size();
-    }
+    for (auto &v : adj)
+        m += v.size();
 
-    os << m << endl;
+    os << n << " " << m << endl;
+
+    for (uint64_t a=0 ; a<adj.size(); a++) {
+        for(auto &v : adj[a]) {
+            os << a << " " << v.first << " " << v.second << endl;
+        }
+    }
 }
 
 vector<Option> prob_custom_options() { return {}; }
 
-void generator_random(const std::vector<uint64_t> &v) {}
-
-void generator_completo(const std::vector<uint64_t> &v) {
+void generator_random(const std::vector<uint64_t> &v) {
     n = v[0];
 
+    adj = vector<vector<pair<estacion, tiempo>>>(n);
     for (uint64_t i = 0; i < n; i++) {
         for (uint64_t j = 0; j < n; j++) {
-            if (i == j) continue;
-            adj[j].push_back({i, rnd(1, 1000)});
+            if (i == j or rnd(0, 1))
+                continue;
             adj[i].push_back({j, rnd(1, 1000)});
         }
     }
 }
 
-vector<Generator> prob_generators() { return {{"random", generator_completo}}; }
+void generator_completo(const std::vector<uint64_t> &v) {
+    n = v[0];
+
+    adj = vector<vector<pair<estacion, tiempo>>>(n);
+    for (uint64_t i = 0; i < n; i++) {
+        for (uint64_t j = 0; j < n; j++) {
+            if (i == j)
+                continue;
+            adj[i].push_back({j, rnd(1, 1000)});
+        }
+    }
+}
+
+vector<Generator> prob_generators() {
+    return {{"completo", generator_completo}, {"random", generator_random}};
+}
