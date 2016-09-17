@@ -1,6 +1,6 @@
 
 GCC=g++
-CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++14 -march=native
+CFLAGS= -O3 -Wall -Wextra -ggdb -std=c++11 -march=native
 #CFLAGS= -O0 -Wall -Wextra -ggdb -std=c++14
 VALGRIND=valgrind --leak-check=full
 
