@@ -19,23 +19,36 @@ typedef int64_t tiempo;
 uint64_t n;
 vector<vector<pair<estacion, tiempo>>> adj;
 vector<estacion> padre;  // estacion -> <tiempo en llegar / predecesora>
+vector<bool> visitados;
 
 int reventarDaistrah() {
+    visitados = vector<bool>(n, false);
     vector<tiempo> tiempoMin(n, -1);
-    set<pair<tiempo, estacion>> candidatos;
     padre = vector<estacion>(n);
 
     tiempoMin[0] = 0;
     padre[0] = -1;
-    candidatos.insert({0, 0});
 
-    while (!candidatos.empty()) {
-        auto it = candidatos.begin();
-        tiempo t_actual = it->first;
-        estacion est_actual = it->second;
-        candidatos.erase(it);
+    while (true) {
+        bool first = true;
+        estacion est_actual = -1;
+        for (int j = 0; j < (int64_t) n; j++) {
+            if (!visitados[j]) {
+                if (first) {
+                    first = false;
+                    est_actual = j;
+                } else if (tiempoMin[j] >= 0 && tiempoMin[j] < tiempoMin[est_actual])
+                    est_actual = j;
+            }
+        }
 
-        if (est_actual == (int64_t)n - 1) {
+        if (visitados[est_actual])
+            break;
+
+        tiempo t_actual = tiempoMin[est_actual];
+        visitados[est_actual] = true;
+
+        if (est_actual == (int64_t) n - 1) {
             return t_actual;
         }
 
@@ -45,16 +58,10 @@ int reventarDaistrah() {
 
             tiempo anterior = tiempoMin[vecino];
 
-            if (anterior >= 0) {
-                if (nuevo >= anterior)
-                    continue;
-
-                // Been there, done that
-                candidatos.erase({anterior, vecino});
-            }
+            if (anterior >= 0 && nuevo >= anterior)
+                continue;
 
             tiempoMin[vecino] = nuevo;
-            candidatos.insert({nuevo, vecino});
             padre[vecino] = est_actual;
         }
     }
