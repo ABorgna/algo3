@@ -1,2 +1,12 @@
 \section{Problema 1: Laberinto}
+\subsection{Introducción}
 
+El escenario del primer problema es sencillo: dada una posición de arranque en un laberinto, queremos encontrar el costo del camino mínimo hacia una posición final. Para lograr esto podemos derribar hasta cierta cantidad, ya determinada, de paredes del laberinto mismo. El input total del problema consiste de:
+
+    \begin{itemize}
+        \item Una matriz $M$ de caracteres que representan el mapa, de dimensión $F\times C$ (pasados por parámetro) donde $M_{ij} \in \{$'$\cdotp$'$,$'$\#$'$,$'$o$'$,$'$x$'$\}$ según sea, respecto del orden listado del conjunto, un lugar caminable, pared, punto de origen o punto de destino. Se asume que existe un único caracter $'o'$ y un único $'x'$ en todo el mapa.
+        \item Un entero $P$ que representa la cantidad máxima de paredes que podremos romper, es decir, caracteres $'\#'$ que pueden conformar el camino mínimo cuya longitud buscamos.
+    \end{itemize}
+
+También sabemos por enunciado que los caracteres del borde del mapa corresponden a una pared. Lo que quiere decir que $i \in \{0, F-1\} \ \vee \ j \in \{0, C-1\} \Rightarrow M_{ij} =\ $'$\#$'.
+Considerando que cada movimiento realizado debe ser vertical u horizontal (los vecinos de $M_{i,j}$ son los elementos en rango del conjunto $\{M_{i+1,j},\ M_{i-1,j},\ M_{i,j+1},\ M_{i,j-1}\}$), podemos considerar el output del problema como:
