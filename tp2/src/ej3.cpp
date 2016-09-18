@@ -16,45 +16,39 @@ using namespace std;
 typedef int64_t estacion;
 typedef int64_t tiempo;
 
-uint64_t n;
+int64_t n;
 vector<vector<pair<estacion, tiempo>>> adj;
 vector<estacion> padre;  // estacion -> <tiempo en llegar / predecesora>
-vector<bool> visitados;
 
 int reventarDaistrah() {
-    visitados = vector<bool>(n, false);
-    vector<tiempo> tiempoMin(n, -1);
+    vector<bool> visitado = vector<bool>(n, false);
+    vector<tiempo> tiempoMin(n, INT64_MAX);
     padre = vector<estacion>(n);
 
     tiempoMin[0] = 0;
     padre[0] = -1;
 
     while (true) {
-        bool first = true;
-        estacion est_actual = -1;
-        for (int j = 0; j < (int64_t) n; j++) {
-            if (!visitados[j]) {
-                if (first) {
-                    first = false;
-                    est_actual = j;
-                } else if (tiempoMin[j] >= 0 && tiempoMin[j] < tiempoMin[est_actual])
-                    est_actual = j;
+
+        tiempo act_t = INT64_MAX;
+        estacion est_t = -1;
+        for (int j = 0; j < n; j++)  {
+            if(!visitado[j] and tiempoMin[j] < act_t) {
+                act_t = tiempoMin[j];
+                est_t = j;
             }
         }
-
-        if (visitados[est_actual])
+        if (est_t == -1)
             break;
 
-        tiempo t_actual = tiempoMin[est_actual];
-        visitados[est_actual] = true;
+        visitado[est_t] = true;
 
-        if (est_actual == (int64_t) n - 1) {
-            return t_actual;
-        }
+        if (est_t == n - 1)
+            return act_t;
 
-        for (auto a : adj[est_actual]) {
+        for (auto a : adj[est_t]) {
             estacion vecino = a.first;
-            tiempo nuevo = t_actual + a.second;
+            tiempo nuevo = act_t + a.second;
 
             tiempo anterior = tiempoMin[vecino];
 
@@ -62,7 +56,7 @@ int reventarDaistrah() {
                 continue;
 
             tiempoMin[vecino] = nuevo;
-            padre[vecino] = est_actual;
+            padre[vecino] = est_t;
         }
     }
 
@@ -118,11 +112,11 @@ int prob_solve(std::ostream &os) {
 void prob_reload() {}
 
 vector<uint64_t> prob_vars() {
-    return {n};
+    return {(uint64_t) n};
 }
 
 void prob_print_input(std::ostream &os) {
-    uint64_t m = 0;
+    int64_t m = 0;
     for (auto &v : adj)
         m += v.size();
 
@@ -141,8 +135,8 @@ void generator_random(const std::vector<uint64_t> &v) {
     n = v[0];
 
     adj = vector<vector<pair<estacion, tiempo>>>(n);
-    for (uint64_t i = 0; i < n; i++) {
-        for (uint64_t j = 0; j < n; j++) {
+    for (int64_t i = 0; i < n; i++) {
+        for (int64_t j = 0; j < n; j++) {
             if (i == j or rnd(0, 1))
                 continue;
             adj[i].push_back({j, rnd(1, 1000)});
@@ -154,8 +148,8 @@ void generator_completo(const std::vector<uint64_t> &v) {
     n = v[0];
 
     adj = vector<vector<pair<estacion, tiempo>>>(n);
-    for (uint64_t i = 0; i < n; i++) {
-        for (uint64_t j = 0; j < n; j++) {
+    for (int64_t i = 0; i < n; i++) {
+        for (int64_t j = 0; j < n; j++) {
             if (i == j)
                 continue;
             adj[i].push_back({j, rnd(1, 1000)});
