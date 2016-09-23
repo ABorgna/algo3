@@ -49,10 +49,9 @@ int reventarDaistrah() {
         for (auto a : adj[est_t]) {
             estacion vecino = a.first;
             tiempo nuevo = act_t + a.second;
-
             tiempo anterior = tiempoMin[vecino];
 
-            if (anterior >= 0 && nuevo >= anterior)
+            if (nuevo >= anterior)
                 continue;
 
             tiempoMin[vecino] = nuevo;
