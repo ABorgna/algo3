@@ -1,7 +1,7 @@
 \section{Problema 1: Laberinto}
 \subsection{Introducción}
 
-El escenario del primer problema es sencillo: dada una posición de arranque en un laberinto, queremos encontrar el costo del camino mínimo hacia una posición final. Para lograr esto podemos derribar hasta cierta cantidad, ya determinada, de paredes del laberinto mismo. El input total del problema consiste de:
+El escenario del primer problema es sencillo: dada una posición de arranque en un laberinto, queremos encontrar el camino mínimo hacia una posición final. Para lograr esto podemos derribar hasta cierta cantidad, ya determinada, de paredes del laberinto mismo. El input total del problema consiste de:
 
     \begin{itemize}
         \item Una matriz $M$ de caracteres que representan el mapa, de dimensión $F\times C$ (pasados por parámetro) donde $M_{ij} \in \{$'$\cdotp$'$,$'$\#$'$,$'$o$'$,$'$x$'$\}$ según sea, respecto del orden listado del conjunto, un lugar caminable, pared, punto de origen o punto de destino. Se asume que existe un único caracter $'o'$ y un único $'x'$ en todo el mapa.
@@ -16,9 +16,9 @@ Teniendo en cuenta que cada movimiento realizado debe ser vertical u horizontal 
     \begin{itemize}
         \item $ M_{ij} = $'$ o $'$ $
         \item $A = \Big\{ \langle {M_{i_0, j_0}\ ...\ M_{i_{k-1}, j_{k-1}}} \rangle \ \Big | \kern 0.2cm
-        M_{i_0,j_0} \in \{M_{i+1,j}\ M_{i-1,j}\ M_{i,j+1}\ M_{i,j-1}\} \kern 0.3cm \wedge \kern 0.3cm \sum\limits_{x=0}^{k-1} \beta(M_{i_x j_x} = $'$\#$'$) \leq P \kern 0.2cm \wedge \kern 0.2cm
+        M_{i_0,j_0} \in \{M_{i+1,j}\ M_{i-1,j}\ M_{i,j+1}\ M_{i,j-1}\} \bigcap M_{[1..F]\times[1..C]} \kern 0.3cm \wedge \\ \sum\limits_{x=0}^{k-1} \beta(M_{i_x j_x} = $'$\#$'$) \leq P \kern 0.2cm \wedge \kern 0.2cm
         M_{i_{k-1}, j_{k-1}} = $'$\times$'$ \kern 0.3cm \wedge \kern 0.3cm
-        \forall\ x \in [0..k-1) \kern 0.3cm M_{i_{(x+1)},j_{(x+1)}} \in \{M_{i_x+1,j_x}\ M_{i_x-1,j_x}\ M_{i_x,j_x+1}\ M_{i_x,j_x-1}\} \bigcap \\ M_{[1..F]\times[1..C]} \Big\}$
+        \forall\ x \in [0..k-1) \kern 0.3cm M_{i_{(x+1)},j_{(x+1)}} \in \{M_{i_x+1,j_x}\\ M_{i_x-1,j_x}\ M_{i_x,j_x+1}\ M_{i_x,j_x-1}\} \bigcap M_{[1..F]\times[1..C]} \Big\}$
         \item $Output = \min\limits_{C \in A}\ |C|$
     \end{itemize}
 
@@ -94,11 +94,11 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     \begin{figure}[H]
         \centering
         \includegraphics[width=12.0cm]{ej1-graph}
-        \caption{El primer elemento de cada nodo revela la ubicación en el mapa y el segundo la cantidad de demoliciones contadas. Dependiendo del orden en que se desencolen los nodos padres, se definirán las ramas azules contra las verdes. El nodo rojo corresponde a un estado cuya rama, de seguir el algoritmo por no llegar ninguna rama al estado final en ese mismo nivel, sería podada. La longitud mínima de valor $2$ nos la da el camino $\langle {M_{33}, M_{34}} \rangle$}
+        \caption{El primer elemento de cada nodo revela la ubicación en el mapa y el segundo la cantidad de demoliciones contadas. Dependiendo del orden en que se desencolen los nodos padres, se definirán las ramas azules contra las verdes. El nodo rojo corresponde a un estado cuya rama, de seguir el algoritmo por no llegar ninguna rama al estado final en ese mismo nivel, sería podada. La longitud mínima de valor $2$ nos la da el camino $\langle {M_{33}, M_{34}} \rangle$. Como los puntos de arranque y de salida estarán en el interior del mapa (sino serían paredes), cada rama que pase por el borde tendrá que pasar por \emph{al menos} dos aristas más que la mínima dentro del mapa. Por lo tanto, por razones de espacio omitimos esas ramas en la figura (en el algoritmo sí se consideran). Además de que $P=1$ no permite recorrer el borde más que para salir del interior y luego volver al mismo nodo anterior, lo cual no podría ser mínimo.}
         \label{fig:ej1-graph}
     \end{figure}
 
-Una vez que, para algún nivel del grafo se llega a la posición final, el algoritmo termina y deja truncadas todas las demás ramas. Como veremos en el siguiente pseudocódigo, solamente vamos a agregar un estado cuando esa misma ubicación con esa misma cantidad de demoliciones no haya sido procesada anteriormente, de haberlo sido, entonces ya existe una manera de llegar al mismo nodo con menor o igual distancia al origen (porque lo vimos antes del actual). Esto hace que el algoritmo visite cada estado en forma arborea.
+Una vez que, para algún nivel del grafo se llega a la posición final, el algoritmo termina y deja truncadas todas las demás ramas. Como veremos en el siguiente pseudocódigo, solamente vamos a agregar un estado cuando esa misma ubicación con esa misma cantidad de demoliciones no haya sido procesada anteriormente, de haberlo sido, entonces ya existe una manera de llegar al mismo nodo con menor o igual distancia al origen (porque lo vimos antes del actual). Esto hace que el algoritmo visite cada estado en forma arborea, porque no se repiten nodos.
 
     \begin{lstlisting}
 
@@ -127,5 +127,37 @@ Una vez que, para algún nivel del grafo se llega a la posición final, el algor
 
     \end{lstlisting}
 
+
+    Veamos que efectivamente el grafo modela bien el problema. En particular nos interesa ver que hay un mapeo directo entre los caminos del mapa (formalizados en la introducción a través de \emph{secuencias válidas de vecinos}) y los del grafo, y que además preserva sus longitudes. De esta manera podremos aseverar que encontrar la longitud de un camino mínimo en el grafo es también encontrar la longitud de camino mínimo en el mapa porque existe alguno con esa longitud en él y, si hubiera otro con menor longitud, también lo habría en el grafo con la misma longitud (y por lo tanto el primero no era mínimo). Esto lo podemos formalizar en el siguiente lema:
+    \\
+
+    \begin{center}\textbf{\underline{Lema:} }\end{center}
+        \textit{Para todo $M_{ij}$ en rango existe en el mapa un camino de distancia $n$ al punto de inicio $M_{s}$ y que además pasa por $k$ paredes si y sólo si existe un camino de $n$ aristas de distancia entre el vértice $\langle {M_{ij},\ k} \rangle$ y el vértice $\langle {M_s, 0} \rangle$.}
+    \\
+
+    Probemos el lema haciendo inducción en el largo $n$ de los caminos. Primero veamos la ida y luego la vuelta:
+
+    \begin{center}$\mathbf{\implies}$\end{center}
+
+    \textbf{\emph{Caso Base (n=1): }} Entonces $M_{ij}$ es vecino en el mapa de $M_s$ en el mapa. Si $M_{ij}$ es pared, entonces $k=1$, de lo contrario $k=0$ porque es el único punto que se visita desde el inicio. Por cómo construimos el grafo, $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ son siempre adyacentes.
+    \\
+
+    \textbf{\emph{Paso inductivo (n$>$1): }} Sea un $M_{ij}$ en rango, con al menos un camino de longitud $n+1$ a $M_s$ y $k$ demoliciones en él, quiero ver que existe algún camino de longitud $n+1$ entre $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$.
+    \\
+
+    \emph{Hipótesis inductiva: }
+    \\
+
+    \begin{center}$\mathbf{\impliedby}$\end{center}
+
+    \textbf{\emph{Caso Base (n=1): }} Similar a la ida, por cómo armamos el grafo sabemos que existe un camino de $M_s$ a $M_{ij}$ con longitud 1 en el mapa porque sino $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ no serían adyacentes en el grafo. Lo mismo para el valor de $k$, que es 0 si $M_{ij}$ no es pared, 1 de lo contrario.
+    \\
+
+    \textbf{\emph{Paso inductivo (n$>$1): }}
+    \\
+
+    \emph{Hipótesis inductiva: }
+    \QEDB
+    \\
 
 \subsection{Complejidad}
