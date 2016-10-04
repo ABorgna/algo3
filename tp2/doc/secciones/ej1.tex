@@ -66,11 +66,23 @@ El enunciado pide, además, una solución con complejidad $\mathcal{O}(FCP)$.
 
 \subsection{Solución}
 
-El enunciado pide abordar el problema desde una representación sobre grafos. Resulta bastante directo pensar cada nodo como el estado de nuestra ubicación en el mapa y cada arista como el movimiento hacia un vecino. Por lo tanto, nos interesa el camino en dicho grafo que menos aristas contenga.
+El enunciado pide abordar el problema desde una representación sobre grafos. Resulta bastante directo pensar cada nodo como el estado de nuestra ubicación en el mapa y cada arista como el movimiento hacia un vecino. Considerando también la restricción sobre $P$, es conveniente orientarlo en forma de digrafo (moviendonos podemos sumar demoliciones, pero no perderlas). Por lo tanto, nos interesaría encontrar algo similar al camino en dicho grafo que menos aristas contenga, considerando las siguientes modificaciones.
 
-Este tipo de problemas se puede resolver de manera generalizada con variaciones de $BFS$ (\emph{breadth-first search}), que nos aseguran recorrer el grafo por niveles de 'profundidad' (o sea, distancia de la raíz) y, por lo tanto, la primer solución que encontremos tendrá la misma o menor distancia al origen que cualquier otra. Esto se debe a que cada elemento se guarda en una estructura con organización \emph{'First In, First Out' (FIFO)}, y siempre estaremos visitando los estados del camino cuyo \emph{padre} haya sido visitado primero.
+Sea $C \in M_{[1..F]\times[1..C]}$ una celda del mapa, la representamos con $P+1$ nodos de la pinta $ \langle {C,\ 0} \rangle ... \langle {C,\ P} \rangle$ donde $\langle $C,\ k$ \rangle$ representa el estado de haber llegado al casillero $C$ derribando exactamente $k$ paredes.
 
-Nos queda ver cómo agregar las restricciones sobre la variable $P$ en esta representación. La idea de nuestra solución es ir guardando el estado de esta variable para cada camino armado y cortarlo cuando se supera la restricción.
+Si dos celdas $C_1$ y $C_2$ eran adyacentes en el mapa y $C_2$ es un espacio libre, $\langle {C_1,\ k} \rangle$ es adyacente a $\langle {C_2,\ k} \rangle$ para todo $k$, esto representa dar un paso desde $C_1$ hasta $C_2$ y, como no se destruyen paredes, se mantiene el contador de demoliciones. Si $C_2$ es una pared, entonces $\langle {C_1,\ k} \rangle$ será adyacente a $\langle {C_2,\ k+1} \rangle$ para todo $k < P$, representando el dar un paso desde $C_1$ a $C_2$ destruyendo la pared en el proceso. Si ya se habían destruido $P$ paredes, no es un paso válido destruir otra más.
+Como nos interesa encontrar caminos mínimos (que pasen por la menor cantidad de aristas posibles), no podrá suceder que tras demoler una pared se vuelva a pasar por ella, ya demolida, porque entonces estaríamos dando \emph{al menos} dos pasos (uno para salir de la pared demolida y otra para volver a entrar) para volver a terminar en la misma casilla que ya estabamos. Si fuera un camino mínimo podríamos tomar el mismo camino pero sin la secuencia de salida y retorno a la casilla, y tendría longitud menor, lo cual es absurdo pues el camino anterior lo habíamos supuesto mínimo. Por lo tanto, solamente consideraremos caminos que no repitan nodos, es decir, caminos simples.
+Al no repetir nodos en cada camino, cada vez que visitemos una pared será una demolición.
+
+Nótese que algunos de los nodos podrían ser inalcanzables desde el punto de entrada, dependiendo de la disposición de las paredes en el mapa. Por ejemplo, no es posible alcanzar una pared con 0 demoliciones. En caso de que ninguno de los nodos de la casilla del punto de salida sea alcanzable, se retornará -1.
+\\
+
+El vértice  de inico al buscar el camíno será el correspondiente a la celda de inicio habiendo destruido 0 paredes y los vértices de llegada serán todos los correspondientes al casillero de llegada del mapa, ya que un camino puede llegar con cualquier cantidad entre 0 y $P$ de paredes destrudas y ser válido.
+
+Este tipo de problemas se puede resolver de manera generalizada con variaciones de $BFS$ (\emph{breadth-first search}), que nos aseguran recorrer el grafo por niveles de 'profundidad' (o sea, distancia de la raíz, que sería nuestro punto de salida) y, por lo tanto, la primer solución que encontremos tendrá la misma o menor distancia al origen que cualquier otra. Esto se debe a que cada elemento se guarda en una estructura con organización \emph{'First In, First Out' (FIFO)}, y siempre estaremos visitando los estados del camino cuyo \emph{padre} haya sido visitado primero.
+
+Vale mencionar también que, como las adyacencias del grafo se arman partiendo de las del mapa, no nos hace falta construir en memoria el grafo. Sino que vamos recorriendo usando la información de adyacencias del mapa.
+\\
 
 En este pequeño ejemplo podemos ver tanto la idea de la representación en grafo del problema como del tipo de iteración que realiza $BFS$:
 
@@ -98,41 +110,39 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
         \label{fig:ej1-graph}
     \end{figure}
 
-Una vez que, para algún nivel del grafo se llega a la posición final, el algoritmo termina y deja truncadas todas las demás ramas. Como veremos en el siguiente pseudocódigo, solamente vamos a agregar un estado cuando esa misma ubicación con esa misma cantidad de demoliciones no haya sido procesada anteriormente, de haberlo sido, entonces ya existe una manera de llegar al mismo nodo con menor o igual distancia al origen (porque lo vimos antes del actual). Esto hace que el algoritmo visite cada estado en forma arborea, porque no se repiten nodos.
+    \begin{lstlisting}[caption={Pseudoc\'odigo de la resoluci\'on. En 'candidatos' se guardan los nodos tentativos que quedan por visitar. En dist se guarda la menor distancia que tienen al origen que, por iterar haciendo BFS, es la del primer camino en alcanzar dicho nodo.}]
 
-    \begin{lstlisting}
-
-        dist[m][n][p+1] $\leftarrow$ (m $\times$ n $\times$ (p+1)) * (-1)
+        dist[m][n][p+1] $\leftarrow$ [m $\times$ n $\times$ (p+1)] * (-1)
         cola<<y,x>, p> candidatos
 
-        dist[origen.y][origen.x][0] $\leftarrow$ 0;
-        candidatos.encolar(origen, 0);
+        dist[origen.y][origen.x][0] $\leftarrow$ 0
+        candidatos.encolar(origen, 0)
 
-        while $\neg$candidatos.vacio():
-            cand $\leftarrow$ candidatos.desencolar()
-            ubicacion $\leftarrow$ cand.first
-            p_actual $\leftarrow$ cand.second
-            distancia $\leftarrow$ dist[ubicacion.y][ubicacion.x][p_actual]
+        $\textbf{Mientras}$ $\neg$candidatos.vacio():
+            actual $\leftarrow$ candidatos.desencolar()
+            ubicacion $\leftarrow$ actual.first
+            k $\leftarrow$ actual.second
+            distancia $\leftarrow$ dist[ubicacion.y][ubicacion.x][k]
 
-            if ubicacion = destino:
-                return distancia
+            $\textbf{Si}$ ubicacion = destino:
+                $\textbf{Devolver}$ distancia
 
-            $\textbf{para cada}$ vecino <x,y> de ubicacion que este en rango:
-                p_vecino $\leftarrow$ p_actual + $\beta$(mapa[vecino.y][vecino.x] es pared)
+            $\textbf{Para cada}$ vecino <y,x> de ubicacion que este en rango:
+                k_vecino $\leftarrow$ k + $\beta$(mapa[vecino.y][vecino.x] es pared)
 
-                if p_vecino $\leq$ p_max $\wedge$ dist[vecino.y][vecino.x][p_vecino] $\neq$ -1:
-                        candidatos.encolar(vecino, p_vecino)
-                        dist[vecino.y][vecino.x][p_vecino] $\leftarrow$ distancia + 1
-        return -1;
+                $\textbf{Si}$ k_vecino $\leq$ P $\wedge$ dist[vecino.y][vecino.x][k_vecino] $\neq$ -1:
+                        candidatos.encolar(vecino, k_vecino)
+                        dist[vecino.y][vecino.x][k_vecino] $\leftarrow$ distancia + 1
 
+        $\textbf{Devolver}$ -1
     \end{lstlisting}
 
 
-    Veamos que efectivamente el grafo modela bien el problema. En particular nos interesa ver que hay un mapeo directo entre los caminos del mapa (formalizados en la introducción a través de \emph{secuencias válidas de vecinos}) y los del grafo, y que además preserva sus longitudes. De esta manera podremos aseverar que encontrar la longitud de un camino mínimo en el grafo es también encontrar la longitud de camino mínimo en el mapa porque existe alguno con esa longitud en él y, si hubiera otro con menor longitud, también lo habría en el grafo con la misma longitud (y por lo tanto el primero no era mínimo). Esto lo podemos formalizar en el siguiente lema:
+    Veamos que efectivamente el grafo modela bien el problema. En particular nos interesa ver que hay un mapeo directo entre los caminos simples del mapa (formalizados en la introducción a través de \emph{secuencias válidas de vecinos}, que además, como ya dijimos al presentar la representación del grafo, son los que formarán caminos mínimos) y los del grafo, y que además preserva su secuencia de ubicaciones y longitud final. De esta manera podremos aseverar que encontrar la longitud de un camino mínimo en el grafo es también encontrar la longitud de camino mínimo en el mapa porque existe alguno con esa longitud en él y, si hubiera otro con menor longitud, también lo habría en el grafo con la misma longitud (y por lo tanto el primero no era mínimo). Esto lo podemos formalizar en el siguiente lema:
     \\
 
     \begin{center}\textbf{\underline{Lema:} }\end{center}
-        \textit{Para todo $M_{ij}$ en rango existe en el mapa un camino de distancia $n$ al punto de inicio $M_{s}$ y que además pasa por $k$ paredes si y sólo si existe un camino de $n$ aristas de distancia entre el vértice $\langle {M_{ij},\ k} \rangle$ y el vértice $\langle {M_s, 0} \rangle$.}
+        \textit{Para todo $M_{ij}$ en rango existe en el mapa un camino simple de distancia $n$ desde el punto de inicio $M_{s}$ y que además pasa por $k$ paredes si y sólo si existe un camino de $n$ aristas de distancia entre el vértice $\langle {M_s, 0} \rangle$ y el vértice $\langle {M_{ij},\ k} \rangle$  que recorre vértices asociados a las mismas ubicaciones (todas distintas) en el mismo orden.}
     \\
 
     Probemos el lema haciendo inducción en el largo $n$ de los caminos. Primero veamos la ida y luego la vuelta:
@@ -142,21 +152,28 @@ Una vez que, para algún nivel del grafo se llega a la posición final, el algor
     \textbf{\emph{Caso Base (n=1): }} Entonces $M_{ij}$ es vecino en el mapa de $M_s$ en el mapa. Si $M_{ij}$ es pared, entonces $k=1$, de lo contrario $k=0$ porque es el único punto que se visita desde el inicio. Por cómo construimos el grafo, $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ son siempre adyacentes.
     \\
 
-    \textbf{\emph{Paso inductivo (n$>$1): }} Sea un $M_{ij}$ en rango, con al menos un camino de longitud $n+1$ a $M_s$ y $k$ demoliciones en él, quiero ver que existe algún camino de longitud $n+1$ entre $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$.
+    \textbf{\emph{Paso inductivo (n$>$1): }} Supongamos un $M_{ij}$ en rango, con al menos un camino de longitud $n+1$ desde $M_s$ y $k$ demoliciones en él, quiero ver que existe algún camino de longitud $n$ entre $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ donde la secuencia de primeras componentes de los vértices (todas distintas) coincide con el camino sobre el mapa.
     \\
 
-    \emph{Hipótesis inductiva: }
+    \emph{Hipótesis inductiva: } Como $n>1$, no son adyacentes y el camino tiene pasar por algún vecino $M_{xy}$ de $M_{ij}$ antes de terminar en este último. Por HI, a ese subcamino simple entre $M_s$ y $M_{xy}$ de longitud $n-1$ se le corresponde un camino entre $\langle {M_s,\ 0} \rangle$ y $\langle {M_{xy},\ k'} \rangle$ que pasa por las mismas ubicaciones. Como supusimos que el camino entre $M_s$ y $M_{ij}$ en el mapa tiene $k$ demoliciones podemos tomar, usando el mismo subcamino hasta su vecino, $k' = k - \beta(M_{ij}\ es\ pared)$. Esto se puede porque el camino que supusimos es simple, entonces $M_{ij}$ no fue visitado hasta el final y por lo tanto no está en el recorrido de $M_s$ a $M_{xy}$.
+
+    Extendiendo el camino con la arista (existente por ser vecinos y construcción del grafo) entre $\langle M_{xy},\ k' \rangle$ y $\langle M_{ij},\ k''\rangle$ siendo $k'' = k' + \beta(M_{ij}\ es\ pared) = k$, nos queda un camino de longitud $n$ entre $\langle {M_s,\ 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ que recorre ubicaciones en el mismo orden que el supuesto al principio del paso inductivo. Además, como se corresponde con un camino simple, estas ubicaciones serán todas distintas entre ellas.
     \\
 
     \begin{center}$\mathbf{\impliedby}$\end{center}
 
-    \textbf{\emph{Caso Base (n=1): }} Similar a la ida, por cómo armamos el grafo sabemos que existe un camino de $M_s$ a $M_{ij}$ con longitud 1 en el mapa porque sino $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ no serían adyacentes en el grafo. Lo mismo para el valor de $k$, que es 0 si $M_{ij}$ no es pared, 1 de lo contrario.
+    \textbf{\emph{Caso Base (n=1): }} Similar a la ida, por cómo armamos el grafo sabemos que existe un camino simple de $M_s$ a $M_{ij}$ con longitud 1 en el mapa porque sino $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ no serían adyacentes en el grafo. Lo mismo para el valor de $k$, que es 0 si $M_{ij}$ no es pared, 1 de lo contrario.
     \\
 
-    \textbf{\emph{Paso inductivo (n$>$1): }}
+    \textbf{\emph{Paso inductivo (n$>$1): }} Asumiendo $M_{ij}$ en rango tal que existe un camino que no repite ubicaciones entre vértices de longitud $n$ desde $\langle {M_s, 0} \rangle$ al vértice $\langle {M_{ij},\ k} \rangle$, quiero ver que hay un camino simple de longitud $n$ entre $M_{ij}$ y $M_s$, que pasa por $k$ paredes y las mismas ubicaciones.
     \\
 
-    \emph{Hipótesis inductiva: }
+    \emph{Hipótesis inductiva: } También como en la ida, podemos aprovechar que, por construcción y $n>1$, quitando la última arista que hace llegar el camino a $\langle {M_{ij},\ k} \rangle$, podemos formar un subcamino desde $\langle {M_s, 0} \rangle$ hacia algún vecino $\langle {M_{xy},\ k' } \rangle$,  $k'= k-\beta(M_{ij}\ es\ pared)$, de longitud $n-1$.
+
+    Usando HI sobre el subcamino mencionado, sabemos de la existencia de un camino simple de longitud $n-1$ en el mapa que atraviesa $k'$ paredes y va desde $M_s$ hasta $M_{xy}$ recorriendo cada una de las ubicaciones indicadas por nuestro subcamino en el grafo. Y al existir una arista entre $\langle {M_{ij},\ k} \rangle$ y $\langle {M_{xy},\ k' } \rangle$ (tiene que existir por suposición del camino simple del paso inductivo), $M_{ij}$ y $M_{xy}$ son, por construcción del grafo, vecinos en el mapa.
+
+    $M_{ij}$ no pertenece al camino desde $M_s$ hasta $M_{xy}$ que obtuvimos mediante la hipótesis inductiva, porque de hacerlo entonces el camino desde $\langle {M_{s},\ 0} \rangle$ a $\langle {M_{ij},\ k} \rangle$ de donde sale el subcamino sobre el que se aplica la HI tendría ubicaciones repetidas, en particular un vértice $\langle {M_{ij},\ k} \rangle$ y otro de la pinta $\langle {M_{ij},\ k''} \rangle$. Por lo tanto, podemos agregar la arista desde $M_{xy}$ a $M_{ij}$ al camino obtenido y tendríamos un camino simple de longitud $n$ desde $M_{s}$ a $M_{ij}$ con $k'+\beta(M_{ij}\ es\ pared) = k$ demoliciones.
+    (al no pertenecer al camino hasta tu su vecino, la última arista se corresponde a un movimiento con demolición).
     \QEDB
     \\
 
