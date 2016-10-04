@@ -113,26 +113,26 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     \begin{lstlisting}[caption={Pseudoc\'odigo de la resoluci\'on. En 'candidatos' se guardan los nodos tentativos que quedan por visitar. En dist se guarda la menor distancia que tienen al origen que, por iterar haciendo BFS, es la del primer camino en alcanzar dicho nodo.}]
 
         dist[m][n][p+1] $\leftarrow$ [m $\times$ n $\times$ (p+1)] * (-1)
-        cola<<y,x>, p> candidatos
+        cola<<f, c>, k> candidatos
 
-        dist[origen.y][origen.x][0] $\leftarrow$ 0
+        dist[origen.f][origen.c][0] $\leftarrow$ 0
         candidatos.encolar(origen, 0)
 
         $\textbf{Mientras}$ $\neg$candidatos.vacio():
             actual $\leftarrow$ candidatos.desencolar()
             ubicacion $\leftarrow$ actual.first
             k $\leftarrow$ actual.second
-            distancia $\leftarrow$ dist[ubicacion.y][ubicacion.x][k]
+            distancia $\leftarrow$ dist[ubicacion.f][ubicacion.c][k]
 
             $\textbf{Si}$ ubicacion = destino:
                 $\textbf{Devolver}$ distancia
 
-            $\textbf{Para cada}$ vecino <y,x> de ubicacion que este en rango:
-                k_vecino $\leftarrow$ k + $\beta$(mapa[vecino.y][vecino.x] es pared)
+            $\textbf{Para cada}$ vecino <f,c> de ubicacion que este en rango:
+                k_vecino $\leftarrow$ k + $\beta$(mapa[vecino.f][vecino.c] es pared)
 
-                $\textbf{Si}$ k_vecino $\leq$ P $\wedge$ dist[vecino.y][vecino.x][k_vecino] $\neq$ -1:
+                $\textbf{Si}$ k_vecino $\leq$ P $\wedge$ dist[vecino.f][vecino.c][k_vecino] $\neq$ -1:
                         candidatos.encolar(vecino, k_vecino)
-                        dist[vecino.y][vecino.x][k_vecino] $\leftarrow$ distancia + 1
+                        dist[vecino.f][vecino.c][k_vecino] $\leftarrow$ distancia + 1
 
         $\textbf{Devolver}$ -1
     \end{lstlisting}
@@ -178,3 +178,19 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     \\
 
 \subsection{Complejidad}
+
+    Previo a las iteraciones, hace falta inicializar la cola de candidatos (implementada con el tipo \href{http://www.cs.northwestern.edu/~riesbeck/programming/c++/stl-summary.html#queue}{\emph{queue}} de la STL de C++) y el arreglo multidimensional con las distancias (implementado con el tipo \href{http://www.cs.northwestern.edu/~riesbeck/programming/c++/stl-summary.html#vector}{\emph{vector}}, de manera anidada), lo cual cuesta  $\mathcal{O}(1)$ y  $\mathcal{O}(F\times C\times (P+1))$ respectivamente. Las dos inserciones correspondientes al origen se hacen en $\mathcal{O}(1)$.
+    \\
+
+    Consideraremos a la variable $n = F\times C\times (P+1)$ como la cantidad de estados posibles.
+
+    Una vez iterando, tenemos una guarda en $\mathcal{O}(1)$ y todas las asignaciones y comparaciones que realizamos en el cuerpo también son $\mathcal{O}(1)$, realizadas $\mathcal{O}(estados) = \mathcal{O}(n)$ veces entendiendo que en peor caso vamos a desencolar todos los estados posibles (como se modifica su distancia al ser encolados, no es posible que vuelvan a evaluarse con distancia -1 y ser reencolados).
+    \\
+
+    Se evalúa una guarda que compara ubicaciones en $\mathcal{O}(1)$ al cuerpo de la cual se ingresa una única vez (en caso de haber solución) para retornar la distancia final.
+    \\
+
+    Por cada vecino del nodo actual, tendremos que verificar si está en rango y calcular si aumenta la cantidad de demoliciones. Ambas operaciones se hacen en $\mathcal{O}(1)$. Como cada estado tiene 4 vecinos (los correspondientes a moverse en las cuatro direcciones del mapa), esto sucederá $\mathcal{O}(estados) = \mathcal{O}(n) $ veces. Además, hay que actualizar la distancia para los vecinos que no hayan sido actualizados todavía ($\mathcal{O}(1)$ por cada vecino) y agregarlos a la cola de candidatos. La inserción en el tipo $queue$, por ser un \emph{container adaptor}, depende del contenedor sobre el cual se encuentre implementado pero tanto para vectores como para colas doblemente terminadas es $\mathcal{O}(1)$ amortizado. Asumiendo que todos los vecinos sean siempre vistos por primera vez, nos queda un total de $\mathcal{O}(n)$
+    \\
+
+    Sumando todas las complejidades, terminamos con una complejidad final de $\mathcal{O}(n)$ con $n = F\times C\times (P+1)$ y por lo tanto $\mathcal{O}(F\times C\times P)$ que, recapitulando, era nuestra complejidad temporal objetivo. 
