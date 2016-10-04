@@ -4,37 +4,100 @@ Luego de juntar todas las piezas, Indy llega a la cruz marcada en el mapa y se e
 
 Los parametros de entrada son los siguientes
 
-	\begin{itemize}
+		\begin{itemize}
 		\item Dos numeros N y M que representan la cantidad de estacion y la cantidad de vias.
 		\item M lineas, las cuales contienen 3 enteros A,B y C que representan que ir de A a B tarda C segundos. Las estaciones se encuentran numeradas desde 1 hasta N
-    \end{itemize}
+    		\end{itemize}
 
 Los parametros de salida son los siguientes
 
 	\begin{itemize}
 	\item Un entero T que indica el tiempo minimo necesario para escapar. En caso de que no haya camino, este valor debera ser -1
-	\item Asumiendo que haya solucion, la siguiente linea contendra la cantidad de estaciones a recorrer.
-	\item Asumiendo que haya solucion. esta linea debera contener la secuencia de las estaciones a recorrer.
+	%\item Asumiendo que haya solucion, la siguiente linea contendra la cantidad de estaciones a recorrer.
+	%\item Asumiendo que haya solucion. esta linea debera contener la secuencia de las estaciones a recorrer.
+	\item Si hay solucion, la siguiente linea contendra la cantidad de estaciones a recorrer y la siguiente linea contendra la secuencia de estaciones a recorrer.
+	\end{itemize}
 
-	\end{itemize}	
-
-La solucion tiene que tener una complejidad temporal de $\mathcal{O}(N^{2})$ o mejor.
+La solucion tiene que tener una complejidad temporal de $\mathcal{O}(N^{2}log^{2}(N))$ o mejor.
 
 \subsection{Solución}
 
 Vamos a modelar el problema mediante grafos dirigidos. Si pensamos a las estaciones como los vertices y el tiempo necesario para ir de una estacion a otra como el peso de la arista dirigida correspodiente, resulta que el problema se reduce a calcular el camino minimo entre la estacion 1 (donde estan ubicados) y la estacion n , a la cual quieren llegar.
 
 %Si bien parece trivial, no sabemos si hace falta aclararlo.
-La longintud del camino es la sumatoria de las aristas que usa, por lo dicho anteriormente esto equivale al tiempo necesario para recorrerr dicho camino, esto seria la primera linea de la salida
+La longitud del camino es la sumatoria de las aristas que usa, por lo dicho anteriormente esto equivale al tiempo necesario para recorrerr dicho camino, esto seria la primera linea de la salida
 
-Para resolver el problema vamos a aplicar un algoritmo de camino minimo en grafos, en este caso vamos a usar Djistra
+Para poder devolver la secuencia, vamos a tener un array de predecesores, que contendra para todo los nodos, por cual nodo me conviene pasar a ese.
+
+Para resolver el problema vamos a aplicar un algoritmo de camino minimo en grafos, en este caso vamos a usar Djistra, ya que todas las aristas tienen peso positivo. 
 
    \begin{lstlisting}
+   Creamos la lista de adyacencia
+
    visitados <-vector[n,false]
    tiempoMin <-vector[n, $\infty$]
+   padre <- vector[n,-1]
+   tiempoMin[0] = 0
+   
+   while $true$
+      	estacion actual <- -1
+   	tiempo actual <- $\infty$
 
-   while
+   	for j in visitados do
+   		If Alcanzable && tiempo < tiempo actual
+   			actual = j
+   			tiempo actual = tiempo
+
+   	Si no hay nodos que visitar
+   		break
+
+   	Marco el nodo actual como visitado
+
+   	Si es el nodo buscado
+   		Devuelvo el tiempo necesario
+
+   	for a in lista de adyacencia de nodo actual
+   		Calculamos el tiempo para ir a cada 
+   		vecino pasando por v
+   		Si  mejora el tiempo
+   			actualizo el tiempo 
+   			actualizo el padre		
+
+return -1
+   \end{lstlisting}
+
+   A continuacion un pseudo codigo para generar las listas de adyacencias.
+   \begin{lstlisting}
+   def GenerarListas
+
+   info es tupla de <estacion,tiempo> y son enteros 
+   Lista <- vector[vector<info>,n]
+
+   para cada una de las lineas do
+   	Agregamos la tupla <destino,tiempo> a la lista indexada por el origen.
 
    \end{lstlisting}
 
+\subsection{Correctitud}
+La demostracion del algoritmo se dio en la teorica.
+\subsection{Complejidad}
+Antes que nada, tenemos que inicializar las estructuras que vamos a utilizar.
+
+Generar la listas de adyacencia 
+
+Generar los 3 arrays visitados,TiempoMin y padre, lleva tiempo lineal en la cantidad de entradas, hay que pedir la memoria y luego recorrer linealmente cada array para insertar el valolr que queremos.
+
+Luego tenemos un ciclo,  veamos su costo
+
+Buscar cual va a ser el siguiente nodo visitado es lineal hay que recorrer todo el arreglo e ir comparando. Cabe aclarar que dentro de esta parte solo se comparan enteros y bool que se realiza en tiempo constante.
+
+Luego se hacen 2 comparaciones, una detectar el caso de que no pueda seguir y no haya solucion y la otra para ver si encontre el nodo buscado. Estas comparaciones, se realizan en tiempo costante pues es comparar 1 entero en cada una.
+
+Luego,  sigue un for que itera sobre los vecinos del nodo actual . Este for tiene un costo lineal en la cantidad de vecinos del nodo, ya que lo de adentro se puede acotar por una constante.
+
+
+\subsection{Experimentacion}
+Segun el enunciado, el tiempo del algoritmo depende unicamente de la cantidad de estaciones  (nodos) , asi que un experimento valido es fijar un n y ir generando distintos tipos de grafos y evualuar su tiempo de ejecucion
+
+Otro tipo de experimento es ver si el peso de las aristas tienen impacto significativo en los tiempos de ejecucion
 
