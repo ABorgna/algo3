@@ -1,2 +1,43 @@
 \section{Problema 2: Juntando piezas}
 
+\subsection{Introducción}
+
+En este problema, Indiana Jones y su grupo deben recorrer un conjunto de salas conectadas por paredes que se pueden romper bajo un cierto costo. El objetivo es encontrar el costo mínimo que se debe pagar para poder visitar todas las salas.
+
+Para representar el problema, se recibe por parámetro de entrada una matriz de caracteres $M$ de $F$ filas por $C$ columnas definida de la siguiente manera, dados $i \in [0,F-1]$, $j \in [0,C-1]$:
+
+\begin{itemize}
+	\item Si $M_{ij}$ es un espacio caminable, $M_{ij} = .$
+	\item Si $M_{ij}$ es una pared irrompible, $M_{ij} = \#$
+	\item Si $M_{ij}$ es una pared rompible, $M_{ij}$ es un entero entre $1$ y $9$ que representa el costo de romper dicha pared.
+\end{itemize}
+
+También sabemos por enunciado que los caracteres del borde del mapa corresponden a una pared irrompible. Lo que quiere decir que $i \in \{0, F-1\} \ \vee \ j \in \{0, C-1\} \Rightarrow M_{ij} =\ $'$\#$'.
+
+Los movimientos que se pueden realizar son horizontales o verticales y solo se puede ir desde un espacio caminable hacia otro adyacente o hacia otro que sea vecino a una puerta rompible adyacente.
+
+En cuanto a las puertas rompibles, solo puede haber una si esta tiene exactamente dos paredes adyacentes (independientemente de si son rompibles o no).
+
+Para especificar formalmente el problema, vamos a definir algunos conjuntos y funciones auxiliares.
+
+Llamaremos a los intervalos discretos $filas = [0,F-1]$ y $cols = [0,C-1]$
+
+Dados $i_1,i_2 \in filas$ y $j_1,j_2 \in cols$ definimos la función de distancia como
+
+$dist: filas \times cols \times filas \times cols \rightarrow \mathbb{N}_0$
+
+$dist(i_1,j_1,i_2,j_2) = |i_1 - i_2| \quad + \quad |j_1 - j_2|$
+
+Definimos el conjunto de movimientos posibles $P$ como aquellas posiciones que tienen distancia 1, ninguna es pared irrompible y no son ambas paredes rompibles.
+
+$P = \{(i_1,j_1,i_2,j_2) \in filas \times cols \times filas \times cols \quad | \quad dist(i_1,j_1,i_2,j_2) = 1 \quad \land \quad M_{i_1,j_1} \neq \# \quad \land \quad M_{i_2,j_2} \neq \# \quad \land \quad \lnot (M_{i_1,j_1}, M_{i_1,j_2} \in [1,9] )\}$
+
+Ahora, sea $costo: P \rightarrow \mathbb{N}_0$ la función de costo
+
+$$costo(i_1,j_1,i_2,j_2) = \left\{ \begin{array}{lcc}
+             				   0            &   si  M_{i_2,j_2} = . \\
+             				\\ M_{i_2,j_2}  &   sino                \\
+             				\end{array}
+   			 				\right.$$
+
+[Acá básicamente va: sea S una secuencia de pasos, queremos encontrar la secuencia que pase por todos los '.' de M y que minimice la suma de los costos]
