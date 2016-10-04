@@ -1,5 +1,5 @@
-#include <dungeon.h>
-#include <interfaz.h>
+#include "include/dungeon.h"
+#include "include/interfaz.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -11,6 +11,7 @@
 #include <set>
 #include <tuple>
 #include <vector>
+#include <list>
 
 using namespace std;
 
@@ -22,6 +23,11 @@ typedef struct point_t {
     int64_t x;
     int64_t y;
 
+    point_t operator=(const struct point_t &o) {
+        x = o.x;
+        y = o.y;
+        return *this;
+    }
     bool operator==(const struct point_t &o) const {
         return tie(x, y) == tie(o.x, o.y);
     }
@@ -32,6 +38,12 @@ typedef struct point_t {
         return tie(x, y) < tie(o.x, o.y);
     }
 } point;
+
+void swap(point p, point q){
+    point r = p;
+    p = q;
+    q = r;
+}
 
 typedef struct arista_t {
     point p;
@@ -47,36 +59,37 @@ typedef struct arista_t {
     }
 } arista;
 
-vector<vector<int64_t>> altura_uf;
+vector<vector<list<point>>> componente_uf;
 vector<vector<point>> padre_uf;
 
 void init_uf(){
-    altura_uf = vector<vector<int64_t>>(m,vector<int64_t>(n,1));
-
     padre_uf.resize(m);
+    componente_uf.resize(m);
     for(int64_t y = 0; y < m ; y++) {
         padre_uf[y].resize(n);
+        componente_uf[y].resize(n);
         for(int64_t x = 0; x < n ; x++){
+            list<point> componente_nueva (1,{x,y});
+            componente_uf[y][x] = componente_nueva;
             padre_uf[y][x] = {x,y};
         }
     }
 }
 
 point find_uf(point p){
-    if (padre_uf[p.y][p.x] != p)
-        padre_uf[p.y][p.x] = find_uf(padre_uf[p.y][p.x]);
     return padre_uf[p.y][p.x];
 }
 
 void union_uf(point p, point q){
     p = find_uf(p);
     q = find_uf(q);
-    if (altura_uf[p.y][p.x] < altura_uf[q.y][q.x])
-        padre_uf[p.y][p.x] = q;
-    else
-        padre_uf[q.y][q.x] = p;
-    if (altura_uf[p.y][p.x] == altura_uf[q.y][q.x])
-        altura_uf[p.y][p.x]++;
+    if (componente_uf[p.y][p.x].size() > componente_uf[q.y][q.x].size())
+        swap(p,q);
+    for(auto &r : componente_uf[p.y][p.x]){
+        padre_uf[r.y][r.x] = q;
+        componente_uf[q.y][q.x].push_back(r);
+    }
+    componente_uf[p.y][p.x].clear();
 }
 
 int64_t kruskal(){
