@@ -1,2 +1,40 @@
 \section{Problema 3: Escapando}
 
+Luego de juntar todas las piezas, Indy llega a la cruz marcada en el mapa y se encuentra con una red de carritos que parecen dirigirse hacia afuera de la fortaleza, cuando de repente la fortaleza se empieza a derrumbar, asi que no tiene mas opcion que usar los carritos para escapar.
+
+Los parametros de entrada son los siguientes
+
+	\begin{itemize}
+		\item Dos numeros N y M que representan la cantidad de estacion y la cantidad de vias.
+		\item M lineas, las cuales contienen 3 enteros A,B y C que representan que ir de A a B tarda C segundos. Las estaciones se encuentran numeradas desde 1 hasta N
+    \end{itemize}
+
+Los parametros de salida son los siguientes
+
+	\begin{itemize}
+	\item Un entero T que indica el tiempo minimo necesario para escapar. En caso de que no haya camino, este valor debera ser -1
+	\item Asumiendo que haya solucion, la siguiente linea contendra la cantidad de estaciones a recorrer.
+	\item Asumiendo que haya solucion. esta linea debera contener la secuencia de las estaciones a recorrer.
+
+	\end{itemize}	
+
+La solucion tiene que tener una complejidad temporal de $\mathcal{O}(N^{2})$ o mejor.
+
+\subsection{Solución}
+
+Vamos a modelar el problema mediante grafos dirigidos. Si pensamos a las estaciones como los vertices y el tiempo necesario para ir de una estacion a otra como el peso de la arista dirigida correspodiente, resulta que el problema se reduce a calcular el camino minimo entre la estacion 1 (donde estan ubicados) y la estacion n , a la cual quieren llegar.
+
+%Si bien parece trivial, no sabemos si hace falta aclararlo.
+La longintud del camino es la sumatoria de las aristas que usa, por lo dicho anteriormente esto equivale al tiempo necesario para recorrerr dicho camino, esto seria la primera linea de la salida
+
+Para resolver el problema vamos a aplicar un algoritmo de camino minimo en grafos, en este caso vamos a usar Djistra
+
+   \begin{lstlisting}
+   visitados <-vector[n,false]
+   tiempoMin <-vector[n, $\infty$]
+
+   while
+
+   \end{lstlisting}
+
+
