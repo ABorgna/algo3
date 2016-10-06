@@ -121,7 +121,6 @@ La creación del conjunto de aristas pertenece a este fragmento:
 
 \begin{lstlisting}
 para toda posicion $p$ que sea espacio libre en $M_p$
-	crear una componente conexa con unico elemento $p$
 	para cada vecino $q$ de $p$
 		si $q$ es espacio libre
 			agregar arista $(p,q)$ con peso $0$ a candidatos
@@ -129,7 +128,7 @@ para toda posicion $p$ que sea espacio libre en $M_p$
 			buscar el espacio libre $r$ con el que conecta $q$ y agregar arista $(p,r)$ con el costo de $q$ a candidatos
 \end{lstlisting}
 
-Como puede verse, se itera un ciclo que recorre todos los casilleros de $M$ una sola vez y por cada iteración consulta sus 4 vecinos. Por cada consulta se debe hacer a lo sumo una inserción en el conjunto de aristas. Para lograr esto se utiliza la instrucción $insert$ de la estructura de datos $set$ que provee $C++$, la cual tiene complejidad logarítmica en la cantidad de elementos. En otras palabras, estamos ejecutando $\mathcal{O}(n)$ veces una operación de $\mathcal{O}(log(n))$, lo cual da una complejidad total de $\mathcal{O}(n \times log(n))$.
+Como puede verse, se itera un ciclo que recorre todos los casilleros de $M$ una sola vez y por cada iteración consulta sus 4 vecinos. Por cada consulta se debe hacer a lo sumo una inserción en el conjunto de aristas. Para lograr esto se utiliza la instrucción $insert$ de la estructura de datos $set$ que provee $C++$, la cual tiene complejidad logarítmica en la cantidad de elementos, o sea, $n$. En otras palabras, estamos ejecutando $\mathcal{O}(n)$ veces una operación de costo $\mathcal{O}(log(n))$, lo cual da una complejidad total de $\mathcal{O}(n \times log(n))$.
 
 La segunda mitad del algoritmo consiste en aplicar el algoritmo de Kruskal en el grafo armado. Esto corresponde al siguiente fragmento:
 
@@ -141,3 +140,65 @@ para toda arista $e$ en candidatos (recorrida por orden de peso)
 		res $\leftarrow$ res + peso(e)
 \end{lstlisting}
 
+Por cuestiones de claridad, se presentó el pseudo-código de esta manera para ayudar al entendimiento del algoritmo por parte del lector. Sin embargo, para justificar la complejidad de este fragmento de código, es necesario hablar más detalladamente sobre el costo de las operaciones que se realizan. Estas operaciones son chequear que dos nodos estén en la misma componente conexa y, en caso contrario, unirlas. Para esto se utiliza la estructura de datos Union Disjoint Set (UDS) o también conocida como Union Find (UF), la cual sirve para manejar conjuntos disjuntos de elementos. Consta de dos operaciones: $find(x)$, que devuelve el elemento representante del conjunto al cual pertenece $x$ (lo llamaremos padre), y $union(x,y)$, que une los conjuntos a los que pertenecen $x$ e $y$ en uno solo. Existen varias implementaciones de esta estructura de datos. Nosotros elegimos la representación de listas para poder cumplir con la complejidad que pide el ejercicio.
+
+El pseudo-código de inicializar la estuctura, hacer $union$ y $find$ se presentan a continuación:
+
+\begin{lstlisting}
+$init():$
+	matriz<lista<posicion>> componente
+	matriz<posicion> padre
+	para toda posicion $(i,j)$ que sea espacio libre en $M_{ij}$
+		componente[i][j] $\leftarrow$ $\{(i,j)\}$		//lista con un solo elemento
+		padre[i][j] $\leftarrow$ $(i,j)$
+\end{lstlisting}
+
+Como init recorre toda la matriz una sola vez y ejecuta instrucciones de tiempo constante, su complejidad es $\mathcal{O}(n)$
+
+\begin{lstlisting}
+$find(i,j):$
+	retornar padre[i][j]
+\end{lstlisting}
+
+Es visible que la complejidad de $find$ es $\mathcal{O}(1)$
+
+\begin{lstlisting}
+$union(i_1,j_1,i_2,j_2):$
+	$(i_1,j_1)$ $\leftarrow$ $find(i_1,j_1)$
+	$(i_2,j_2)$ $\leftarrow$ $find(i_2,j_2)$
+	si el tamanio de $componente[i_1][j_1]$ es mayor que el de $componente[i_2][j_2]$
+		intercambiar $(i_1,j_1)$ y $(i_2,j_2)$
+	para cada elemento $(i',j')$ de $componente[i_1][j_1]$
+		$padre[i'][j']$ $\leftarrow$ $(i_2,j_2)$
+		agregar $(i',j')$ a $componente[i_2][j_2]$
+	vaciar $componente[i_1][j_1]$
+\end{lstlisting}
+
+Notar que siempre se recorre la lista de componentes de menor longitud. Esto será un factor clave para demostrar complejidad.
+
+Si bien cada $union$ individual tiene un costo de $\mathcal{O}(n)$ (ya que como peor caso se debe recorrer la mitad de los elementos totales de la matriz) analicemos el costo total de hacer $n$ operaciones $union$.
+
+Sea $p$ un elemento cualquiera de un conjunto, solo debe actualizarse si el conjunto en el que se encuentra debe unirse con un conjunto de longitud mayor o igual, por lo cual, cada vez que se actualiza $p$, el tamaño de su conjunto aumenta (como mínimo) el doble. Sabiendo esto, la cantidad máxima de actualizaciones de $p$ necesarias para que $p$ pertenezca a un conjunto de tamaño $n$ es $log_2(n)$. Por ende, para $n$ elementos, el costo total de actualizarlos a todos para unirlos en un mismo conjunto es $\mathcal{O}(n \times log(n))$.
+
+Teniendo todos estos factores en cuenta, una versión más específica del algoritmo de Kruskal implementado es la siguiente:
+
+\begin{lstlisting}
+init()
+para toda arista $e$ en candidatos (recorrida por orden de peso)
+	sean $u$ y $v$ los nodos extremos de $e$
+	si $find(u) \neq find(v)$
+		$union(u,v)$
+		res $\leftarrow$ res + peso(e)
+\end{lstlisting}
+
+Cabe destacar que cada vértice de $G$ tiene a lo sumo 4 aristas. Entonces, sea $m$ la cantidad de aristas de $G$
+
+$$m \in \mathcal{O}(n)$$
+
+Finalmente, como $init()$ tiene costo $\mathcal{O}(n)$ y se hacen $\mathcal{O}(n)$ operaciones $union$, el costo total de aplicar el algoritmo de Kruskal es $\mathcal{O}(n \times log(n))$
+
+Como ambos fragmentos del algoritmo tienen complejidad $\mathcal{O}(n \times log(n))$, la complejidad total del algoritmo es:
+
+$$\mathcal{O}(n \times log(n)) \in \mathcal{O}(FC \times log(FC))$$
+
+lo cual cumple con la complejidad establecida por el enunciado. \QEDB
