@@ -135,13 +135,11 @@ $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 	tools/grapher.py -i $< -o $@-ciclo.png \
 		-x "Nodos" \
 		-t "Tiempo de ejecución en un grafo ciclo" \
-		-e 30 31 -E 'Hay solución' 'No hay solución' \
-		-L 'x**2 * 1.5' 'n log n'
+		-e 30 31 -E 'Hay solución' 'No hay solución'
 	tools/grapher.py -i $< -o $@-grilla.png \
 		-x "Nodos" \
 		-t "Tiempo de ejecución en un grafo grilla" \
-		-e 40 41 -E 'Hay solución' 'No hay solución' \
-		-L 'x**2 * 1.5' 'n log n'
+		-e 40 41 -E 'Hay solución' 'No hay solución'
 	tools/grapher.py -i $< -o $@-all.png \
 		-x "Nodos" \
 		-t "Tiempo de ejecución en un grafo" \
