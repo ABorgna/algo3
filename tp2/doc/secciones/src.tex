@@ -1,2 +1,327 @@
 \section{Códigos Fuente}
+\subsection{Ejercicio 1}
 
+\lstset{language=C++,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#}
+}
+
+\begin{lstlisting}[ basicstyle=\small]
+
+#include <dungeon.h>
+#include <interfaz.h>
+
+#include <math.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <map>
+#include <queue>
+#include <set>
+#include <tuple>
+#include <vector>
+
+using namespace std;
+
+typedef struct point_t {
+    int64_t x;
+    int64_t y;
+
+    bool operator==(const struct point_t &o) const {
+        return tie(x, y) == tie(o.x, o.y);
+    }
+} point;
+
+int64_t n, m, pmax;
+vector<vector<bool>> mapa;  // True == pared
+point origen;
+point destino;
+
+void agregarCandidato(queue<pair<point, int64_t>> &candidatos,
+                      vector<vector<vector<int64_t>>> &dist, point v, int64_t p,
+                      int64_t d);
+
+int64_t bfs() {
+    vector<vector<vector<int64_t>>> dist(
+        m, vector<vector<int64_t>>(n, vector<int64_t>(pmax + 1, -1)));
+
+    queue<pair<point, int64_t>> candidatos;
+
+    // Inicializar el primer lugar
+    dist[origen.y][origen.x][0] = 0;
+    candidatos.emplace(origen, 0);
+
+    while (!candidatos.empty()) {
+        auto cand = candidatos.front();
+        candidatos.pop();
+        point u = cand.first;
+        int64_t p = cand.second;
+        int64_t d = dist[u.y][u.x][p];
+
+        if (u == destino) {
+            return d;
+        }
+
+        // Agregamos los vecinos, si no estan visitados
+        agregarCandidato(candidatos, dist, {u.x - 1, u.y}, p, d);
+        agregarCandidato(candidatos, dist, {u.x + 1, u.y}, p, d);
+        agregarCandidato(candidatos, dist, {u.x, u.y - 1}, p, d);
+        agregarCandidato(candidatos, dist, {u.x, u.y + 1}, p, d);
+    }
+
+    return -1;
+}
+\end{lstlisting}
+\begin{lstlisting}[ basicstyle=\small]
+void agregarCandidato(queue<pair<point, int64_t>> &candidatos,
+                      vector<vector<vector<int64_t>>> &dist, point v, int64_t p,
+                      int64_t d) {
+    // Nunca agregamos los bordes del mapa
+    if (v.x <= 0 or v.y <= 0 or v.x >= n - 1 or v.y >= m - 1)
+        return;
+
+    // Si hay una pared en v nos cuesta una demolicion mas llegar
+    if (mapa[v.y][v.x]) {
+        p++;
+        if (p > pmax)
+            return;
+    }
+
+    // Si ya está visitado no lo agregamos
+    if (dist[v.y][v.x][p] != -1)
+        return;
+
+    // Lo agregamos a la cola
+    candidatos.emplace(v, p);
+    dist[v.y][v.x][p] = d + 1;
+}
+\end{lstlisting}
+
+\newpage
+\subsection{Ejercicio 2}
+
+
+\begin{lstlisting}[ basicstyle=\small]
+#include "include/dungeon.h"
+#include "include/interfaz.h"
+
+#include <math.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <map>
+#include <queue>
+#include <set>
+#include <tuple>
+#include <vector>
+#include <list>
+
+using namespace std;
+
+int64_t n, m;
+vector<vector<int64_t>>
+    mapa;  // -1 = pared dura, 0 = sala, >0 = pared destruible
+
+typedef struct point_t {
+    int64_t x;
+    int64_t y;
+
+    point_t operator=(const struct point_t &o) {
+        x = o.x;
+        y = o.y;
+        return *this;
+    }
+    bool operator==(const struct point_t &o) const {
+        return tie(x, y) == tie(o.x, o.y);
+    }
+    bool operator!=(const struct point_t &o) const {
+        return tie(x, y) != tie(o.x, o.y);
+    }
+    bool operator<(const struct point_t &o) const {
+        return tie(x, y) < tie(o.x, o.y);
+    }
+} point;
+
+void swap(point p, point q){
+    point r = p;
+    p = q;
+    q = r;
+}
+
+typedef struct arista_t {
+    point p;
+    point q;
+    int64_t peso;
+
+    bool operator==(const struct arista_t &o) const {
+        return tie(p, q, peso) == tie(o.p, o.q, o.peso) or
+               tie(p, q, peso) == tie(o.q, o.p, o.peso) ;
+    }
+    bool operator<(const struct arista_t &o) const {
+        return tie(peso, p, q) < tie(o.peso, o.p, o.q);
+    }
+} arista;
+
+vector<vector<list<point>>> componente_uf;
+vector<vector<point>> padre_uf;
+
+void init_uf(){
+    padre_uf.resize(m);
+    componente_uf.resize(m);
+    for(int64_t y = 0; y < m ; y++) {
+        padre_uf[y].resize(n);
+        componente_uf[y].resize(n);
+        for(int64_t x = 0; x < n ; x++){
+            list<point> componente_nueva (1,{x,y});
+            componente_uf[y][x] = componente_nueva;
+            padre_uf[y][x] = {x,y};
+        }
+    }
+}
+
+point find_uf(point p){
+    return padre_uf[p.y][p.x];
+}
+
+void union_uf(point p, point q){
+    p = find_uf(p);
+    q = find_uf(q);
+    if (componente_uf[p.y][p.x].size() > componente_uf[q.y][q.x].size())
+        swap(p,q);
+    for(auto &r : componente_uf[p.y][p.x]){
+        padre_uf[r.y][r.x] = q;
+        componente_uf[q.y][q.x].push_back(r);
+    }
+    componente_uf[p.y][p.x].clear();
+}
+
+int64_t kruskal(){
+    init_uf();
+    set<arista> candidatos;
+    int64_t res = 0;
+    int64_t componentes_conexas = 0;
+
+    //Agregar las aristas
+    for (int64_t y = 1 ; y < m - 1 ; y++){
+        for (int64_t x = 1 ; x < n - 1 ; x++){
+            if (mapa[y][x] == 0){
+                if (mapa[y][x+1] == 0)
+                    candidatos.insert({{x,y}, {x+1,y}, 0});
+                if (mapa[y+1][x] == 0)
+                    candidatos.insert({{x,y}, {x,y+1}, 0});
+                componentes_conexas++;
+            }
+            if (mapa[y][x] > 0){
+                point p ={0,0} ,q;
+                if(mapa[y-1][x] == 0) {
+                    q = p;
+                    p = {x,y-1};
+                } 
+                if(mapa[y+1][x] == 0) {
+                    q = p;
+                    p = {x,y+1};
+                } 
+                if(mapa[y][x-1] == 0) {
+                    q = p;
+                    p = {x-1,y};
+                } 
+                if(mapa[y][x+1] == 0) {
+                    q = p;
+                    p = {x+1,y};
+                }
+                candidatos.insert({p, q, mapa[y][x]});
+            }
+        }
+    }
+
+    //Hacer Kruskal
+    for(auto &ar : candidatos) {
+        if (find_uf(ar.p) == find_uf(ar.q))
+            continue;
+        union_uf(ar.p, ar.q);
+        res += ar.peso;
+        componentes_conexas--;
+
+        if(componentes_conexas == 1)
+            break;
+    }
+
+    return componentes_conexas == 1 ? res : -1;
+}
+
+\end{lstlisting}
+
+\newpage
+\subsection{Ejercicio 3}
+
+\begin{lstlisting}[ basicstyle=\small]
+#include "./include/interfaz.h"
+
+#include <math.h>
+#include <stdint.h>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <map>
+#include <queue>
+#include <set>
+#include <tuple>
+#include <vector>
+
+using namespace std;
+
+typedef int64_t estacion;
+typedef int64_t tiempo;
+
+int64_t n;
+int64_t generator = 0;
+vector<vector<pair<estacion, tiempo>>> adj;
+vector<estacion> padre;  // estacion -> <tiempo en llegar / predecesora>
+
+int reventarDaistrah() {
+    vector<bool> visitado = vector<bool>(n, false);
+    vector<tiempo> tiempoMin(n, INT64_MAX);
+    padre = vector<estacion>(n);
+
+    tiempoMin[0] = 0;
+    padre[0] = -1;
+
+    while (true) {
+        tiempo act_t = INT64_MAX;
+        estacion est_t = -1;
+        for (int j = 0; j < n; j++) {
+            if (!visitado[j] and tiempoMin[j] < act_t) {
+                act_t = tiempoMin[j];
+                est_t = j;
+            }
+        }
+        if (est_t == -1)
+            break;
+
+        visitado[est_t] = true;
+
+        if (est_t == n - 1)
+            return act_t;
+
+        for (auto a : adj[est_t]) {
+            estacion vecino = a.first;
+            tiempo nuevo = act_t + a.second;
+            tiempo anterior = tiempoMin[vecino];
+
+            if (nuevo >= anterior)
+                continue;
+
+            tiempoMin[vecino] = nuevo;
+            padre[vecino] = est_t;
+        }
+    }
+
+    return -1;
+}
+
+\end{lstlisting}
