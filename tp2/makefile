@@ -74,24 +74,84 @@ $(TESTS) : %-test : %
 $(BENCHMARKS) : %-bench : $(BENCH_OUT_DIR)/%
 
 $(BENCH_OUT_DIR)/ej1: ej1
-	@echo "TODO: tests ej1"
+	build/ej1 -a 4:100:4 4:100:4 0:100:4 4 -A 0.01 \
+		-c $(call CHECKPOINT,$@-base) -o $@-base
+	build/ej1 -a 10:600:10 10:1000:10 10 4 -A 0.01 \
+		-c $(call CHECKPOINT,$@-size) -o $@-size
+	build/ej1 -a 500 500 0:65 4 4 -A 0.01 \
+		-c $(call CHECKPOINT,$@-walls) -o $@-walls
+	cat $@-* > $@
 
 $(BENCH_OUT_DIR)/ej2: ej2
-	@echo "TODO: tests ej2"
+	build/ej2 -a 10:10000:10 100 4 -A 0.01 \
+		-c $(call CHECKPOINT,$@-width) -o $@-width
+	build/ej2 -a 100 10:10000:10 4 -A 0.01 \
+		-c $(call CHECKPOINT,$@-height) -o $@-height
+	build/ej2 -a 10:1110:100 10:10000:100 4 -A 0.01 \
+		-c $(call CHECKPOINT,$@-both) -o $@-both
+	cat $@-* > $@
 
 $(BENCH_OUT_DIR)/ej3: ej3
-	@echo "TODO: tests ej3"
+	build/ej3 -a 10:20000:100 -A 0.01 -G completo \
+		-c $(call CHECKPOINT,$@-completo) -o $@-completo
+	build/ej3 -a 10:20000:100 -A 0.01 -G random \
+		-c $(call CHECKPOINT,$@-random) -o $@-random
+	build/ej3 -a 10:20000:100 -A 0.01 -G ciclo \
+		-c $(call CHECKPOINT,$@-ciclo) -o $@-ciclo
+	build/ej3 -a 10:20000:100 -A 0.01 -G grilla \
+		-c $(call CHECKPOINT,$@-grilla) -o $@-grilla
+	cat $@-* > $@
 
 $(GRAPHS) : %-graph : $(GRAPHS_OUT_DIR)/%
 
 $(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
-	@echo "TODO: graphs ej1"
+	tools/grapher.py -i $< -o $@-mn0.png \
+		-x "M*N" \
+		-t "Tiempo de ejecución en funcion del tamaño del mapa. P = 0" \
+		--mode simple "* * 0"
+	tools/grapher.py -i $< -o $@-mn60.png \
+		-x "M*N" \
+		-t "Tiempo de ejecución en funcion del tamaño del mapa. P = 60" \
+		--mode simple "* * 60"
+	tools/grapher.py -i $< -o $@-p.png \
+		-x "P" \
+		-t "Tiempo de ejecución en funcion del tamaño del mapa. M=N=100" \
+		--mode simple "100 100 +"
 
 $(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
 	@echo "TODO: graphs ej2"
 
 $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
-	@echo "TODO: graphs ej3"
+	tools/grapher.py -i $< -o $@-completo.png \
+		-x "Nodos" \
+		-t "Tiempo de ejecución en un grafo completo" \
+		-e 10 11 -E 'Hay solución' 'No hay solución' \
+		-L 'x**2 * 5' 'n^2'
+	tools/grapher.py -i $< -o $@-random.png \
+		-x "Nodos" \
+		-t "Tiempo de ejecución en un grafo random" \
+		-e 20 21 -E 'Hay solución' 'No hay solución' \
+		-L 'x**2 * 4.2' 'n^2'
+	tools/grapher.py -i $< -o $@-ciclo.png \
+		-x "Nodos" \
+		-t "Tiempo de ejecución en un grafo ciclo" \
+		-e 30 31 -E 'Hay solución' 'No hay solución' \
+		-L 'x**2 * 1.5' 'n log n'
+	tools/grapher.py -i $< -o $@-grilla.png \
+		-x "Nodos" \
+		-t "Tiempo de ejecución en un grafo grilla" \
+		-e 40 41 -E 'Hay solución' 'No hay solución' \
+		-L 'x**2 * 1.5' 'n log n'
+	tools/grapher.py -i $< -o $@-all.png \
+		-x "Nodos" \
+		-t "Tiempo de ejecución en un grafo" \
+		-m simple '+<20001' \
+		-e 10 11 20 21 30 31 40 41 \
+		-E 'Grafo completo' 'Grafo completo sin solución' \
+		   'Grafo random' 'Grafo random sin solución' \
+		   'Grafo ciclo' 'Grafo ciclo sin solución' \
+		   'Grafo grilla' 'Grafo grilla sin solución' \
+		-L 'x**2 * 5' 'n^2'
 
 informe: $(GRAPHS)
 	make -C doc/
