@@ -10,7 +10,7 @@ El escenario del primer problema es sencillo: dada una posición de arranque en 
 
 También sabemos por enunciado que los caracteres del borde del mapa corresponden a una pared. Lo que quiere decir que $i \in \{0, F-1\} \ \vee \ j \in \{0, C-1\} \Rightarrow M_{ij} =\ $'$\#$'.
 
-Teniendo en cuenta que cada movimiento realizado debe ser vertical u horizontal (los vecinos de $M_{i,j}$ son los elementos en rango del conjunto $\{M_{i+1,j},\ M_{i-1,j},\ M_{i,j+1},\ M_{i,j-1}\}$), podemos considerar el output del problema como la mínima longitud de las secuencias válidas de vecinos en el mapa, empezando por el punto de origen (sin contarlo, dado que no es una ubicación a recorrer, sino que es la primer ubicación 'recorrida' del mapa) y terminando en el punto de destino, con cantidad de caracteres $'\#'$ menor o igual a $P$. La idea se formaliza como:
+Teniendo en cuenta que cada movimiento realizado debe ser vertical u horizontal (los vecinos de $M_{i,j}$ son los elementos en rango \footnote{Consideraremos, por comodidad de escritura, $M_{[1..F]\times[1..C]} = \Big\{ M_{ij} \Big | i \in [1..F] \land j \in [1..C] \Big\} $} del conjunto $\{M_{i+1,j},\ M_{i-1,j},\ M_{i,j+1},\ M_{i,j-1}\}$), podemos considerar el output del problema como la mínima longitud de las secuencias válidas de vecinos en el mapa, empezando por el punto de origen (sin contarlo, dado que no es una ubicación a recorrer, sino que es la primer ubicación 'recorrida' del mapa) y terminando en el punto de destino, con cantidad de caracteres $'\#'$ menor o igual a $P$. La idea se formaliza como:
 \\
 
     \begin{itemize}
@@ -138,7 +138,7 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     \end{lstlisting}
 
 
-    Veamos que efectivamente el grafo modela bien el problema. En particular nos interesa ver que hay un mapeo directo entre los caminos simples del mapa (formalizados en la introducción a través de \emph{secuencias válidas de vecinos}, que además, como ya dijimos al presentar la representación del grafo, son los que formarán caminos mínimos) y los del grafo, y que además preserva su secuencia de ubicaciones y longitud final. De esta manera podremos aseverar que encontrar la longitud de un camino mínimo en el grafo es también encontrar la longitud de camino mínimo en el mapa porque existe alguno con esa longitud en él y, si hubiera otro con menor longitud, también lo habría en el grafo con la misma longitud (y por lo tanto el primero no era mínimo). Esto lo podemos formalizar en el siguiente lema:
+    Veamos que efectivamente el grafo modela bien el problema. En particular nos interesa ver que hay un mapeo directo entre los caminos simples del mapa (formalizados en la introducción a través de \emph{secuencias válidas de vecinos}, que además, como ya dijimos al presentar la representación del grafo, son los que formarán caminos mínimos) y los que no repiten ubicaciones (no solamente simples, sino que para distintos valores de $k$ no pueden repetir una ubicación en común) en el grafo, y que además preserva su secuencia de ubicaciones y longitud final. De esta manera podremos aseverar que encontrar la longitud de un camino mínimo en el grafo es también encontrar la longitud de camino mínimo en el mapa porque existe alguno con esa longitud en él y, si hubiera otro con menor longitud, también lo habría en el grafo con la misma longitud (y por lo tanto el primero no era mínimo). Esto lo podemos formalizar en el siguiente lema:
     \\
 
     \begin{center}\textbf{\underline{Lema:} }\end{center}
@@ -152,7 +152,7 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     \textbf{\emph{Caso Base (n=1): }} Entonces $M_{ij}$ es vecino en el mapa de $M_s$ en el mapa. Si $M_{ij}$ es pared, entonces $k=1$, de lo contrario $k=0$ porque es el único punto que se visita desde el inicio. Por cómo construimos el grafo, $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ son siempre adyacentes.
     \\
 
-    \textbf{\emph{Paso inductivo (n$>$1): }} Supongamos un $M_{ij}$ en rango, con al menos un camino de longitud $n+1$ desde $M_s$ y $k$ demoliciones en él, quiero ver que existe algún camino de longitud $n$ entre $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ donde la secuencia de primeras componentes de los vértices (todas distintas) coincide con el camino sobre el mapa.
+    \textbf{\emph{Paso inductivo (n$>$1): }} Supongamos un $M_{ij}$ en rango, con al menos un camino de longitud $n$ desde $M_s$ y $k$ demoliciones en él, quiero ver que existe algún camino de longitud $n$ entre $\langle {M_s, 0} \rangle$ y $\langle {M_{ij},\ k} \rangle$ donde la secuencia de primeras componentes de los vértices (todas distintas) coincide con el camino sobre el mapa.
     \\
 
     \emph{Hipótesis inductiva: } Como $n>1$, no son adyacentes y el camino tiene pasar por algún vecino $M_{xy}$ de $M_{ij}$ antes de terminar en este último. Por HI, a ese subcamino simple entre $M_s$ y $M_{xy}$ de longitud $n-1$ se le corresponde un camino entre $\langle {M_s,\ 0} \rangle$ y $\langle {M_{xy},\ k'} \rangle$ que pasa por las mismas ubicaciones. Como supusimos que el camino entre $M_s$ y $M_{ij}$ en el mapa tiene $k$ demoliciones podemos tomar, usando el mismo subcamino hasta su vecino, $k' = k - \beta(M_{ij}\ es\ pared)$. Esto se puede porque el camino que supusimos es simple, entonces $M_{ij}$ no fue visitado hasta el final y por lo tanto no está en el recorrido de $M_s$ a $M_{xy}$.
@@ -179,7 +179,13 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
 
 \subsection{Complejidad}
 
-    Previo a las iteraciones, hace falta inicializar la cola de candidatos (implementada con el tipo \href{http://www.cs.northwestern.edu/~riesbeck/programming/c++/stl-summary.html#queue}{\emph{queue}} de la STL de C++) y el arreglo multidimensional con las distancias (implementado con el tipo \href{http://www.cs.northwestern.edu/~riesbeck/programming/c++/stl-summary.html#vector}{\emph{vector}}, de manera anidada), lo cual cuesta  $\mathcal{O}(1)$ y  $\mathcal{O}(F\times C\times (P+1))$ respectivamente. Las dos inserciones correspondientes al origen se hacen en $\mathcal{O}(1)$.
+    Previo a las iteraciones, hace falta inicializar la cola de candidatos (implementada con el tipo \href{http://www.cs.northwestern.edu/~riesbeck/programming/c++/stl-summary.html#queue}{\emph{queue}} \footnote{
+        http://www.cs.northwestern.edu/\texttildelow riesbeck/programming/c++/stl-summary.html\#queue
+    } de la STL de C++) y el arreglo multidimensional con las distancias (implementado con el tipo \href{http://www.cs.northwestern.edu/~riesbeck/programming/c++/stl-summary.html#vector}{\emph{vector}}
+    \footnote{
+        http://www.cs.northwestern.edu/\texttildelow riesbeck/programming/c++/stl-summary.html\#vector
+    }
+    , de manera anidada), lo cual cuesta  $\mathcal{O}(1)$ y  $\mathcal{O}(F\times C\times (P+1))$ respectivamente. Las dos inserciones correspondientes al origen se hacen en $\mathcal{O}(1)$.
     \\
 
     Consideraremos a la variable $n = F\times C\times (P+1)$ como la cantidad de estados posibles.
@@ -193,4 +199,4 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     Por cada vecino del nodo actual, tendremos que verificar si está en rango y calcular si aumenta la cantidad de demoliciones. Ambas operaciones se hacen en $\mathcal{O}(1)$. Como cada estado tiene 4 vecinos (los correspondientes a moverse en las cuatro direcciones del mapa), esto sucederá $\mathcal{O}(estados) = \mathcal{O}(n) $ veces. Además, hay que actualizar la distancia para los vecinos que no hayan sido actualizados todavía ($\mathcal{O}(1)$ por cada vecino) y agregarlos a la cola de candidatos. La inserción en el tipo $queue$, por ser un \emph{container adaptor}, depende del contenedor sobre el cual se encuentre implementado pero tanto para vectores como para colas doblemente terminadas es $\mathcal{O}(1)$ amortizado. Asumiendo que todos los vecinos sean siempre vistos por primera vez, nos queda un total de $\mathcal{O}(n)$
     \\
 
-    Sumando todas las complejidades, terminamos con una complejidad final de $\mathcal{O}(n)$ con $n = F\times C\times (P+1)$ y por lo tanto $\mathcal{O}(F\times C\times P)$ que, recapitulando, era nuestra complejidad temporal objetivo. 
+    Sumando todas las complejidades, terminamos con una complejidad final de $\mathcal{O}(n)$ con $n = F\times C\times (P+1)$ y por lo tanto $\mathcal{O}(F\times C\times P)$ que, recapitulando, era nuestra complejidad temporal objetivo.
