@@ -5,8 +5,8 @@ Luego de juntar todas las piezas, Indy llega a la cruz marcada en el mapa y se e
 Los parámetros de entrada son los siguientes:
 
         \begin{itemize}
-        \item Dos números N y M que representan la cantidad de estación y la cantidad de vías
-        \item M lineas, las cuales contienen 3 enteros A,B y C que representan que ir de A a B tarda C segundos. Las estaciones se encuentran numeradas desde 1 hasta N.
+        \item Dos números N y M que representan la cantidad de estaciones y la cantidad de vías
+        \item M lineas, las cuales contienen 3 enteros A, B y C que representan que ir de A a B tarda C segundos. Las estaciones se encuentran numeradas desde 1 hasta N.
         \end{itemize}
 
 Los parámetros de salida son los siguientes:
@@ -14,10 +14,30 @@ Los parámetros de salida son los siguientes:
     \begin{itemize}
     \item Un entero T que indica el tiempo mínimo necesario para escapar. En caso de que no haya camino, este valor deberá ser -1.
     %\item Asumiendo que haya solución, la siguiente linea contendrá la cantidad de estaciones a recorrer.
-    %\item Asumiendo que haya solución. Esta linea deberá contener la secuencia de las estaciones a recorrer.  
+    %\item Asumiendo que haya solución. Esta linea deberá contener la secuencia de las estaciones a recorrer.
     \item Si hay solución, la siguiente línea contendrá la cantidad de estaciones a recorrer y la siguiente línea contendrá la secuencia de estaciones a recorrer.
     \end{itemize}
 
+Para ver un ejemplo concreto, sean las siguientes adyacencias:
+
+\begin{center}
+\fbox{\parbox{1.2cm}
+    {\noindent
+		$\langle 1,2,8 \rangle$ \\
+		$\langle 1,3,4 \rangle$ \\
+		$\langle 2,4,2 \rangle$ \\
+		$\langle 2,5,1 \rangle$ \\
+		$\langle 3,5,1 \rangle$ \\
+		$\langle 4,5,1 \rangle$ \\
+		$\langle 5,4,10 \rangle$ \\
+		$\langle 4,6,1 \rangle$ \\
+		$\langle 5,6,7 \rangle$
+    }
+}
+\end{center}
+
+Las aristas que tomamos son $[\langle 1,2,8 \rangle,\ \langle 2,4,2 \rangle,\ \langle 4,6,1 \rangle]$.
+El output sería un tiempo mínimo $T=11$, la cantidad de estaciones recorridas $S=4$ y la secuencia de estaciones recorridas en orden es $[1,2,4,6]$.
 
 La solución tiene que tener una complejidad temporal de $\mathcal{O}(N^{2}log^{2}(N))$ o mejor.
 
@@ -26,7 +46,7 @@ La solución tiene que tener una complejidad temporal de $\mathcal{O}(N^{2}log^{
 Vamos a modelar el problema mediante grafos dirigidos. Si pensamos a las estaciones como los vértices y el tiempo necesario para ir de una estación a otra como el peso de la arista dirigida correspondiente, resulta que el problema se reduce a calcular el camino mínimo entre la estación 1 (donde están ubicados) y la estación n , a la cual quieren llegar.
 
 %Si bien parece trivial, no sabemos si hace falta aclararlo.
-La longitud del camino es la suma de las aristas que usa, por lo dicho anteriormente esto equivale al tiempo necesario para recorrer dicho camino, esto seria la primera linea de la salida.
+La longitud del camino es la suma de las aristas que usa, por lo dicho anteriormente esto equivale al tiempo necesario para recorrer dicho camino, esto sería la primera linea de la salida.
 
 Para poder devolver la secuencia, vamos a tener un array de predecesores, que contendrá para todo los nodos del grafo, desde qué nodo llegué.
 
@@ -66,7 +86,7 @@ Para resolver el problema vamos a aplicar un algoritmo de camino mínimo en graf
 
 \subsection{Correctitud}
 
-La demostración del algoritmo se vio en las clases teóricas de la materia.
+La demostración del algoritmo se vió en las clases teóricas de la materia. Además es visible que cada una de las $M$ líneas que corresponden a las vías conforman en sí una lista de adyacencias sin más tratamiento que agregar el par $\langle B,C \rangle$ a las adyacencias de $A$. Por lo tanto el input se corresponde, efectivamente, con un grafo bien definido.
 
 \subsection{Complejidad}
 Antes que nada, tenemos que inicializar las estructuras que vamos a utilizar.
