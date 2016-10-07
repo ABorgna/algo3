@@ -148,7 +148,7 @@ para toda posicion $p$ que sea espacio libre en $M_p$
 			buscar el espacio libre $r$ con el que conecta $q$ y agregar arista $(p,r)$ con el costo de $q$ a candidatos
 \end{lstlisting}
 
-Como puede verse, se itera un ciclo que recorre todos los casilleros de $M$ una sola vez y por cada iteración consulta sus 4 vecinos. Por cada consulta se debe hacer a lo sumo una inserción en el conjunto de aristas. Para lograr esto se utiliza la instrucción $insert$ de la estructura de datos $set$ que provee $C++$, la cual tiene complejidad logarítmica en la cantidad de elementos, o sea, $n$. En otras palabras, estamos ejecutando $\mathcal{O}(n)$ veces una operación de costo $\mathcal{O}(log(n))$, lo cual da una complejidad total de $\mathcal{O}(n \times log(n))$.
+Como puede verse, se itera un ciclo que recorre todos los casilleros de $M$ una sola vez y por cada iteración consulta sus 4 vecinos. Por cada consulta se debe hacer a lo sumo una inserción en el conjunto de aristas. Para lograr esto se utiliza la instrucción $insert$ de la estructura de datos $set$ que provee $C++$\footnote{http://www.cs.northwestern.edu/\texttildelow riesbeck/programming/c++/stl-summary.html\#set}, la cual tiene complejidad logarítmica en la cantidad de elementos, o sea, $n$. En otras palabras, estamos ejecutando $\mathcal{O}(n)$ veces una operación de costo $\mathcal{O}(log(n))$, lo cual da una complejidad total de $\mathcal{O}(n \times log(n))$.
 
 La segunda mitad del algoritmo consiste en aplicar el algoritmo de Kruskal en el grafo armado. Esto corresponde al siguiente fragmento:
 
