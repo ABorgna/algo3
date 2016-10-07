@@ -66,18 +66,18 @@ El enunciado pide, además, una solución con complejidad $\mathcal{O}(FCP)$.
 
 \subsection{Solución}
 
-El enunciado pide abordar el problema desde una representación sobre grafos. Resulta bastante directo pensar cada nodo como el estado de nuestra ubicación en el mapa y cada arista como el movimiento hacia un vecino. Considerando también la restricción sobre $P$, es conveniente orientarlo en forma de digrafo (moviendonos podemos sumar demoliciones, pero no perderlas). Por lo tanto, nos interesaría encontrar algo similar al camino en dicho grafo que menos aristas contenga, considerando las siguientes modificaciones.
+El enunciado pide abordar el problema desde una representación sobre grafos. Resulta bastante directo pensar cada nodo como el estado de nuestra ubicación en el mapa y cada arista como el movimiento hacia un vecino. Considerando también la restricción sobre $P$, es conveniente orientarlo en forma de digrafo (moviéndonos podemos sumar demoliciones, pero no perderlas). Por lo tanto, nos interesaría encontrar algo similar al camino en dicho grafo que menos aristas contenga, considerando las siguientes modificaciones.
 
 Sea $C \in M_{[1..F]\times[1..C]}$ una celda del mapa, la representamos con $P+1$ nodos de la pinta $ \langle {C,\ 0} \rangle ... \langle {C,\ P} \rangle$ donde $\langle $C,\ k$ \rangle$ representa el estado de haber llegado al casillero $C$ derribando exactamente $k$ paredes.
 
 Si dos celdas $C_1$ y $C_2$ eran adyacentes en el mapa y $C_2$ es un espacio libre, $\langle {C_1,\ k} \rangle$ es adyacente a $\langle {C_2,\ k} \rangle$ para todo $k$, esto representa dar un paso desde $C_1$ hasta $C_2$ y, como no se destruyen paredes, se mantiene el contador de demoliciones. Si $C_2$ es una pared, entonces $\langle {C_1,\ k} \rangle$ será adyacente a $\langle {C_2,\ k+1} \rangle$ para todo $k < P$, representando el dar un paso desde $C_1$ a $C_2$ destruyendo la pared en el proceso. Si ya se habían destruido $P$ paredes, no es un paso válido destruir otra más.
-Como nos interesa encontrar caminos mínimos (que pasen por la menor cantidad de aristas posibles), no podrá suceder que tras demoler una pared se vuelva a pasar por ella, ya demolida, porque entonces estaríamos dando \emph{al menos} dos pasos (uno para salir de la pared demolida y otra para volver a entrar) para volver a terminar en la misma casilla que ya estabamos. Si fuera un camino mínimo podríamos tomar el mismo camino pero sin la secuencia de salida y retorno a la casilla, y tendría longitud menor, lo cual es absurdo pues el camino anterior lo habíamos supuesto mínimo. Por lo tanto, solamente consideraremos caminos que no repitan nodos, es decir, caminos simples.
+Como nos interesa encontrar caminos mínimos (que pasen por la menor cantidad de aristas posibles), no podrá suceder que tras demoler una pared se vuelva a pasar por ella, ya demolida, porque entonces estaríamos dando \emph{al menos} dos pasos (uno para salir de la pared demolida y otra para volver a entrar) para volver a terminar en la misma casilla que ya estábamos. Si fuera un camino mínimo podríamos tomar el mismo camino pero sin la secuencia de salida y retorno a la casilla, y tendría longitud menor, lo cual es absurdo pues el camino anterior lo habíamos supuesto mínimo. Por lo tanto, solamente consideraremos caminos que no repitan nodos, es decir, caminos simples.
 Al no repetir nodos en cada camino, cada vez que visitemos una pared será una demolición.
 
 Nótese que algunos de los nodos podrían ser inalcanzables desde el punto de entrada, dependiendo de la disposición de las paredes en el mapa. Por ejemplo, no es posible alcanzar una pared con 0 demoliciones. En caso de que ninguno de los nodos de la casilla del punto de salida sea alcanzable, se retornará -1.
 \\
 
-El vértice  de inico al buscar el camíno será el correspondiente a la celda de inicio habiendo destruido 0 paredes y los vértices de llegada serán todos los correspondientes al casillero de llegada del mapa, ya que un camino puede llegar con cualquier cantidad entre 0 y $P$ de paredes destrudas y ser válido.
+El vértice  de inicio al buscar el camino será el correspondiente a la celda de inicio habiendo destruido 0 paredes y los vértices de llegada serán todos los correspondientes al casillero de llegada del mapa, ya que un camino puede llegar con cualquier cantidad entre 0 y $P$ de paredes destruidas y ser válido.
 
 Este tipo de problemas se puede resolver de manera generalizada con variaciones de $BFS$ (\emph{breadth-first search}), que nos aseguran recorrer el grafo por niveles de 'profundidad' (o sea, distancia de la raíz, que sería nuestro punto de salida) y, por lo tanto, la primer solución que encontremos tendrá la misma o menor distancia al origen que cualquier otra. Esto se debe a que cada elemento se guarda en una estructura con organización \emph{'First In, First Out' (FIFO)}, y siempre estaremos visitando los estados del camino cuyo \emph{padre} haya sido visitado primero.
 
@@ -119,9 +119,7 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
         candidatos.encolar(origen, 0)
 
         $\textbf{Mientras}$ $\neg$candidatos.vacio():
-            actual $\leftarrow$ candidatos.desencolar()
-            ubicacion $\leftarrow$ actual.first
-            k $\leftarrow$ actual.second
+            <ubicacion, k> $\leftarrow$ candidatos.desencolar()
             distancia $\leftarrow$ dist[ubicacion.f][ubicacion.c][k]
 
             $\textbf{Si}$ ubicacion = destino:
@@ -130,9 +128,9 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
             $\textbf{Para cada}$ vecino <f,c> de ubicacion que este en rango:
                 k_vecino $\leftarrow$ k + $\beta$(mapa[vecino.f][vecino.c] es pared)
 
-                $\textbf{Si}$ k_vecino $\leq$ P $\wedge$ dist[vecino.f][vecino.c][k_vecino] $\neq$ -1:
-                        candidatos.encolar(vecino, k_vecino)
-                        dist[vecino.f][vecino.c][k_vecino] $\leftarrow$ distancia + 1
+                $\textbf{Si}$ k_vecino $\leq$ P $\wedge$ dist[vecino.f][vecino.c][k_vecino] = -1:
+                    candidatos.encolar(vecino, k_vecino)
+                    dist[vecino.f][vecino.c][k_vecino] $\leftarrow$ distancia + 1
 
         $\textbf{Devolver}$ -1
     \end{lstlisting}
@@ -196,7 +194,7 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     Se evalúa una guarda que compara ubicaciones en $\mathcal{O}(1)$ al cuerpo de la cual se ingresa una única vez (en caso de haber solución) para retornar la distancia final.
     \\
 
-    Por cada vecino del nodo actual, tendremos que verificar si está en rango y calcular si aumenta la cantidad de demoliciones. Ambas operaciones se hacen en $\mathcal{O}(1)$. Como cada estado tiene 4 vecinos (los correspondientes a moverse en las cuatro direcciones del mapa), esto sucederá $\mathcal{O}(estados) = \mathcal{O}(n) $ veces. Además, hay que actualizar la distancia para los vecinos que no hayan sido actualizados todavía ($\mathcal{O}(1)$ por cada vecino) y agregarlos a la cola de candidatos. La inserción en el tipo $queue$, por ser un \emph{container adaptor}, depende del contenedor sobre el cual se encuentre implementado pero tanto para vectores como para colas doblemente terminadas es $\mathcal{O}(1)$ amortizado. Asumiendo que todos los vecinos sean siempre vistos por primera vez, nos queda un total de $\mathcal{O}(n)$
+    Por cada vecino del nodo actual, tendremos que verificar si está en rango y calcular si aumenta la cantidad de demoliciones. Ambas operaciones se hacen en $\mathcal{O}(1)$. Como cada estado tiene 4 vecinos (los correspondientes a moverse en las cuatro direcciones del mapa), esto sucederá $\mathcal{O}(estados) = \mathcal{O}(n) $ veces. Además, hay que actualizar la distancia para los vecinos que no hayan sido actualizados todavía ($\mathcal{O}(1)$ por cada vecino) y agregarlos a la cola de candidatos. La inserción en el tipo $queue$, por ser un \emph{container adaptor}, depende del contenedor sobre el cual se encuentre implementado pero tanto para vectores como para colas doblemente enlazadas es $\mathcal{O}(1)$ amortizado. Asumiendo que todos los vecinos sean siempre vistos por primera vez, nos queda un total de $\mathcal{O}(n)$
     \\
 
     Sumando todas las complejidades, terminamos con una complejidad final de $\mathcal{O}(n)$ con $n = F\times C\times (P+1)$ y por lo tanto $\mathcal{O}(F\times C\times P)$ que, recapitulando, era nuestra complejidad temporal objetivo.

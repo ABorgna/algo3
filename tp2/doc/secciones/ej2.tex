@@ -29,8 +29,11 @@ $dist: filas \times cols \times filas \times cols \rightarrow \mathbb{N}_0$
 $dist(i_1,j_1,i_2,j_2) = |i_1 - i_2| \quad + \quad |j_1 - j_2|$
 
 Definimos el conjunto de movimientos posibles $P$ como aquellas posiciones que tienen distancia 1, ninguna es pared irrompible y no son ambas paredes rompibles.
+\\
 
 $P = \{(i_1,j_1,i_2,j_2) \in filas \times cols \times filas \times cols \quad | \quad dist(i_1,j_1,i_2,j_2) = 1 \quad \land \quad M_{i_1,j_1} \neq \# \quad \land \quad M_{i_2,j_2} \neq \# \quad \land \quad \lnot (M_{i_1,j_1}, M_{i_1,j_2} \in [1,9] )\}$
+
+\vspace{1em}
 
 Ahora, sea $costo: P \rightarrow \mathbb{N}_0$ la función de costo
 
@@ -142,7 +145,7 @@ para toda arista $e$ en candidatos (recorrida por orden de peso)
 
 Por cuestiones de claridad, se presentó el pseudo-código de esta manera para ayudar al entendimiento del algoritmo por parte del lector. Sin embargo, para justificar la complejidad de este fragmento de código, es necesario hablar más detalladamente sobre el costo de las operaciones que se realizan. Estas operaciones son chequear que dos nodos estén en la misma componente conexa y, en caso contrario, unirlas. Para esto se utiliza la estructura de datos Union Disjoint Set (UDS) o también conocida como Union Find (UF), la cual sirve para manejar conjuntos disjuntos de elementos. Consta de dos operaciones: $find(x)$, que devuelve el elemento representante del conjunto al cual pertenece $x$ (lo llamaremos padre), y $union(x,y)$, que une los conjuntos a los que pertenecen $x$ e $y$ en uno solo. Existen varias implementaciones de esta estructura de datos. Nosotros elegimos la representación de listas para poder cumplir con la complejidad que pide el ejercicio.
 
-El pseudo-código de inicializar la estuctura, hacer $union$ y $find$ se presentan a continuación:
+El pseudo-código de inicializar la estructura, hacer $union$ y $find$ se presentan a continuación:
 
 \begin{lstlisting}
 $init():$
@@ -207,7 +210,7 @@ lo cual cumple con la complejidad establecida por el enunciado. \QEDB
 
 A continuación se presentan una serie de experimentos que ponen a prueba el algoritmo propuesto en esta sección y ayudan a mostrar que la complejidad temporal mencionada anteriormente es correcta.
 
-Para tomar las mediciones se fabricaron casos de prueba utilizando el mismo generador de dungeons que el ejercicio 1, con la adición de que luego de generar las paredes, se seleccionan algunas aleatoriamente para convertirlas en rompibles con un valor random entre 1 y 9 (siempre respetando las condiciones iniciales del enunciado, como por ejemplo tener exactamente dos paredes adyacentes y no ser borde).
+Para tomar las mediciones se fabricaron casos de prueba utilizando el mismo generador de dungeons que el ejercicio 1, con la adición de que luego de generar las paredes, se convertirlas todas las paredes posibles en rompibles con un valor random entre 1 y 9 (siempre respetando las condiciones iniciales del enunciado, como por ejemplo tener exactamente dos paredes adyacentes y no ser borde).
 
 Dado que la cantidad de operaciones que realiza el algoritmo depende de dos variables, se separa el análisis en varias secciones en las cuales se varían distintas combinaciones de las mismas.
 
