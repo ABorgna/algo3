@@ -105,33 +105,50 @@ $(BENCH_OUT_DIR)/ej3: ej3
 $(GRAPHS) : %-graph : $(GRAPHS_OUT_DIR)/%
 
 $(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
-	tools/grapher.py -i $< -o $@-mn0.png \
-		-x "M*N" \
-		-t "Tiempo de ejecución en funcion del tamaño del mapa. P = 0" \
-		--mode simple "* * 0"
+	tools/grapher.py -i $< -o $@-mnp.png \
+		-x "M*N*P" \
+		-t "Tiempo de ejecución en funcion del producto de las tres variables" \
+		--mode simple "*<500 *<500 *<100" \
+		-e 0 -E 'Tiempo de ejecución' \
+		-L 'x * 7.27e-8' 'n'
 	tools/grapher.py -i $< -o $@-mn60.png \
 		-x "M*N" \
 		-t "Tiempo de ejecución en funcion del tamaño del mapa. P = 60" \
-		--mode simple "* * 60"
+		--mode simple "* * 10" \
+		-e 0 -E 'Tiempo de ejecución' \
+		-L 'x * 8.4e-7' 'n'
 	tools/grapher.py -i $< -o $@-p.png \
 		-x "P" \
-		-t "Tiempo de ejecución en funcion del tamaño del mapa. M=N=100" \
-		--mode simple "100 100 +"
+		-t "Tiempo de ejecución en funcion del P máximo. M=N=500" \
+		--mode simple "500 500 +<251" \
+		-e 0 -E 'Tiempo de ejecución' \
+		-L 'x * 0.019' 'n'
 
 $(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
-	@echo "TODO: graphs ej2"
+	tools/grapher.py -i $< -o $@-width.png \
+		-x "C" \
+		-t "Tiempo de ejecución en funcion del ancho del mapa. F = 100" \
+		--mode simple "+ 100"
+	tools/grapher.py -i $< -o $@-height.png \
+		-x "F" \
+		-t "Tiempo de ejecución en funcion del alto del mapa. C = 100" \
+		--mode simple "100 +"
+	tools/grapher.py -i $< -o $@-size.png \
+		-x "F*C" \
+		-t "Tiempo de ejecución en funcion del tamaño del mapa" \
+		--mode prod
 
 $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 	tools/grapher.py -i $< -o $@-completo.png \
 		-x "Nodos" \
 		-t "Tiempo de ejecución en un grafo completo" \
 		-e 10 11 -E 'Hay solución' 'No hay solución' \
-		-L 'x**2 * 5' 'n^2'
+		-L 'x**2 * 5e-9' 'n^2'
 	tools/grapher.py -i $< -o $@-random.png \
 		-x "Nodos" \
 		-t "Tiempo de ejecución en un grafo random" \
 		-e 20 21 -E 'Hay solución' 'No hay solución' \
-		-L 'x**2 * 4.2' 'n^2'
+		-L 'x**2 * 4.2e-9' 'n^2'
 	tools/grapher.py -i $< -o $@-ciclo.png \
 		-x "Nodos" \
 		-t "Tiempo de ejecución en un grafo ciclo" \
@@ -149,7 +166,7 @@ $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 		   'Grafo random' 'Grafo random sin solución' \
 		   'Grafo ciclo' 'Grafo ciclo sin solución' \
 		   'Grafo grilla' 'Grafo grilla sin solución' \
-		-L 'x**2 * 5' 'n^2'
+		-L 'x**2 * 5e-9' 'n^2'
 
 informe: $(GRAPHS)
 	make -C doc/

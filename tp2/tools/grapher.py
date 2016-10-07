@@ -181,7 +181,7 @@ class Grapher:
 
                 # Fishy
                 fn = eval('lambda x: '+line[0], math.__dict__)
-                ax.plot(xs, [float(fn(x))/graphScale for x in xs],
+                ax.plot(xs, [float(fn(x))*1e9/graphScale for x in xs],
                         color=self.COLORS[(4+i*4) % len(self.COLORS)],
                         linewidth=2, label=label)
 
