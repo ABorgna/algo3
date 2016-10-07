@@ -1,6 +1,6 @@
 \section{Problema 3: Escapando}
 
-Luego de juntar todas las piezas, Indy llega a la cruz marcada en el mapa y se encuentra con una red de carritos que parecen dirigirse hacia afuera de la fortaleza, cuando de repente la fortaleza se empieza a derrumbar, asi que no tiene mas opcion que usar los carritos para escapar.
+Luego de juntar todas las piezas, Indy llega a la cruz marcada en el mapa y se encuentra con una red de carritos que parecen dirigirse hacia afuera de la fortaleza, cuando de repente la fortaleza se empieza a derrumbar, así que no tiene mas opción que usar los carritos para escapar.
 
 Los parámetros de entrada son los siguientes:
 
@@ -70,17 +70,19 @@ La demostración del algoritmo se vio en las clases teóricas de la materia.
 \subsection{Complejidad}
 Antes que nada, tenemos que inicializar las estructuras que vamos a utilizar.
 
-Generar la listas de adyacencia.
-
-Generar los 3 arrays visitados,TiempoMin y padre, lleva tiempo lineal en la cantidad de entradas, hay que pedir la memoria y luego recorrer linealmente cada array para insertar el valor que queremos.
+Generar los 3 arrays visitados,TiempoMin y padre, lleva tiempo lineal en la cantidad de entradas, hay que pedir la memoria y luego recorrer linealmente cada array para insertar el valor que queremos. Como cada array tiene N elementos, donde N es la cantidad de estaciones,  esto tiene costo $\mathcal{O}(N)$
 
 Luego tenemos un ciclo,  veamos su costo.
 
-Buscar cual va a ser el siguiente nodo visitado es lineal hay que recorrer todo el arreglo e ir comparando. Cabe aclarar que dentro de esta parte solo se comparan enteros y bool que se realiza en tiempo constante.
+Buscar cual va a ser el siguiente nodo visitado es lineal ya que  recorreremos  todo el arreglo y vamos  comparando. Cabe aclarar que dentro de esta parte solo se comparan enteros y bool que se realiza en tiempo constante.. Por lo tanto esto tiene costo $\mathcal{O}(N)$
 
-Luego se hacen 2 comparaciones, una detectar el caso de que no pueda seguir y no haya solución y la otra para ver si encontré el nodo buscado. Estas comparaciones, se realizan en tiempo constante pues es comparar 1 entero en cada una.
+Luego se hacen 2 comparaciones, una para detectar el caso de que no pueda seguir y no haya solución y la otra para ver si encontré el nodo buscado. Estas comparaciones, se realizan en tiempo constante pues es comparar 1 entero en cada una. $\mathcal{O}(1)$
 
-Luego,  sigue un for que itera sobre los vecinos del nodo actual . Este for tiene un costo lineal en la cantidad de vecinos del nodo, ya que lo de adentro se puede acotar por una constante.
+Luego,  sigue un for que itera sobre los vecinos del nodo actual . Este for tiene un costo lineal en la cantidad de vecinos del nodo, ya que lo de adentro se puede acotar por una constante.  Dado que no podemos asumir cotas inferiores para la cantidad de vecinos, el peor caso , cada nodo es vecino de todos, este for tiene costo  $\mathcal{O}(N)$
+
+Todo este ciclo se realiza mientras no tengamos el camino mínimo  hasta el nodo N.  En caso de que exista un camino este ciclo se ejecuta a lo sumo N veces y en el caso de que no exista también se ejecuta a lo sumo N veces, ya que realiza (K) ejecuciones completas donde K es la cantidad de nodos alcanzables desde el origen y luego entra 1 vez mas, realiza el primer for y sale por el break. Este K esta acotado por N-1.
+
+Por lo tanto tenemos un ciclo que se ejecuta a lo sumo N veces y el ciclo tiene costo $\mathcal{O}(N)$. Por lo tanto nuestro algoritmo tiene costo $\mathcal{O}(N^{2})$.
 
 
 \subsection{Experimentación}
