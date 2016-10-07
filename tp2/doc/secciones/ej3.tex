@@ -111,13 +111,14 @@ Para realizar la experimentación escribimos cuatro generadores de grafos que to
 
 \begin{itemize}
 
-    \item Generador completo: Crea un digrafo completo con $n$ nodos, y pesos de aristas aleatorios entre 1 y 1000
+    \item \textbf{
+    \textcolor{YellowOrange}{Generador completo:}} Crea un digrafo completo con $n$ nodos, y pesos de aristas aleatorios entre 1 y 1000
 
-    \item Generador random: Crea un digrafo completo con $n$ nodos y pesos de aristas aleatorios entre 1 y 1000, y para cada arista decide si borrarla con una probabilidad de 0.5
+    \item \textbf{\textcolor{OliveGreen}{Generador random:}} Crea un digrafo completo con $n$ nodos y pesos de aristas aleatorios entre 1 y 1000, y para cada arista decide si borrarla con una probabilidad de 0.5
 
-    \item Generador ciclo: Crea una arista de cada nodo $i$ al nodo $i+1$ (para $i$ < n) y otra del último al primero, con peso aleatorio entre 1 y 1000
+    \item \textbf{\textcolor{BrickRed}{Generador ciclo:}} Crea una arista de cada nodo $i$ al nodo $i+1$ (para $i$ < n) y otra del último al primero, con peso aleatorio entre 1 y 1000
 
-    \item Generador grilla: Crea una grilla de $\lfloor \sqrt{n} \rfloor \times \lfloor \sqrt{n} \rfloor$ donde cada nodo está conectado con sus cuatro vecinos con una arista de peso aleatorio entre 1 y 1000. Los $n \mod \lfloor \sqrt{n} \rfloor$ restantes tienen una arista incidente desde el nodo anterior de peso aleatorio
+    \item \textbf{\textcolor{NavyBlue}{Generador grilla:}} Crea una grilla de $\lfloor \sqrt{n} \rfloor \times \lfloor \sqrt{n} \rfloor$ donde cada nodo está conectado con sus cuatro vecinos con una arista de peso aleatorio entre 1 y 1000. Los $n \mod \lfloor \sqrt{n} \rfloor$ restantes tienen una arista incidente desde el nodo anterior de peso aleatorio
 
 \end{itemize}
 
