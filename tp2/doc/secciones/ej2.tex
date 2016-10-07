@@ -202,3 +202,50 @@ Como ambos fragmentos del algoritmo tienen complejidad $\mathcal{O}(n \times log
 $$\mathcal{O}(n \times log(n)) \in \mathcal{O}(FC \times log(FC))$$
 
 lo cual cumple con la complejidad establecida por el enunciado. \QEDB
+
+\subsection{Análisis experimental}
+
+A continuación se presentan una serie de experimentos que ponen a prueba el algoritmo propuesto en esta sección y ayudan a mostrar que la complejidad temporal mencionada anteriormente es correcta.
+
+Para tomar las mediciones se fabricaron casos de prueba utilizando el mismo generador de dungeons que el ejercicio 1, con la adición de que luego de generar las paredes, se seleccionan algunas aleatoriamente para convertirlas en rompibles con un valor random entre 1 y 9 (siempre respetando las condiciones iniciales del enunciado, como por ejemplo tener exactamente dos paredes adyacentes y no ser borde).
+
+Dado que la cantidad de operaciones que realiza el algoritmo depende de dos variables, se separa el análisis en varias secciones en las cuales se varían distintas combinaciones de las mismas.
+
+\subsubsection{Variando $C$}
+
+Dejando fija $F$, se obtuvieron los siguientes resultados de tiempo de ejecución en función de $C$:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{ej2-width}
+	\caption{Tiempo de ejecución del algoritmo en función de $C$}
+	\label{fig:ej2-width-fig}
+\end{figure}
+
+Puede observarse en la figura \ref{fig:ej2-width-fig} que todas las mediciones tomadas se encuentran acotadas por la función $n \times log(n)$, lo cual es entendible, ya que si se deja fija $F$, el algoritmo tendría complejidad $\mathcal{O}(C \times log(C))$
+
+\subsubsection{Variando $F$}
+
+Dejando fija $C$, se obtuvieron los siguientes resultados de tiempo de ejecución en función de $F$:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{ej2-height}
+	\caption{Tiempo de ejecución del algoritmo en función de $F$}
+	\label{fig:ej2-height-fig}
+\end{figure}
+
+Puede observarse en la figura \ref{fig:ej2-height-fig} que todas las mediciones tomadas se encuentran acotadas por la función $n \times log(n)$, lo cual es entendible, ya que si se deja fija $C$, el algoritmo tendría complejidad $\mathcal{O}(F \times log(F))$
+
+\subsubsection{Variando $F \times C$ de manera uniforme}
+
+Para este experimento probamos variando $F$ y $C$ al mismo tiempo, de manera tal que se trabaja con matrices cuadradas de dimensión $F = C$ cuyo tamaño va aumentando.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{ej2-size}
+	\caption{Tiempo de ejecución del algoritmo en función de $F \times C$}
+	\label{fig:ej2-size-fig}
+\end{figure}
+
+Puede observarse en la figura \ref{fig:ej2-size-fig} que todas las mediciones tomadas se encuentran acotadas por la función $n \times log(n)$, lo cual evidencia aún más la complejidad $\mathcal{O}(FC \times log(FC))$ establecida en esta sección.
