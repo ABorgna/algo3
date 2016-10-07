@@ -95,7 +95,7 @@ Para realizar la experimentación escribimos cuatro generadores de grafos que to
 
     \item Generador ciclo: Crea una arista de cada nodo $i$ al nodo $i+1$ (para $i$ < n) y otra del último al primero, con peso aleatorio entre 1 y 1000
 
-    \item Generador grilla: Crea una grilla de $\lfloor \sqrt{n} \rfloor x \lfloor \sqrt{n} \rfloor$ donde cada nodo está conectado con sus cuatro vecinos con una arista de peso aleatorio entre 1 y 1000. Los $n \; mod \; \lfloor \sqrt{n} \rfloor$ restantes tienen una arista incidente desde el nodo anterior de peso aleatorio
+    \item Generador grilla: Crea una grilla de $\lfloor \sqrt{n} \rfloor \times \lfloor \sqrt{n} \rfloor$ donde cada nodo está conectado con sus cuatro vecinos con una arista de peso aleatorio entre 1 y 1000. Los $n \mod \lfloor \sqrt{n} \rfloor$ restantes tienen una arista incidente desde el nodo anterior de peso aleatorio
 
 \end{itemize}
 
@@ -103,7 +103,7 @@ En los primeros dos generadores podemos ver que la cantidad de aristas será \bi
 
 En cambio, el grafo ciclo es casi el grafo conexo mas simple que podemos generar, con exactamente $n$ aristas.
 
-El grafo grilla tendrá aproximadamente $4$ arcos saliendo de cada nodo de la grilla (excepto en los bordes) y luego $n \; mod \; \lfloor \sqrt{n} \rfloor$ aristas extra. Como la grilla tiene $\lfloor \sqrt{n} \rfloor^2 \simeq n$ nodos, la cantidad final sera \bigo($n$).
+El grafo grilla tendrá aproximadamente $4$ arcos saliendo de cada nodo de la grilla (excepto en los bordes) y luego $n \mod \lfloor \sqrt{n} \rfloor$ aristas extra. Como la grilla tiene $\lfloor \sqrt{n} \rfloor^2 \simeq n$ nodos, la cantidad final sera \bigo($n$).
 
     \begin{figure}[H]
     	\centering
