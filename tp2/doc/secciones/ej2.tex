@@ -18,6 +18,23 @@ Los movimientos que se pueden realizar son horizontales o verticales y solo se p
 
 En cuanto a las puertas rompibles, solo puede haber una si esta tiene exactamente dos paredes adyacentes (independientemente de si son rompibles o no).
 
+Por ejemplo, sea el siguiente mapa:
+\\
+    \begin{center}
+    $   \begin{bmatrix}
+           \# & \# & \# & \# & \# & \# & \# & \# & \# \\
+           \# & . & 1 & . & \# & . & \# & . & \# \\
+           \# & . & \# & . & 3 & . & 5 & . & \# \\
+           \# & . & 2 & . & \# & . & \# & . & \# \\
+           \# & \# & \# & \# & \# & \# & \# & \# & \# \\
+       \end{bmatrix}
+       \kern 1cm
+       (F = 5,\ C = 9)$
+ 
+   \end{center}
+
+El resultado debería ser $9$.
+
 Para especificar formalmente el problema, vamos a definir algunos conjuntos y funciones auxiliares.
 
 Llamaremos a los intervalos discretos $filas = [0,F-1]$ y $cols = [0,C-1]$
@@ -43,16 +60,16 @@ $$costo(i_1,j_1,i_2,j_2) = \left\{ \begin{array}{lcc}
              				\end{array}
    			 				\right.$$
 
-Una vez formalizado el costo, queremos encontrar una secuencia $S$ de pasos $(i,j)$ que pase por todos los espacios caminables un paso a la vez y cuya suma de costos sea mínima. Es decir
+Una vez formalizado el costo, queremos encontrar un conjunto $C$ de pasos $(i_1,j_1,i_2,j_2)$ que pase por todos los espacios caminables un paso a la vez y cuya suma de costos sea mínima. Es decir
 
 \begin{align*}
-& ((\forall k \in \mathbb{N}) \quad dist(S_k,S_{k+1}) = \ 1) \qquad \land  \\
-& ((\forall i, j \in filas \times columnas) \quad M_{ij} = \text{'.'} \quad \Leftrightarrow \quad (\exists k \in \mathbb{N}) \quad S_k = (i,j))
+& ((\forall p = (i_1,j_1,i_2,j_2) \quad | \quad (i_1,j_1),(i_2,j_2) \in filas \times columnas) \quad dist(i_1,j_1,i_2,j_2) = \ 1) \qquad \land  \\
+& ((\forall i, j \in filas \times columnas) \quad M_{ij} \neq \text{'\#'} \quad \Leftrightarrow \quad (\exists p = (i_1,j_1,i_2,j_2) \in C) \quad (i_2,j_2) = (i,j))
 \end{align*}
 
-y, para toda secuencia $S'$ que cumple lo anterior
+y, para todo conjunto $C'$ que cumple lo anterior
 
-$$\sum_{k \in \mathbb{N}} costo(S_k,S_{k+1}) \quad \leq \quad \sum_{k \in \mathbb{N}} costo(S'_k,S'_{k+1})$$
+$$\sum_{p \in C} costo(i_1,j_1,i_2,j_2) \quad \leq \quad \sum_{p' \in C'} costo(i'_1,j'_1,i'_2,j'_2)$$
 
 Esto define formalmente el problema que se debe resolver en este ejercicio.
 
