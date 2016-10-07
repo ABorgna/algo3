@@ -84,7 +84,33 @@ Luego,  sigue un for que itera sobre los vecinos del nodo actual . Este for tien
 
 
 \subsection{Experimentación}
-Según el enunciado, el tiempo del algoritmo depende únicamente de la cantidad de estaciones  (nodos) , así que un experimento valido es fijar un n y ir generando distintos tipos de grafos y evaluar su tiempo de ejecución.
 
-Otro tipo de experimento es ver si el peso de las aristas tienen impacto significativo en los tiempos de ejecución.
+Para realizar la experimentación escribimos cuatro generadores de grafos que toman como entrada la cantidad de nodos requerida.
+
+\begin{itemize}
+
+    \item Generador completo: Crea un digrafo completo con $n$ nodos, y pesos de aristas aleatorios entre 1 y 1000
+
+    \item Generador random: Crea un digrafo completo con $n$ nodos y pesos de aristas aleatorios entre 1 y 1000, y para cada arista decide si borrarla con una probabilidad de 0.5
+
+    \item Generador ciclo: Crea una arista de cada nodo $i$ al nodo $i+1$ (para $i$ < n) y otra del último al primero, con peso aleatorio entre 1 y 1000
+
+    \item Generador grilla: Crea una grilla de $\lfloor \sqrt{n} \rfloor x \lfloor \sqrt{n} \rfloor$ donde cada nodo está conectado con sus cuatro vecinos con una arista de peso aleatorio entre 1 y 1000. Los $n \; mod \; \lfloor \sqrt{n} \rfloor$ restantes tienen una arista incidente desde el nodo anterior de peso aleatorio
+
+\end{itemize}
+
+En los primeros dos generadores podemos ver que la cantidad de aristas será \bigo($n^2$), ya que el grafo completo tendrá en total $n * (n-1)$ aristas y el grafo random aproximadamente la mitad.
+
+En cambio, el grafo ciclo es casi el grafo conexo mas simple que podemos generar, con exactamente $n$ aristas.
+
+El grafo grilla tendrá aproximadamente $4$ arcos saliendo de cada nodo de la grilla (excepto en los bordes) y luego $n \; mod \; \lfloor \sqrt{n} \rfloor$ aristas extra. Como la grilla tiene $\lfloor \sqrt{n} \rfloor^2 \simeq n$ nodos, la cantidad final sera \bigo($n$).
+
+    \begin{figure}[H]
+    	\centering
+    	\includegraphics[width=\textwidth]{ej3-all}
+    	\caption{Tiempo de ejecución del problema 3 usando diferentes generadores de grafos con $n$ nodos}
+    	\label{fig:ej3-all}
+    \end{figure}
+
+En la figura \ref{fig:ej3-all} podemos apreciar el comportamiento cuadrático del algoritmo, independientemente del orden de la cantidad de aristas.
 
