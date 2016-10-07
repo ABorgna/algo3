@@ -57,7 +57,7 @@ Para resolver el problema vamos a aplicar un algoritmo de camino mínimo en graf
         for $a$ in lista de adyacencia de $nodo\_actual$
             $tiempo\_nuevo$ $\gets$ a $a$ desde $nodo\_actual$
             Si $tiempo\_nuevo$ < $tiempo\_min$[$a$]:
-                actualizo el tiempo\_min[$a$]
+                actualizo el $tiempo\_min$[$a$]
                 actualizo el padre de $a$
 
     return -1
@@ -114,5 +114,5 @@ El grafo grilla tendrá aproximadamente $4$ arcos saliendo de cada nodo de la gr
     	\label{fig:ej3-all}
     \end{figure}
 
-En la figura \ref{fig:ej3-all} podemos apreciar el comportamiento cuadrático del algoritmo, independientemente del orden de la cantidad de aristas.
-
+En la figura \ref{fig:ej3-all} podemos apreciar el comportamiento cuadrático del algoritmo, independientemente del orden de la cantidad de aristas. Más aún, se pueden discernir bastante bien
+los diferentes tiempos de ejecución para cada grafo definido anteriormente. Por ejemplo, los generados como completos tienen cantidad máxima de aristas y son los que más cercanos a la cota superior se mantienen (tienen que actualizar más vecinos en peor caso), aunque hay casos de bajo tiempo de ejecución que suceden cuando el algoritmo encuentra temprano una arista muy liviana hacia el punto de salida. El random, al construirse sobre el completo, presenta una dispersión similar. Distinto es el caso para el grilla o el ciclo, donde ambos marcan una curva perfectamente definida (en el gráfico las corridas sobre ciclos (rojas) solapan un poco las del grilla (azules)). Esto se debe a que cada vecino tiene una cantidad $\mathcal{O}(1)$ de vecinos y por lo tanto, cuando actualizamos vecinos, lo haremos una cantidad constante de veces en peor caso para cada nodo versus la cota $\mathcal{O}(n)$ que teníamos para el caso general. En el caso del grilla, cada nodo tiene a lo sumo 4 vecinos, y en el ciclo tienen 2.
