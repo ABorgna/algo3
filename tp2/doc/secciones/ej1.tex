@@ -204,6 +204,15 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
 
     Para la fase de experimentación realizamos un programa que nos genera laberintos aleatorios de la forma de las matrices que representan el mapa del problema. Se insertan paredes en los bordes y luego en el interior se decide en, base al valor de un número generado aleatoriamente y cuántos vecinos tiene el casillero que sean pared, si será una o no. A efectos del este problema no modifica particularmente, pero nos servirá para los siguientes saber que el generador tiene una tendencia, por lo mencionado anteriormente, a armar \emph{salas} con las posiciones de las paredes.
 
+    \begin{figure}[H]
+    	\centering
+    	\includegraphics[width=2.5cm]{maze}
+        \caption{Ejemplo de laberinto generado con $F = 10$, $C = 10$, $P = 0$. Devuelve 5 como camino minimo. Punto de entrada y salida escogidos aleatoriamente.}
+    	\label{fig:maze}
+    \end{figure}
+
+
+
     El siguiente gráfico fue generado con el programa anteriormente mencionado. Consiste en mostrar tiempos de ejecución para muestras de las combinaciones con la pinta $\langle F, C, P \rangle = \langle 4x, 4y, 4z \rangle$ con $x,\ y \in [1..25]$ y $z \in [0..25]$ con al menos 4 repeticiones por caso y agrupadas a partir del producto de las tres variables (la función de cota de complejidad superior de nuestra solución).
 
     \begin{figure}[H]
@@ -222,4 +231,4 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     	\label{fig:ej1-mn60}
     \end{figure}
 
-    En el gráfico de la figura \ref{fig:ej1-mn60}, armado de manera similar al primero pero fijando $P$ y tomando $\langle {F, C} \rangle = \langle {10x, 10y} \rangle$ con combinaciones $x \in [1..60]$ e $y \in [1..100]$  se puede apreciar la cota superior $M\times N$. Nuevamente se hace notar una amplia varianza, debido a los factores previamente mencionados.
+    En el gráfico de la figura \ref{fig:ej1-mn60}, armado de manera similar al primero pero fijando $P$ y tomando $\langle {F, C} \rangle = \langle {10x, 10y} \rangle$ con combinaciones $x \in [1..60]$ e $y \in [1..100]$  se puede apreciar la cota superior $M\times N$. Nuevamente se hace notar una amplia varianza, debido a los factores previamente mencionados, particularmente la elección aleatoria del punto de arranque y de inicio.
