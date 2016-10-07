@@ -128,15 +128,18 @@ $(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
 	tools/grapher.py -i $< -o $@-width.png \
 		-x "C" \
 		-t "Tiempo de ejecución en funcion del ancho del mapa. F = 100" \
-		--mode simple "+ 100"
+		--mode simple "+ 100" \
+		-L 'x * log(x) * 9.22e-6' 'n log n'
 	tools/grapher.py -i $< -o $@-height.png \
 		-x "F" \
 		-t "Tiempo de ejecución en funcion del alto del mapa. C = 100" \
-		--mode simple "100 +"
+		--mode simple "100 +" \
+		-L 'x * log(x)**0.9 * 1.02e-5' 'n log n'
 	tools/grapher.py -i $< -o $@-size.png \
 		-x "F*C" \
 		-t "Tiempo de ejecución en funcion del tamaño del mapa" \
-		--mode prod
+		--mode prod \
+		-L 'x * log(x) * 8.41e-8' 'n log n'
 
 $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 	tools/grapher.py -i $< -o $@-completo.png \
