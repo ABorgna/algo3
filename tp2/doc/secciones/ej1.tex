@@ -198,3 +198,28 @@ En este pequeño ejemplo podemos ver tanto la idea de la representación en graf
     \\
 
     Sumando todas las complejidades, terminamos con una complejidad final de $\mathcal{O}(n)$ con $n = F\times C\times (P+1)$ y por lo tanto $\mathcal{O}(F\times C\times P)$ que, recapitulando, era nuestra complejidad temporal objetivo.
+
+\newpage
+\subsection{Experimentación}
+
+    Para la fase de experimentación realizamos un programa que nos genera laberintos aleatorios de la forma de las matrices que representan el mapa del problema. Se insertan paredes en los bordes y luego en el interior se decide en, base al valor de un número generado aleatoriamente y cuántos vecinos tiene el casillero que sean pared, si será una o no. A efectos del este problema no modifica particularmente, pero nos servirá para los siguientes saber que el generador tiene una tendencia, por lo mencionado anteriormente, a armar \emph{salas} con las posiciones de las paredes.
+
+    El siguiente gráfico fue generado con el programa anteriormente mencionado. Consiste en mostrar tiempos de ejecución para muestras de las combinaciones con la pinta $\langle F, C, P \rangle = \langle 4x, 4y, 4z \rangle$ con $x,\ y \in [1..25]$ y $z \in [0..25]$ con al menos 4 repeticiones por caso y agrupadas a partir del producto de las tres variables (la función de cota de complejidad superior de nuestra solución).
+
+    \begin{figure}[H]
+    	\centering
+    	\includegraphics[width=\textwidth]{ej1-mnp}
+    	\caption{Tiempo de ejecución del algoritmo en función de $F \times C \times P$}
+    	\label{fig:ej1-mnp}
+    \end{figure}
+
+    Posiblemente lo primero que se nota a simple vista de la figura \ref{fig:ej1-mnp} es la enorme varianza con la que se nos presentan los tiempos de medición. Por la naturaleza del problema, aún para un mismo valor del producto de las variables, la incidencia de la disposición de las paredes, forma del mapa, valor particular de $P$ (profundizaremos más adelante sobre esto en particular), puntos de arranque y puntos de llegada, es tan fuerte que pueden producir resultados muy diferentes. Sin ir más lejos, en la misma categoría caen los casos $\langle 16, 16, 4 \rangle$ y $\langle 4, 4, 64 \rangle $, donde el primer caso se corresponde con un mapa de proporciones más grandes y recorridos menos directos (por las demoliciones) y el segundo es un mapa más pequeño con demoliciones prácticamente ilimitadas. La idea principal del gráfico es mostrar que la cota calculada en la sección anterior se condice realmente con nuestros resultados empíricos, lo cual es visible dado que las mediciones se sitúan por debajo de la línea recta.
+
+    \begin{figure}[H]
+    	\centering
+    	\includegraphics[width=\textwidth]{ej1-mn60}
+    	\caption{Tiempo de ejecución del algoritmo en función de $F \times C$ y fijando $P=60$}
+    	\label{fig:ej1-mn60}
+    \end{figure}
+
+    En el gráfico de la figura \ref{fig:ej1-mn60}, armado de manera similar al primero pero fijando $P$ y tomando $\langle {F, C} \rangle = \langle {10x, 10y} \rangle$ con combinaciones $x \in [1..60]$ e $y \in [1..100]$  se puede apreciar la cota superior $M\times N$. Nuevamente se hace notar una amplia varianza, debido a los factores previamente mencionados.
