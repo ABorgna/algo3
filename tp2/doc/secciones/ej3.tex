@@ -4,19 +4,20 @@ Luego de juntar todas las piezas, Indy llega a la cruz marcada en el mapa y se e
 
 Los parámetros de entrada son los siguientes:
 
-		\begin{itemize}
-		\item Dos números N y M que representan la cantidad de estación y la cantidad de vías
-		\item M lineas, las cuales contienen 3 enteros A,B y C que representan que ir de A a B tarda C segundos. Las estaciones se encuentran numeradas desde 1 hasta N
-    		\end{itemize}
+        \begin{itemize}
+        \item Dos números N y M que representan la cantidad de estación y la cantidad de vías
+        \item M lineas, las cuales contienen 3 enteros A,B y C que representan que ir de A a B tarda C segundos. Las estaciones se encuentran numeradas desde 1 hasta N.
+        \end{itemize}
 
 Los parámetros de salida son los siguientes:
 
-	\begin{itemize}
-	\item Un entero T que indica el tiempo mínimo necesario para escapar. En caso de que no haya camino, este valor deberá ser -1
-	%\item Asumiendo que haya solución, la siguiente linea contendrá la cantidad de estaciones a recorrer.
-	%\item Asumiendo que haya solución. Esta linea deberá contener la secuencia de las estaciones a recorrer.
-	\item Si hay solución, la siguiente linea contendrá la cantidad de estaciones a recorrer y la siguiente linea contendrá la secuencia de estaciones a recorrer
-	\end{itemize}
+    \begin{itemize}
+    \item Un entero T que indica el tiempo mínimo necesario para escapar. En caso de que no haya camino, este valor deberá ser -1.
+    %\item Asumiendo que haya solución, la siguiente linea contendrá la cantidad de estaciones a recorrer.
+    %\item Asumiendo que haya solución. Esta linea deberá contener la secuencia de las estaciones a recorrer.  
+    \item Si hay solución, la siguiente línea contendrá la cantidad de estaciones a recorrer y la siguiente línea contendrá la secuencia de estaciones a recorrer.
+    \end{itemize}
+
 
 La solución tiene que tener una complejidad temporal de $\mathcal{O}(N^{2}log^{2}(N))$ o mejor.
 
@@ -25,9 +26,9 @@ La solución tiene que tener una complejidad temporal de $\mathcal{O}(N^{2}log^{
 Vamos a modelar el problema mediante grafos dirigidos. Si pensamos a las estaciones como los vértices y el tiempo necesario para ir de una estación a otra como el peso de la arista dirigida correspondiente, resulta que el problema se reduce a calcular el camino mínimo entre la estación 1 (donde están ubicados) y la estación n , a la cual quieren llegar.
 
 %Si bien parece trivial, no sabemos si hace falta aclararlo.
-La longitud del camino es la sumatoria de las aristas que usa, por lo dicho anteriormente esto equivale al tiempo necesario para recorrer dicho camino, esto seria la primera linea de la salida.
+La longitud del camino es la suma de las aristas que usa, por lo dicho anteriormente esto equivale al tiempo necesario para recorrer dicho camino, esto seria la primera linea de la salida.
 
-Para poder devolver la secuencia, vamos a tener un array de predecesores, que contendrá para todo los nodos del camino solución, desde qué nodo llegué.
+Para poder devolver la secuencia, vamos a tener un array de predecesores, que contendrá para todo los nodos del grafo, desde qué nodo llegué.
 
 Para resolver el problema vamos a aplicar un algoritmo de camino mínimo en grafos, en este caso vamos a usar Dijkstra, ya que todas las aristas tienen peso positivo.
 
@@ -57,7 +58,7 @@ Para resolver el problema vamos a aplicar un algoritmo de camino mínimo en graf
         for $a$ in lista de adyacencia de $nodo\_actual$
             $tiempo\_nuevo$ $\gets$ a $a$ desde $nodo\_actual$
             Si $tiempo\_nuevo$ < $tiempo\_min$[$a$]:
-                actualizo el $tiempo\_min$[$a$]
+                actualizo el tiempo\_min[$a$]
                 actualizo el padre de $a$
 
     return -1
@@ -70,20 +71,19 @@ La demostración del algoritmo se vio en las clases teóricas de la materia.
 \subsection{Complejidad}
 Antes que nada, tenemos que inicializar las estructuras que vamos a utilizar.
 
-Generar los 3 arrays visitados,TiempoMin y padre, lleva tiempo lineal en la cantidad de entradas, hay que pedir la memoria y luego recorrer linealmente cada array para insertar el valor que queremos. Como cada array tiene N elementos, donde N es la cantidad de estaciones,  esto tiene costo $\mathcal{O}(N)$
+Generar los 3 arrays visitados, TiempoMin y padre, lleva tiempo lineal en la cantidad de entradas, hay que pedir la memoria y luego recorrer linealmente cada array para insertar el valor que queremos. Como cada array tiene N elementos, donde N es la cantidad de estaciones, esto tiene costo $\mathcal{O}(N)$.
 
 Luego tenemos un ciclo,  veamos su costo.
 
-Buscar cual va a ser el siguiente nodo visitado es lineal ya que  recorreremos  todo el arreglo y vamos  comparando. Cabe aclarar que dentro de esta parte solo se comparan enteros y bool que se realiza en tiempo constante.. Por lo tanto esto tiene costo $\mathcal{O}(N)$
+Buscar cual va a ser el siguiente nodo visitado es lineal ya que  recorreremos  todo el arreglo y vamos  comparando. Cabe aclarar que dentro de esta parte solo se comparan enteros y bools que se realiza en tiempo constante. Por lo tanto, esto tiene costo $\mathcal{O}(N)$.
 
-Luego se hacen 2 comparaciones, una para detectar el caso de que no pueda seguir y no haya solución y la otra para ver si encontré el nodo buscado. Estas comparaciones, se realizan en tiempo constante pues es comparar 1 entero en cada una. $\mathcal{O}(1)$
+Luego se hacen 2 comparaciones, una para detectar el caso de que no pueda seguir y no haya solución y la otra para ver si encontré el nodo buscado. Estas comparaciones, se realizan en tiempo constante pues es comparar 1 entero en cada una. $\mathcal{O}(1)$.
 
-Luego,  sigue un for que itera sobre los vecinos del nodo actual . Este for tiene un costo lineal en la cantidad de vecinos del nodo, ya que lo de adentro se puede acotar por una constante.  Dado que no podemos asumir cotas inferiores para la cantidad de vecinos, el peor caso , cada nodo es vecino de todos, este for tiene costo  $\mathcal{O}(N)$
+Luego, sigue un for que itera sobre los vecinos del nodo actual. Este for tiene un costo lineal en la cantidad de vecinos del nodo, ya que lo de adentro se puede acotar por una constante. Dado que no podemos asumir cotas inferiores para la cantidad de vecinos, el peor caso es que cada nodo sea vecino de todos. Por lo tanto, este for tiene costo $\mathcal{O}(N)$.
 
-Todo este ciclo se realiza mientras no tengamos el camino mínimo  hasta el nodo N.  En caso de que exista un camino este ciclo se ejecuta a lo sumo N veces y en el caso de que no exista también se ejecuta a lo sumo N veces, ya que realiza (K) ejecuciones completas donde K es la cantidad de nodos alcanzables desde el origen y luego entra 1 vez mas, realiza el primer for y sale por el break. Este K esta acotado por N-1.
+Todo este ciclo se realiza mientras no tengamos el camino mínimo hasta el nodo N.  En caso de que exista un camino este ciclo se ejecuta a lo sumo N veces y en el caso de que no exista también se ejecuta a lo sumo N veces, ya que realiza (K) ejecuciones completas donde K es la cantidad de nodos alcanzables desde el origen y luego entra 1 vez mas, realiza el primer for y sale por el break. Este K esta acotado por N-1.
 
-Por lo tanto tenemos un ciclo que se ejecuta a lo sumo N veces y el ciclo tiene costo $\mathcal{O}(N)$. Por lo tanto nuestro algoritmo tiene costo $\mathcal{O}(N^{2})$.
-
+Por lo tanto, tenemos un ciclo que se ejecuta a lo sumo N veces y el ciclo tiene costo $\mathcal{O}(N)$. Por lo tanto nuestro algoritmo tiene costo $\mathcal{O}(N^{2})$.
 
 \subsection{Experimentación}
 
