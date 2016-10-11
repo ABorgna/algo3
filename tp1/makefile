@@ -139,36 +139,47 @@ $(GRAPHS) : %-graph : $(GRAPHS_OUT_DIR)/%
 $(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
 	tools/grapher.py -i $< -o $@.png --yscale log --colorize \
 		-x "Cantidad de gente" \
-		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales"
+		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales" \
+		-L '2**x * x**3 * 4e-8 + 1e-5' '2^(N+M) * (N+M)^3'
 	tools/grapher.py -i $< -o $@-trim.png --yscale log -e 0 \
 		-x "Cantidad de gente" \
-		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales, cuando existe una solución"
+		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales, cuando existe una solución" \
+		-L '2**x * x**3 * 4e-8 + 1e-5' '2^(N+M) * (N+M)^3'
 
 $(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
 	tools/grapher.py -i $< -o $@.png --xscale log \
 		-x "Peso de la llave" \
-		-t "Tiempo de ejecucion respecto al peso de la llave"
+		-t "Tiempo de ejecucion respecto al peso de la llave" \
+		-L 'log(x) * 9e-8 + 7e-7' 'log(n)'
 
 $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 	tools/grapher.py -i $< -o $@-c1.png -x "Cantidad de objetos" \
-		-t "Una mochila, k0=50" --mode simple "50 0 0 +>100000" --polyfit
+		-t "Una mochila, k0=50" --mode simple "50 0 0 +>100000" \
+		-L 'x * 1.45e-6 + 0.1' 'n'
 	tools/grapher.py -i $< -o $@-c2.png -x "Cantidad de objetos" \
-		-t "Dos mochilas, k0=k1=25" --mode simple "25 25 0 +>100" --polyfit
+		-t "Dos mochilas, k0=k1=25" --mode simple "25 25 0 +>100" \
+		-L 'x * 2.81e-5' 'n'
 	tools/grapher.py -i $< -o $@-c3.png -x "Cantidad de objetos" \
-		-t "Tres mochilas, k0=k1=k2=17" --mode simple "17 17 17 +>100" --polyfit
+		-t "Tres mochilas, k0=k1=k2=17" --mode simple "17 17 17 +>100" \
+		-L 'x * 1.4e-4' 'n'
 	tools/grapher.py -i $< -o $@-k1.png -x "Capacidad de la mochila" \
-		-t "Una mochila, c=50" --mode simple "* 0 0 50" --polyfit
+		-t "Una mochila, c=50" --mode simple "* 0 0 50" \
+		-L 'x * 3.4e-6' 'n'
 	tools/grapher.py -i $< -o $@-k2.png -x "Productoria de las capacidades" \
-		-t "Dos mochilas, k0=k1, c=50" --mode simple "* *>0 0 50" --polyfit
+		-t "Dos mochilas, k0=k1, c=50" --mode simple "* *>0 0 50" \
+		-L 'x * 3.85e-6' 'n'
 	tools/grapher.py -i $< -o $@-k2a.png -x "Capacidad de cada mochila" \
 		-t "Dos mochilas de misma capacidad, k0=k1, c=50" \
-		--mode simple "+ >0 0 50" --polyfit --fitdegree 2
+		--mode simple "+ >0 0 50" \
+		-L 'x**2 * 4e-6' 'n^2'
 	tools/grapher.py -i $< -o $@-k3.png -x "Productoria de las capacidades" \
 		-t "Tres mochilas, k0=k1=k2, c=50" \
-		--mode simple "* *>0 *>0 50" --polyfit
+		--mode simple "* *>0 *>0 50" \
+		-L 'x * 1.57e-6' 'n'
 	tools/grapher.py -i $< -o $@-k3a.png -x "Capacidad de cada mochila" \
 		-t "Tres mochilas, k0=k1=k2, c=50" \
-		--mode simple "+ >0 >0 50" --polyfit --fitdegree 3
+		--mode simple "+ >0 >0 50" \
+		-L 'x**3 * 1.56e-6' 'n^3'
 
 informe: $(GRAPHS)
 	make -C doc/

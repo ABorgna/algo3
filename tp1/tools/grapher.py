@@ -21,6 +21,7 @@ class Grapher:
 
     def __init__(self):
         plt.style.use('ggplot')
+        self.colors = {}
 
     def run(self, args):
 
@@ -46,7 +47,10 @@ class Grapher:
 
             if args.mode == 'sum':
                 x = sum(values)
-
+            elif args.mode == 'prod':
+                x = 1
+                for v in values:
+                    x *= v
             elif args.mode == 'simple':
                 if len(values) != len(args.modevars):
                     print('Incorrect number of variables for mode "simple", expected',
@@ -126,6 +130,7 @@ class Grapher:
         pointsSet = {k: [(x,float(y)/scale) for x,y in points]
                         for k,points in pointsSet.items()}
         maxY = float(maxY)/scale
+        graphScale = scale
 
         # Plot the data
         fig, ax = plt.subplots()
@@ -135,8 +140,13 @@ class Grapher:
             xs = [x for x,y in points]
             ys = [y for x,y in points]
 
-            ax.plot(xs, ys, 'o', color=self.COLORS[k*6 % len(self.COLORS)],
-                    label= "Hay solución" if k == 0 else "No hay solución")
+            if k in args.statusname:
+                label = args.statusname[k]
+            else:
+                label = "Hay solución" if k == 0 else "No hay solución"
+
+            ax.plot(xs, ys, 'o', color=self.getColor(k),
+                    label=label)
 
         if args.polyfit is not None and 0 in pointsSet:
             xs = [x for x,y in pointsSet[0]]
@@ -159,8 +169,21 @@ class Grapher:
 
             fit = lambda x : scaleback(sum([a * x**(args.fitdegree-i)
                                  for (i,a) in enumerate(coef)]))
-            ax.plot(xs, [fit(x) for x in xs], color=self.COLORS[2],
+            ax.plot(xs, [fit(x) for x in xs], color=self.getColor("poly"),
                     linewidth=2)
+
+        if len(args.line):
+            xs = [x for points in pointsSet.values() for x,y in points]
+            xs.sort()
+            for (i,line) in enumerate(args.line):
+
+                label = line[1] if len(line) > 1 else None
+
+                # Fishy
+                fn = eval('lambda x: '+line[0], math.__dict__)
+                ax.plot(xs, [float(fn(x))*1e9/graphScale for x in xs],
+                        color=self.COLORS[(4+i*4) % len(self.COLORS)],
+                        linewidth=2, label=label)
 
         ax.set_title(args.title)
         ax.set_xlabel(args.xlabel)
@@ -169,18 +192,24 @@ class Grapher:
         ax.set_yscale(args.yscale)
         ax.set_ylim(ymin=0)
 
-        if len(pointsSet) > 1:
+        if len(pointsSet) > 1 or len(args.line):
             ax.legend(loc='best')
 
         ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%g'+unit))
 
         fig.savefig(args.outfile, format='png')
 
+    def getColor(self, id):
+        if not id in self.colors:
+            i = len(self.colors) * 2
+            self.colors[id] = self.COLORS[i % len(self.COLORS)]
+        return self.colors[id]
+
 if __name__ == "__main__":
 
     class ValidateMode(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
-            valid_modes = ('sum', 'simple')
+            valid_modes = ('sum', 'prod', 'simple')
             mode = values[0]
             if mode not in valid_modes:
                 raise ValueError('invalid mode %s' % subject)
@@ -204,11 +233,17 @@ if __name__ == "__main__":
             help='draw the best polynomial fit')
     parser.add_argument('-F','--fitdegree', default=1,
             type=int,help='degree of the polynomial fit')
+    parser.add_argument('-L','--line', type=str, nargs='+',
+            default=[], metavar=('FN', 'LABEL'), action='append',
+            help='draw a function of X written in python')
     parser.add_argument('-e','--exitstatus', nargs='+',
             type=int, action='append', default=[],
-            help='use datapoints with exit status N')
+            help='only use datapoints with exit status N')
+    parser.add_argument('-E','--statusname', nargs='+',
+            type=str, action='append', default=[],
+            help='label of each exitstatus selected via -e. Implies colorization')
     parser.add_argument('-C','--colorize', action='store_true', default=False,
-            help='enable/disable using diferent colors for each exitstatus')
+            help='use diferent colors for each exitstatus')
 
     parser.add_argument('-i', help='input file', nargs='?',
             type=argparse.FileType('r'),
@@ -218,7 +253,10 @@ if __name__ == "__main__":
             default=sys.stdout, dest='outfile')
 
     parser.add_argument('-m','--mode', nargs='+', default=('sum',[]),
-            action=ValidateMode, metavar=('MODE', 'ARGS'), help='TODO')
+            action=ValidateMode, metavar=('MODE', 'ARGS'),
+            help='sum: use the sum of the variables as x value (default)\n' +
+                 'prod: use the product of the variables as x value\n' +
+                 'simple "* *>0 5 <10": use only the desired value for each variable')
 
     args = parser.parse_args()
 
@@ -226,6 +264,10 @@ if __name__ == "__main__":
                     else args.mode[1]
     args.mode = args.mode[0]
     args.exitstatus = [x for l in args.exitstatus for x in l] # Flatten
+    args.statusname = [x for l in args.statusname for x in l] # Flatten
+    args.statusname = {x:s for (x,s) in zip(args.exitstatus,args.statusname)}
+    if len(args.statusname):
+        args.colorize = True
 
     g = Grapher()
     g.run(args)
