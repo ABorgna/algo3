@@ -140,11 +140,11 @@ $(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
 	tools/grapher.py -i $< -o $@.png --yscale log --colorize \
 		-x "Cantidad de gente" \
 		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales" \
-		-L '2**x * x**3 * 4e-8 + 1e-5' '2^(N+M) * (N+M)^3'
+		-L '2**x * x**3 * 4e-8 + 2e-6' '2^(N+M) * (N^4+M^4)'
 	tools/grapher.py -i $< -o $@-trim.png --yscale log -e 0 \
 		-x "Cantidad de gente" \
 		-t "Tiempo de ejecución respecto a la cantidad de arqueologos y caníbales, cuando existe una solución" \
-		-L '2**x * x**3 * 4e-8 + 1e-5' '2^(N+M) * (N+M)^3'
+		-L '2**x * x**3 * 4e-8 + 1e-5' '2^(N+M) * (N^4+M^4)'
 
 $(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
 	tools/grapher.py -i $< -o $@.png --xscale log \

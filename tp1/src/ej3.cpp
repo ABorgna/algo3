@@ -130,9 +130,7 @@ void prob_load(std::istream& is) {
     objects.resize(0);
 
     for (uint64_t i = 0; i < m; i++) {
-        uint64_t budget;
-        is >> budget;
-        bins.push_back(budget);
+        is >> bins[i];
     }
 
     for (uint64_t i = 0; i < n; i++) {
@@ -140,7 +138,7 @@ void prob_load(std::istream& is) {
         mkp_object obj;
 
         is >> count >> obj.weight >> obj.value;
-        obj.id = i;
+        obj.id = i+1;
         for (uint64_t j = 0; j < count; j++) objects.push_back(obj);
     }
 }

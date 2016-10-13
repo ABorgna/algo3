@@ -1,0 +1,18 @@
+# Gráficos y mediciones
+- Corregimos la linea de complejidad observada en los gráficos
+- Medimos nuevamente con mas iteraciones algunos outliers de los gráficos
+
+# Ejercicio 1
+- Realizamos las modificaciones pedidas en la introducción
+- Reescribimos el pseudocódigo
+- Se movió el comentario sobre la complejidad de los contenedores a la sección
+de complejidad, y se agregó una referencia
+- Se agrego una justificación de por qué el grafo y nuestra solución resuelven
+correctamente el problema
+- Agregamos el costo de copiar y comparar los estados a la complejidad
+- Se realizaron las correcciones pedidas en el análisis experimental
+
+# Ejercicio 2
+
+# Ejercicio 3
+- Ahora el ejercicio 3 imprime la solución
