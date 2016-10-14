@@ -23,7 +23,7 @@ $$
 
 
 \subsection{Solución y Correctitud}
-	Para poder determinar $I$ y $D$ utilizaremos la descomposición polinómica base 3 de $P$. El caso más simple de analizar es cuando $P$ es una potencia de 3 y entonces solamente requerimos de un único elemento para $I$ (es decir, el mismo $P$) y ninguno para $D$. En realidad este es un subcaso de otro más general: que la representación en base 3 de $P$ sea binaria (no haya dígitos que valen 2). Estos casos se pueden resolver fácilmente con $I$ como el conjunto de todos los monomios de la descomposición polinómica, es decir, los dígitos de su representación ternaria. Formalizando, sea $P_{10}$ = $A_3$ = $\left \langle a_{ \left \lfloor{log(P)}\right \rfloor + 1 } \ ... \ a_1, a_0  \right \rangle$ por definición entonces \\
+	Para poder determinar $I$ y $D$ utilizaremos la descomposición polinómica base 3 de $P$. El caso más simple de analizar es cuando $P$ es una potencia de 3 y entonces solamente requerimos de un único elemento para $I$ (es decir, el mismo $P$) y ninguno para $D$. En realidad este es un subcaso de otro más general: que la representación en base 3 de $P$ no tenga dígitos que valgan 2. Estos casos se pueden resolver fácilmente con $I$ como el conjunto de todos los monomios de la descomposición polinómica, es decir, los dígitos de su representación ternaria. Formalizando, sea $P_{10}$ = $A_3$ = $\left \langle a_{ \left \lfloor{log(P)}\right \rfloor + 1 } \ ... \ a_1, a_0  \right \rangle$ por definición entonces \\
 
 	$P$ = $\sum_{i = 0}^{\left \lfloor{log(P)}\right \rfloor + 1} a_i*3^{i}$ y nos alcanza con tomar $I$ = $\bigl ( \ \bigcup_{i=0}^{\left \lfloor{log(P)}\right \rfloor + 1} \{a_i*3^{i}\} \ \bigr ) \setminus \{0\} \ \ y \ \ D = \emptyset $
 	\\
@@ -169,7 +169,7 @@ $$
 	$\sum_{i=0}^{|der|-1} 3^{der_i} + \underbrace{\beta(hayCarry)*3^{n+1}}_\text{0} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $
 	\\
 
-	Por las mismas razones también, la HI nos asegura que ambas secuencias siguen disjuntas y con elemenos menores o iguales a $n$. Por lo tanto, sigue valiendo el lema.
+	Por las mismas razones también, la HI nos asegura que ambas secuencias siguen disjuntas y con elementos menores o iguales a $n$. Por lo tanto, sigue valiendo el lema.
 
 	\item Si $a_n$ = 1 entonces $a'_n = 2$, $der = pre(der)$, $izq = pre(izq)++[n]$, produciéndose acarreo. Por HI sabemos que vale: \\
 
@@ -235,7 +235,7 @@ $$
 
 \newpage
 \subsection{Complejidad}
-	El pseudocódigo no incluye el ciclo final que se encarga de convertir $der$ e $izq$ en la secuencia ordenada de elementos de $I$ y $D$. Esto se hace iterando de principio a fin cada vector y devolviendo por salida estándar $3^{\ elem \ actual}$ en cada iteración. Considerando a la operación pow($base$, $exp$) constante, el costo del ciclo es $\mathcal{O} (|der| + |izq|)$. Más adelante vamos a ver que ambas longitudes son orden de $log_3(P)$.
+	El pseudocódigo no incluye el ciclo final que se encarga de convertir $der$ e $izq$ en la secuencia ordenada de elementos de $I$ y $D$. Esto se hace iterando de principio a fin cada vector y devolviendo por salida estándar $3^{\ elem \ actual}$ en cada iteración. Suponiendo a la operación pow($base$, $exp$) constante, el costo del ciclo es $\mathcal{O} (|der| + |izq|)$. Más adelante vamos a ver que ambas longitudes son orden de $log_3(P)$.
 
 	Otra cosa que no incluimos en el pseudocódigo (por una leve simplificación) es cómo se consigue la representación base 3 de $P$ que iteramos. La guarda original del ciclo corresponde a:
 
@@ -283,4 +283,4 @@ $$
 	    \label{fig:ej2-comp}
 	\end{figure}
 
-	Cuando $P$ es una potencia de 3 no se entra en ninguna rama para ningún dígito que no sea el último, por lo tanto el tiempo de ejecución es el más bajo de todos. En los casos que armamos con el primer dígito de la representación siendo un 2 y el resto 1, de modo que la primer iteración produzca un acarreo que se va sosteniendo para cada uno de los dígitos siguientes teniendo que entrar en la rama del acarreo y además realizar inserciones en un vector, sucede algo extraño: en general el rendimiento es efectivamente peor que los casos aleatorios (que pueden contener ceros y entrar en menos ramas) como se esperaría, pero también existen casos en los cuales el rendimiento roza la optimalidad del caso potencia de 3. Sin embargo, considerando que siempre se entra exactamente en las mismas ramas durante toda la ejecución, es posible que exista una distorsión causada por el \emph{branch predictor}\footnote{https://en.wikipedia.org/wiki/Branch_predictor} del mismo procesador (lo cual también juega en favor del caso potencia, dado que va a tener tendencia a predecir que no se entre en ninguna rama). Curiosamente, el caso en que todos los dígitos son 1, que ejecuta de una manera similar al de los acarreros pero no entrando en el primer $if$, no parece afectado por el predictor.
+	Cuando $P$ es una potencia de 3 no se entra en ninguna rama para ningún dígito que no sea el último, por lo tanto el tiempo de ejecución es el más bajo de todos. En los casos que armamos con el primer dígito de la representación siendo un 2 y el resto 1, de modo que la primer iteración produzca un acarreo que se va sosteniendo para cada uno de los dígitos siguientes teniendo que entrar en la rama del acarreo y además realizar inserciones en un vector, sucede algo extraño: en general el rendimiento es efectivamente peor que los casos aleatorios (que pueden contener ceros y entrar en menos ramas) como se esperaría, pero también existen casos en los cuales el rendimiento roza la optimalidad del caso potencia de 3. Sin embargo, considerando que siempre se entra exactamente en las mismas ramas durante toda la ejecución, es posible que exista una distorsión causada por el \emph{branch predictor}\footnote{https://en.wikipedia.org/wiki/Branch_predictor} del mismo procesador (lo cual también juega en favor del caso potencia, dado que va a tener tendencia a predecir que no se entre en ninguna rama). Curiosamente, el caso en que todos los dígitos son 1, que ejecuta de una manera similar al de los acarreos pero no entrando en el primer $if$, no parece afectado por el predictor.
