@@ -40,7 +40,8 @@ CHECKPOINT = 0`wc -l $(1) 2>/dev/null | sed 's/ .*//'`
     $(BENCH_OUT_DIR)/ej3-extra1 $(BENCH_OUT_DIR)/ej3-extra2 \
 	$(BENCH_OUT_DIR)/ej3-extra3 \
     $(BENCH_OUT_DIR)/ej3-extra1c $(BENCH_OUT_DIR)/ej3-extra2c \
-	$(BENCH_OUT_DIR)/ej3-extra3c
+	$(BENCH_OUT_DIR)/ej3-extra3c \
+	$(BENCH_OUT_DIR)/ej3-extraMC
 
 all: dirs $(EJERCICIOS)
 
@@ -126,6 +127,13 @@ $(BENCH_OUT_DIR)/ej3-extra3c: ej3
 $(BENCH_OUT_DIR)/ej3-extra1: ej3
 	build/ej3 -a 1:100000000000000:10 0 0 50 10 1 -A 0.01 -o $@ ;\
 
+$(BENCH_OUT_DIR)/ej3-extraMC: ej3
+	i=1; c=10; while true; do \
+		build/ej3 -a "$$i" 0 0 "$$c" 10 1 -A 0.01 -o $@ ;\
+		i=$$(($$i + 100)); \
+		c=$$(($$c + 100)); \
+		done
+
 $(BENCH_OUT_DIR)/ej3-extra2: ej3
 	i=1; while true; do \
 		build/ej3 -a "$$i" "$$i" 0 50 10 1 -A 0.01 -o $@ ;\
@@ -189,6 +197,11 @@ $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 		-t "Tres mochilas, k0=k1=k2, c=50" \
 		--mode simple "+ >0 >0 50" \
 		-L 'x**3 * 1.56e-6' 'n^3'
+	tools/grapher.py -i $<-extraMC -o $@-mc.png \
+		-x "Capacidad de la mochila * cantidad de objetos" \
+		-t "Una mochila, k0 = c" \
+		--mode simple "* 0 0 *" \
+		-L 'x * 3.5e-8' 'n'
 
 informe: $(GRAPHS)
 	make -C doc/
