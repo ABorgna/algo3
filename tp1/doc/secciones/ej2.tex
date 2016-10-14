@@ -37,11 +37,11 @@ $$
 	$D = \bigcup_{j=0}^{|der|-1} \{3^{der_{j}}\}  $   \quad (ídem para $izq$ con $I$)
 	\\
 
-	Manteniendo la idea del primer caso, cuando el dígito $a_i$ sea 1 entonces agregamos el exponente $i$ al conjunto $I$, de ser 0 seguimos recorriendo. De este modo seguimos tomando a $A_3$ como base para $I$ aprovechando que tomar los términos de la descomposición polinómica de $P$ para $I$ y $D = \emptyset$ siempre cumple la condición $\sum I$ - $\sum D$ = $P$. Nos queda ver cómo deshacernos de los términos con coeficientes iguales a 2.
+	Manteniendo la idea del primer caso, cuando el dígito $a_i$ sea 1 entonces agregamos el exponente $i$ a la secuencia $izq$, de ser 0 seguimos recorriendo. De este modo seguimos tomando a $A_3$ como base para $I$ aprovechando que tomar los términos de la descomposición polinómica de $P$ para $I$ y $D = \emptyset$ siempre cumple la condición $\sum_{i \in I} i$ - $\sum_{d \in D} d$ = $P$ (como deberíamos primero conseguir dicha descomposición lo que hacemos es ir construyendo desde el vacío por cada iteración mientras vamos consiguiendo el siguiente dígito). Nos queda ver cómo tratar los términos con coeficientes iguales a 2.
 
-	Pero si $a_i$ es 2 lo que hacemos es contar ese exponente para $D$ y provocamos un acarreo hacia el próximo dígito $a_{i+1}$ que pasa a valer $(a_{i+1} + 1) \ mod \ 3$. Se puede ver que puede llegar a caer en otro dígito que ya valía 2, generando más acarreos hasta caer en un dígito que valga 1 (teniendo que generar otro acarreo por la idea del algoritmo) ó 0, 'tomando' el acarreo y sumando para $I$ la diferencia que creamos al agregar el exponente original $i$ en $D$, y poder seguir aplicando el mismo método en los próximos dígitos.
+	Pero si $a_i$ es 2 lo que hacemos es contar ese exponente para $der$ y provocamos un acarreo hacia el próximo dígito $a_{i+1}$ que pasa a valer $(a_{i+1} + 1) \ mod \ 3$. Se puede ver que puede llegar a caer en otro dígito que ya valía 2, generando más acarreos hasta caer en un dígito que valga 1 (teniendo que generar otro acarreo por la idea del algoritmo) ó 0, 'tomando' el acarreo y sumando para $izq$ la diferencia que creamos al agregar el exponente original $i$ en $der$, y poder seguir aplicando el mismo método en los próximos dígitos. Si queda un acarreo y ya iteramos todos los dígitos de $A_3$, agregamos el exponente $\left \lfloor{log(P)}\right \rfloor + 1$, lo cual es equivalente a considerar un último dígito nulo en la descomposición.
 
-	Esto, visto desde la resta de ambos conjuntos, significa sumar $3^{i}$ tanto para $\sum I$ como $\sum D$. En el pseudocódigo siguiente se ve más claro incluso por qué nunca se cuenta el mismo exponente para ambos conjuntos.
+ 	En el pseudocódigo siguiente se ve más claro incluso por qué nunca se cuenta el mismo exponente para ambos conjuntos:
 \\
 \\
 \begin{lstlisting}
@@ -69,23 +69,23 @@ $$
 
 \end{lstlisting}
 
-	Veamos ahora que el algoritmo es correcto. En particular, que al terminar de ejecutar ambas secuencias de exponentes son disjuntas y además
+	Veamos ahora que el algoritmo es correcto. Para eso utilizaremos (y demostraremos) el siguiente lema:
 
 	\begin{center}
 		\textbf{Lema:}
 	\end{center}
 
 	\emph{
-	Q($j$): Para todo dígito $a_j$ iterado, con $0 \leq j < \left \lfloor{log(P)}\right \rfloor + 1$, tras su iteración las secuencias $der$ e $izq$ son disjuntas con todos sus elementos menores o iguales que $j$ y se cumple que:
+	Q($j$): Para todo dígito $a_j$ iterado, con $0 \leq j < \left \lfloor{log(P)}\right \rfloor + 1$, tras su iteración las secuencias $der$ e $izq$ son disjuntas con todos sus elementos menores o iguales que $j$ y se cumple que \footnote{Consideraremos como $pre(x)$ al estado de alguna variable $x$ del algoritmo al final de la iteración anterior a la actual. También consideraremos $a'_i$ como el valor actual del dígito iterado considerando un acarreo previo, si no lo hay entonces $a'_i = a_i$ (introducidos anteriormente como los coeficientes de las descomposición polinómica base 3 de $P$) de lo contrario $a'_i = (a_i+1)\ mod\ 3$.}:
 	}
 	\\
 
-	$\sum_{i=0}^{|der|-1} 3^{der_i} + \beta(hayCarry)*3^{j+1} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{j} a_i*3^{i} $
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + \beta(hayCarry)*3^{j+1} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{j} a_i*3^{i}$
 	\\
 
 	Probémoslo por inducción en $j$. Sea el caso base:
 
-	Q($0$): En la primer iteración se comienza sin $carry$ siempre.
+	Q($0$): En la primer iteración se comienza sin $carry$ siempre, $a'_i = a_i$.
 
 	\begin{itemize}
 	\item Si $a_0$ = 0 entonces $der$ = $izq$ = $[\ ]$ y no se genera $carry$. Por lo tanto vale la igualdad porque ambos lados son nulos y ambas secuencias siguen vacías y por lo tanto disjuntas.
@@ -98,14 +98,14 @@ $$
 
 	Paso inductivo:
 	Asumo válido Q($n-1$), quiero ver que vale Q($n$).
-	En la iteración anterior puede haberse, o no, producido $carry$. Separamos en casos, empezando con el caso en que no hay:
+	En la iteración anterior puede haberse, o no, producido $carry$. Separamos en casos, empezando con el caso en que no hay y, por lo tanto, $a'_i = a_i$ :
 
 	\begin{itemize}
 	\item Si $a_n$ = 0 entonces no se modifica ninguna de las secuencias ni se genera $carry$, por HI entonces estas condiciones cumplen la igualdad y la disjunción.
 	\item Si $a_n$ = 1 entonces $der = pre(der)++[n] $, $izq = pre(izq)$ y no se genera $carry$. Por HI sabemos que vale:
 	\\
 
-	$\sum_{i=0}^{|pre(der)|-1} 3^{pre(der)_i} - \sum_{i=0}^{|pre(izq)|-1} 3^{pre(izq)_i} = \sum_{i=0}^{|der|-2} 3^{der_i} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n-1} a_i*3^{i} $
+	$\sum_{i=0}^{|pre(der)|-1} 3^{pre(der)_i} - \sum_{i=0}^{|pre(izq)|-1} 3^{pre(izq)_i} = \sum_{i=0}^{|der|-2} 3^{der_i} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n-1} a_i*3^{i}$
 	\\
 
 	Usando que $der_{|der|-1} = n$ y $ 3^{n} = a_{n}*3^{n}$, sumando de ambos lados:
@@ -117,10 +117,12 @@ $$
 	$\sum_{i=0}^{|der|-1} 3^{der_i} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i}$
 	\\
 
-	Que es lo mismo que $\sum_{i=0}^{|der|-1} 3^{der_i} + \underbrace{\beta(hayCarry)*3^{n+1}}_\text{0} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $
+	Considerando que no hay $carry$, reformulamos: \\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + \underbrace{\beta(hayCarry)*3^{n+1}}_\text{0} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $
 	\\
 
-	Por último, como Q($n-1$) me aseguraba que todos los elemnos de $pre(der)$ y $pre(izq)$ fueran menores a $n-1$ y ambas secuencias disjuntas, puedo afirmar que $n$ no está en $pre(izq)$ y por lo tanto siguen siendo disjuntos $der$ e $izq$ actuales (además de que todos los elementos eran menores o iguales que $n-1$ y el único elemento que se agregó fue $n$, por lo tanto son todos menores o iguales que el mismo $n$).
+	Por último, como Q($n-1$) me aseguraba que todos los elementos de $pre(der)$ y $pre(izq)$ fueran menores a $n-1$ y ambas secuencias disjuntas, puedo afirmar que $n$ no está en $pre(izq)$ y por lo tanto siguen siendo disjuntos $der$ e $izq$ actuales (además de que todos los elementos eran menores o iguales que $n-1$ y el único elemento que se agregó fue $n$, por lo tanto son todos menores o iguales que el mismo $n$). Todos estos factores permiten asegurar que el lema sigue valiendo en esta rama.
 
 	\item Si $a_n$ = 2 entonces $der = pre(der)$, $izq = pre(izq)++[n]$ y se genera $carry$. Por HI sabemos que vale:
 	\\
@@ -140,12 +142,94 @@ $$
 	Que es lo mismo que $\sum_{i=0}^{|der|-1} 3^{der_i} + \underbrace{\beta(hayCarry)*3^{n+1}}_\text{$3^{n+1}$} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $
 	\\
 
-	Y por el mismo argumento que en el caso anterior, sabemos que $der$ e $izq$ quedaron disjuntos y con todos sus elementos menores o iguales a $n$.
+	Y por el mismo argumento que en el caso anterior, sabemos que $der$ e $izq$ quedaron disjuntos y con todos sus elementos menores o iguales a $n$. Y entonces vale el lema.
 	\\
 
-	Veamos ahora los casos donde sí se hereda un acarreo de la iteración anterior:
+	Veamos ahora los casos donde sí se hereda un acarreo de la iteración anterior y $(a'_n = a_n + 1)\ mod\ 3$:
 
-	\item Si $a_n$ = 0 entonces no se modifica ninguna de las secuencias ni se genera $carry$, por HI entonces estas condiciones cumplen la igualdad y la disjunción.
+	\item Si $a_n$ = 0 entonces $a'_n = 1$, $der = pre(der)++[n]$, $izq = pre(izq)$ y no se produce un acarreo, por HI y la existencia de un $carry$ al finalizar la iteración anterior sabemos que vale: \\
+
+	$\sum_{i=0}^{|pre(der)|-1} 3^{pre(der)_i} + \beta(true)*3^{n} - \sum_{i=0}^{|pre(izq)|-1} 3^{pre(izq)_i} =$
+	\\
+
+	$\sum_{i=0}^{|der|-2} 3^{der_i} + 3^{n} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n-1} a_i*3^{i} $
+	\\
+
+	Usando que $der_{|der|-1} = n$ y $ 0 = a_{n}*3^{n}$:
+	\\
+
+	$(\sum_{i=0}^{|der|-2} 3^{der_i} + 3^{der_{|der|-1}}) - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n-1} a_i*3^{i} $
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n-1} a_i*3^{i} =  \sum_{i=0}^{n} a_i*3^{i} $
+	\\
+
+	Al igual que en los casos anteriores, usando que no hay $carry$ nos queda: \\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + \underbrace{\beta(hayCarry)*3^{n+1}}_\text{0} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $
+	\\
+
+	Por las mismas razones también, la HI nos asegura que ambas secuencias siguen disjuntas y con elemenos menores o iguales a $n$. Por lo tanto, sigue valiendo el lema.
+
+	\item Si $a_n$ = 1 entonces $a'_n = 2$, $der = pre(der)$, $izq = pre(izq)++[n]$, produciéndose acarreo. Por HI sabemos que vale: \\
+
+	$\sum_{i=0}^{|pre(der)|-1} 3^{pre(der)_i} + \beta(true)*3^{n} - \sum_{i=0}^{|pre(izq)|-1} 3^{pre(izq)_i} =$
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + 3^{n} - \sum_{i=0}^{|izq|-2} 3^{izq_i} = \sum_{i=0}^{n-1} a_i*3^{i} $
+	\\
+
+	De forma similar a las anteriores, podemos usar que $izq_{|izq|-1} = n$ y $ 3^{n} = a_{n}*3^{n}$ para sumar $3^{n}$ de ambos lados:
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + 2*3^{n} - (\sum_{i=0}^{|izq|-2} 3^{izq_i}) = (\sum_{i=0}^{n-1} a_i*3^{i} + 3^{n}) $
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + (3^{n+1}-3^{n}) - \sum_{i=0}^{|izq|-2} 3^{izq_i} = $
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + 3^{n+1} - (\sum_{i=0}^{|izq|-2} 3^{izq_i} + 3^{n}) = \sum_{i=0}^{n} a_i*3^{i} $	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + 3^{n+1} - (\sum_{i=0}^{|izq|-1} 3^{izq_i}) = \sum_{i=0}^{n} a_i*3^{i} $
+	\\
+
+	Lo cual se puede reformular como: \\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + \underbrace{\beta(hayCarry)*3^{n+1}}_\text{$3^{n+1}$} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $
+	\\
+
+	Y sabiendo que, por hipótesis inductiva, todos los elementos de $pre(der)$ y $pre(izq)$ eran disjuntos y menores a $n-1$ (particularmente menores o iguales a $n$), entonces $n$ no está en $der\ (=\ pre(der))$ y siguen siendo disjuntos además de seguir siendo todos elementos menores o iguales a $n$. Estos nos asegura la validez del lema para este caso.
+
+	\item Si $a_n$ = 2 entonces $a'_n = 0$, $der = pre(der)$, $izq = pre(izq)$, y se vuelve a generar $carry$ (porque entramos en el primer $if$ del código y luego se verifica que el dígito actual es 0). Por HI sabemos que vale: \\
+
+	$\sum_{i=0}^{|pre(der)|-1} 3^{pre(der)_i} + \beta(true)*3^{n} - \sum_{i=0}^{|pre(izq)|-1} 3^{pre(izq)_i} =$
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + 3^{n} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n-1} a_i*3^{i} $
+	\\
+
+	Esta vez usamos $a_n = 2$ y sumamos de ambos lados $2*3^n$:
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + (3^{n} + 2*3^{n}) - \sum_{i=0}^{|izq|-1} 3^{izq_i} = (\sum_{i=0}^{n-1} a_i*3^{i} + 3^{n}) $
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + 3^{n+1} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $	\\
+
+	Reformulamos: \\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + \underbrace{\beta(hayCarry)*3^{n+1}}_\text{$3^{n+1}$} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{n} a_i*3^{i} $
+
+	Nuevamente, la HI nos asegura que los elementos de las secuencias (no se alteraron en esta iteración) son menores o iguales a $n-1$ (por lo tanto lo son a $n$) y siguen siendo disjuntas. Entonces en este caso también se preserva el lema y, por ser el último, podemos asegurar que para todos los casos vale el lema. \QEDB
+
+	Utilizando el lema, sabemos que al finalizar las iteraciones sobre todos los dígitos tendremos dos secuencias disjuntas que hacen valer:
+	\\
+
+	$\sum_{i=0}^{|der|-1} 3^{der_i} + \beta(hayCarry)*3^{\left \lfloor{log_3(P)}\right \rfloor + 1} - \sum_{i=0}^{|izq|-1} 3^{izq_i} = \sum_{i=0}^{\left \lfloor{log_3(P)}\right \rfloor} a_i*3^{i} = P$
+	\\
+
+	En caso, de haber un último acarreo, el $if$ final hace que el exponente que 'quedaba' entre en $izq$ (por lema sabemos que no puede estar en ninguna de las secuencias porque todos sus elementos son menores o iguales a $\left \lfloor{log_3(P)}\right \rfloor$). De esta manera podemos asegurar que tenemos dos secuencias disjuntas cuyos elementos son los exponentes de los términos que buscábamos para $I$ y $D$ originalmente.
+
 
 	\end{itemize}
 
