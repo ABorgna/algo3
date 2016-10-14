@@ -14,6 +14,7 @@ correctamente el problema
 
 # Ejercicio 2
 - Correctitud y análisis experimental reformulados.
+- Corrección de detalles de redacción de la primer entrega (notación de suma de conjuntos, pequeñas imprecisiones, etc)
 
 # Ejercicio 3
 - Ahora el ejercicio 3 imprime la solución

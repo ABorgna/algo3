@@ -2,7 +2,7 @@
 \section{Problema 2: Problemas en el camino}
 
 \subsection{Introducción}
-	El siguiente obstáculo del grupo de arqueólogos consiste en reconstruir el estado de una balanza de dos platillos con una carga $P$ del lado izquierdo utilizando únicamente pesas de distintas potencias de 3. Además la solución propuesta debe tener complejidad temporal del orden $\mathcal{O}(\sqrt(P))$
+	El siguiente obstáculo del grupo de arqueólogos consiste en reconstruir lo que denominaremos el 'estado' (definiremos más adelante) de una balanza de dos platillos con una carga $P$ del lado izquierdo utilizando únicamente pesas de distintas potencias de 3. Además la solución propuesta debe tener complejidad temporal del orden $\mathcal{O}(\sqrt(P))$
 	\\
 
 	Por la naturaleza del problema, donde nos interesa determinar únicamente la pertenencia de cada potencia en el total de las que usamos para nivelar la balanza (y distinguir a qué lado de la balanza van) la representación del estado final de cada platillo por separado mediante conjuntos disjuntos resulta apropiada. Llamaremos $I$ al conjunto final de las potencias sobre el platillo izquierdo y $D$ a aquellas de la derecha. Además, como cada plato es contrapeso del otro, el estado de la balanza respecto de uno de los platillos se interpreta como su carga menos la del opuesto.
@@ -12,12 +12,12 @@
 
 $$
     I,D \subset \{3^n \;|\; n \in \mathbb{N}_0 \} \;\; \land \;\;
-    \sum I - \sum D = P \;\; \land \;\;
+    \sum_{i \in I} i - \sum_{d \in D} d = P \;\; \land \;\;
     I \cap D = \emptyset
 $$
 
 	Por ejemplo, para $P$ = 34 el par de conjuntos $\left \langle I,D  \right \rangle$ = $\left \langle \{27,9,1\},\{3\}  \right \rangle$ es solución porque \\
-	$\{27,9,1\} \cap \{3\} = \emptyset \ \wedge \ 34 = \sum I - \sum D = (27+9+1)-(3)$.
+	$\{27,9,1\} \cap \{3\} = \emptyset \ \wedge \ 34 = \sum_{i \in I} i - \sum_{d \in D} d = (27+9+1)-(3)$.
 	\\
 
 
