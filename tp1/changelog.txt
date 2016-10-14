@@ -17,4 +17,19 @@ correctamente el problema
 - Corrección de detalles de redacción de la primer entrega (notación de suma de conjuntos, pequeñas imprecisiones, etc)
 
 # Ejercicio 3
-- Ahora el ejercicio 3 imprime la solución
+- Ahora el código imprime la solución
+- Correcciones indicadas en la introducción
+- Solución: Reescribir parte de la sección y su pseudocódigo para responder a
+las correcciones
+- Solución: Describir cómo se recorren las combinaciones de pesos de las mochilas
+- Correctitud: Definimos qué se quiere probar al inicio
+- Correctitud: Comentario sobre cómo el algoritmo recorre todas las
+combinaciones en orden
+- Correctitud: Reescribimos el paso inductivo de los objetos para el caso base de las mochilas
+- Correctitud: Justificar por qué es válido el paso inductivo (principio de
+optimalidad)
+- Correctitud: Justificar por que es válido el resultado final
+- Complejidad: Agregamos la inicialización y la reconstrucción del resultado
+- Experimentación: Comentario de cómo generamos los pesos de las mochilas
+- Experimentación: Agregamos un gráfico variando mochilas y objetos
+simultáneamente
