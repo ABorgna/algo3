@@ -9,6 +9,7 @@
 using namespace std;
 
 uint64_t peso;
+uint8_t generador; //0 simple, 1 carry, 2 unos, 3 random, 4 potencia
 
 void balancear(uint64_t peso, vector<uint8_t> &izq, vector<uint8_t> &der) {
     // peso = sum(3^izq) - sum(3^der)
@@ -91,7 +92,7 @@ int prob_solve(std::ostream &os) {
     }
     os << endl;
 
-    return 0;
+    return generador;
 }
 
 void prob_reload() {}
@@ -110,11 +111,53 @@ vector<Option> prob_custom_options() {
 
 void generator_simple(const std::vector<uint64_t>& v) {
     prob_reload();
+    generador = 0;
 
     peso = v[0];
 }
 
-vector<Generator> prob_generators() {
-    return {{"simple",generator_simple}};
+void generator_carry(const std::vector<uint64_t>& v) {
+    generador = 1;
+    peso = 0;
+    uint64_t n = v[0];
+    if (n == 0) return;
+    peso += 2;
+    for (uint64_t i=1; i < n; i++) {
+        peso += (uint64_t) pow(3, i);
+    }
+    std::cerr << "Peso: " << peso << std::endl;
+
 }
 
+void generator_unos(const std::vector<uint64_t>& v) {
+    generador = 2;
+    peso = 0;
+    uint64_t n = v[0];
+    for (uint64_t i = 0; i < n; i++) {
+        peso += (uint64_t) pow(3, i);
+    }
+    std::cerr << "Peso: " << peso << std::endl;
+
+}
+
+void generator_rand(const std::vector<uint64_t>& v) {
+    generador = 3;
+    uint64_t n = v[0];
+    peso = 0;
+    for (uint64_t i = 0; i < n; i++) {
+        uint64_t r = rnd(0,2);
+        peso += r*(uint64_t) pow(3, i);
+    }
+    std::cerr << "Peso: " << peso << std::endl;
+}
+
+void generator_pot(const std::vector<uint64_t>& v) {
+    generador = 4;
+    uint64_t n = v[0];
+    peso = (uint64_t) pow(3, n-1);
+    std::cerr << "Peso: " << peso << std::endl;
+}
+
+vector<Generator> prob_generators() {
+    return {{"simple",generator_simple}, {"carry", generator_carry}, {"unos", generator_unos}, {"random", generator_rand}, {"potencia", generator_pot}};
+}

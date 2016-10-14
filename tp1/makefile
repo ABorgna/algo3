@@ -96,6 +96,10 @@ $(BENCH_OUT_DIR)/ej2: ej2
 	$(call EJ2_BENCH_FN,$@-18,10000000000000000)
 	$(call EJ2_BENCH_FN,$@-19,100000000000000000)
 	cat $@-* > $@
+	build/ej2 -a 0:39 4 1 -A 0.1 -G unos -o $@-unos
+	build/ej2 -a 0:39 4 1 -A 0.1 -G carry -o $@-carry
+	build/ej2 -a 0:39 4 1 -A 0.1 -G random -o $@-rnd
+	build/ej2 -a 0:39 4 1 -A 0.1 -G potencia -o $@-pot
 
 $(BENCH_OUT_DIR)/ej3: ej3
 	@echo "k0=50, k1=0, k2=0, C=1-5000"
@@ -147,10 +151,15 @@ $(GRAPHS_OUT_DIR)/ej1: $(BENCH_OUT_DIR)/ej1
 		-L '2**x * x**3 * 4e-8 + 1e-5' '2^(N+M) * (N^4+M^4)'
 
 $(GRAPHS_OUT_DIR)/ej2: $(BENCH_OUT_DIR)/ej2
-	tools/grapher.py -i $< -o $@.png --xscale log \
+	tools/grapher.py -i $< -o $@-all.png --xscale log \
 		-x "Peso de la llave" \
 		-t "Tiempo de ejecucion respecto al peso de la llave" \
-		-L 'log(x) * 9e-8 + 7e-7' 'log(n)'
+		-e 0 \
+		-L 'log(x) * 9e-8 + 7e-7 if x!=0 else 0' 'log(n)'
+	tools/grapher.py -i $< -o $@-comp.png --colorize \
+		-x "Cantidad de dígitos de P en base 3" \
+		-t "Tiempo de ejecucion respecto al peso de la llave" \
+		-e 1 2 3 4 -E 'Primer dígito en 2 y el resto en 1 (acarreo continuo)' 'Todos los dígitos en 1' 'Dígitos aleatorios' 'Potencia de 3' \
 
 $(GRAPHS_OUT_DIR)/ej3: $(BENCH_OUT_DIR)/ej3
 	tools/grapher.py -i $< -o $@-c1.png -x "Cantidad de objetos" \
@@ -199,4 +208,3 @@ clean:
 	rm -f obj/bench/*
 	rm -f graph/*
 	rm -f $(ENTREGABLE)
-

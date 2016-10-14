@@ -13,6 +13,7 @@ correctamente el problema
 - Se realizaron las correcciones pedidas en el análisis experimental
 
 # Ejercicio 2
+- Correctitud y análisis experimental reformulados.
 
 # Ejercicio 3
 - Ahora el ejercicio 3 imprime la solución
