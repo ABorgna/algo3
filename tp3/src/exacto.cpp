@@ -45,11 +45,6 @@ pair<double, uint64_t> bruteforce() {
         if (esCaminoValido(orden, bagSize, graph)) {
             double dist = distanciaCamino(orden, graph);
             if (dist < mejorDist) {
-
-                cerr << "comb";
-                for(auto i : orden) cerr << " " << i;
-                cerr << endl;
-
                 mejorDist = dist;
                 mejorComb = comb;
             }
