@@ -1,0 +1,160 @@
+% ******************************************************** %
+%              TEMPLATE DE INFORME ORGA2 v0.1              %
+% ******************************************************** %
+% ******************************************************** %
+%                                                          %
+% ALGUNOS PAQUETES REQUERIDOS (EN UBUNTU):                 %
+% ========================================
+%                                                          %
+% texlive-latex-base                                       %
+% texlive-latex-recommended                                %
+% texlive-fonts-recommended                                %
+% texlive-latex-extra?                                     %
+% texlive-lang-spanish (en ubuntu 13.10)                   %
+% ******************************************************** %
+
+
+\documentclass[a4paper]{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{charter}   % tipografia
+\usepackage{graphicx}
+\usepackage[table,xcdraw,dvipsnames]{xcolor}
+%\usepackage{makeidx}
+\usepackage{paralist} %itemize inline
+
+\usepackage{float}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{amsfonts}
+%\usepackage{sectsty}
+%\usepackage{charter}
+%\usepackage{wrapfig}
+\usepackage{listingsutf8}
+
+% \setcounter{secnumdepth}{2}
+\usepackage{underscore}
+\usepackage{caratula}
+\usepackage{url}
+%\usepackage[superscript,biblabel]{cite}
+%\usepackage{dibujitos}
+
+\usepackage{ textcomp }
+
+\usepackage{amssymb}
+\usepackage{hyperref}
+
+
+\graphicspath{ {img/} {../graph/} }
+
+% ********************************************************* %
+% ~~~~~~~~              Code snippets             ~~~~~~~~~ %
+% ********************************************************* %
+
+\usepackage{color} % para snipets de codigo coloreados
+\usepackage{fancybox}  % para el sbox de los snipets de codigo
+
+\definecolor{litegrey}{gray}{0.94}
+
+\newenvironment{codesnippet}{%
+	\begin{Sbox}\begin{minipage}{\textwidth}\sffamily\small}%
+	{\end{minipage}\end{Sbox}%
+		\begin{center}%
+		\vspace{-0.4cm}\colorbox{litegrey}{\TheSbox}\end{center}\vspace{0.3cm}}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+  backgroundcolor=\color{litegrey},
+  basicstyle=\footnotesize,
+  breakatwhitespace=true,
+  breaklines=true,
+  captionpos=b,                    % sets the caption-position to bottom
+  mathescape=true,
+  keepspaces=true,
+  language=Python,
+  showspaces=false,
+  tabsize=2,                       % sets default tabsize to 2 spaces
+  inputencoding=utf8/latin1
+}
+
+\newcommand{\cuidado}{{\large $\Delta$!!!} \hspace*{1em}}
+
+\newcommand*{\QEDA}{\hfill\ensuremath{\blacksquare}}%
+\newcommand*{\QEDB}{\hfill\ensuremath{\square}}%
+
+% ********************************************************* %
+% ~~~~~~~~         Formato de las páginas         ~~~~~~~~~ %
+% ********************************************************* %
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ - #1}}
+
+\fancyhf{}
+
+\fancyhead[LO]{Sección \rightmark} % \thesection\
+\fancyfoot[LO]{\small{Agustín Borgna, Alan Corleto, Franco Lancioni, Luis Badell}}
+\fancyfoot[RO]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+\setlength{\hoffset}{-0.8in}
+\setlength{\textwidth}{16cm}
+%\setlength{\hoffset}{-1.1cm}
+%\setlength{\textwidth}{16cm}
+\setlength{\headsep}{0.5cm}
+\setlength{\textheight}{25cm}
+\setlength{\voffset}{-0.7in}
+\setlength{\headwidth}{\textwidth}
+\setlength{\headheight}{13.1pt}
+
+\renewcommand{\baselinestretch}{1.1}  % line spacing
+
+% ******************************************************** %
+% Cosas utiles
+\newcommand\bigo{$\mathcal{O}$}
+
+% ******************************************************** %
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\materia{Algoritmos y Estructuras de Datos III}
+\submateria{Segundo Cuatrimestre de 2016}
+\titulo{Trabajo Práctico 2}
+\subtitulo{Indiana Jones en búsqueda de la complejidad esperada (cont\ldots)}
+\integrante{Badell, Luis}{246/13}{luisbadell@gmail.com}
+\integrante{Borgna, Agustín Ricardo}{079/15}{aborgna@dc.uba.ar}
+\integrante{Corleto, Alan}{790/14}{corletoalan@gmail.com}
+\integrante{Lancioni, Gian Franco}{234/15}{glancioni@dc.uba.ar}
+
+\maketitle
+\newpage
+
+\thispagestyle{empty}
+\vfill
+
+\thispagestyle{empty}
+\vspace{2cm}
+\tableofcontents
+\newpage
+
+
+\normalsize
+\newpage
+
+\input{secciones/exacto}
+\newpage
+\input{secciones/src}
+
+\appendix
+
+%\newpage
+%\bibliography{bibliography}{}
+%\bibliographystyle{plain}
+
+\end{document}
