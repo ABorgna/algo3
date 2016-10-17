@@ -48,6 +48,5 @@ void prob_print_input(std::ostream &os) {
 }
 
 vector<Generator> prob_generators() {
-    setupGraph(&graph);
     return defaultGenerators();
 }

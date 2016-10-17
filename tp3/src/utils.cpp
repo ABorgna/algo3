@@ -1,4 +1,5 @@
 #include <utils.h>
+#include <cassert>
 
 bool esCaminoValido(vector<uint64_t> orden, int64_t bagSize,
                     const PokeGraph& graph) {
@@ -16,6 +17,7 @@ bool esCaminoValido(vector<uint64_t> orden, int64_t bagSize,
 }
 
 double distanciaCamino(vector<uint64_t> orden, const PokeGraph& graph) {
+    assert(orden.size() > 0);
     double dist = 0;
     double sinceLastGym = 0;
     uint64_t last = orden[0];

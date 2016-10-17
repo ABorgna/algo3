@@ -4,14 +4,12 @@
 #include <cassert>
 
 // Globals :/
-static PokeGraph* graph = nullptr;
+extern uint64_t ngyms, nstops, bagSize;
+extern PokeGraph graph;
 
 // Utilities
 
-void setupGraph(PokeGraph* g) { graph = g; }
-
 vector<Generator> defaultGenerators() {
-    assert(graph != nullptr);
     return {
         {"random", &randomGenerator}, {"separated", &separatedGenerator},
     };
@@ -20,10 +18,9 @@ vector<Generator> defaultGenerators() {
 // Generators
 
 void randomGenerator(const vector<uint64_t>& v) {
-    assert(graph != nullptr);
-    uint64_t ngyms = v[0];
-    uint64_t nstops = v[1];
-    uint64_t __attribute__((unused)) bagSize = v[2];
+    ngyms = v[0];
+    nstops = v[1];
+    bagSize = v[2];
 
     vector<Node> gyms;
     vector<Node> stops;
@@ -46,14 +43,13 @@ void randomGenerator(const vector<uint64_t>& v) {
         stops.push_back({{x, y}, -3});
     }
 
-    *graph = PokeGraph(move(gyms), move(stops));
+    graph = PokeGraph(move(gyms), move(stops));
 }
 
 void separatedGenerator(const vector<uint64_t>& v) {
-    assert(graph != nullptr);
-    uint64_t ngyms = v[0];
-    uint64_t nstops = v[1];
-    uint64_t __attribute__((unused)) bagSize = v[2];
+    ngyms = v[0];
+    nstops = v[1];
+    bagSize = v[2];
 
     vector<Node> gyms;
     vector<Node> stops;
@@ -76,5 +72,5 @@ void separatedGenerator(const vector<uint64_t>& v) {
         stops.push_back({{x, y}, -3});
     }
 
-    *graph = PokeGraph(move(gyms), move(stops));
+    graph = PokeGraph(move(gyms), move(stops));
 }
