@@ -53,7 +53,7 @@ pair<double, uint64_t> bruteforce() {
     } while (next_permutation(orden.begin(), orden.end()));
 
     // Hacemos rollback hasta la mejor permutacion
-    // TODO: es mejor hacer rollback o guardarse la combinacion?
+    // Es mas rápido que guardarse la combinacion cada vez que vemos un maximo
     while (comb > mejorComb) {
         comb--;
         prev_permutation(orden.begin(), orden.end());
