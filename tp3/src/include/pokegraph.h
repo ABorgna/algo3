@@ -22,12 +22,14 @@ class PokeGraph {
     PokeGraph();
     PokeGraph(vector<Node> gyms, vector<Node> stops);
 
-    Node operator[](uint64_t i);
-    double distance(uint64_t i, uint64_t j);
-    double distance(const Node& u, const Node& v);
+    Node& operator[](uint64_t i);
+    const Node& operator[](uint64_t i) const;
+    bool isGym(uint64_t i) const;
+    double distance(uint64_t i, uint64_t j) const;
+    double distance(const Node& u, const Node& v) const;
 
-    const vector<Node>& gyms();
-    const vector<Node>& stops();
+    const vector<Node>& gyms() const;
+    const vector<Node>& stops() const;
 
    private:
     vector<Node> _gyms;
