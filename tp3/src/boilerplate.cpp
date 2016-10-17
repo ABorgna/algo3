@@ -38,7 +38,7 @@ void prob_reload() {}
 vector<uint64_t> prob_vars() { return {ngyms, nstops, bagSize}; }
 
 void prob_print_input(std::ostream &os) {
-    os << ngyms << " " << nstops << ""  << bagSize << endl;
+    os << ngyms << " " << nstops << " "  << bagSize << endl;
     for(const Node& n : graph.gyms()) {
         os << n.pos.x << " " << n.pos.y << " " << n.power << endl;
     }
