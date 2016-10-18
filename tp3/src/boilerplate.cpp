@@ -9,6 +9,7 @@ using namespace std;
 
 int64_t ngyms, nstops, bagSize;
 PokeGraph graph;
+int64_t generator = 0;
 
 void prob_load(std::istream& is) {
     is >> ngyms >> nstops >> bagSize;

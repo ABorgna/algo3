@@ -28,6 +28,7 @@ enum poda_t {
 
 extern int64_t ngyms, nstops, bagSize;
 extern PokeGraph graph;
+extern int64_t generator;
 
 poda_t poda = poda_none;
 
@@ -159,7 +160,7 @@ int prob_solve(std::ostream& os) {
     for (auto i : orden) os << " " << i + 1;
     os << endl;
 
-    return N_HEURISTICA * 10 + poda;
+    return N_HEURISTICA * 100 + generator * 10 + poda;
 }
 
 int setPrune(const vector<string>& s) {
