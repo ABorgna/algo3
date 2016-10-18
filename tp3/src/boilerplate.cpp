@@ -7,10 +7,10 @@
 
 using namespace std;
 
-uint64_t ngyms, nstops, bagSize;
+int64_t ngyms, nstops, bagSize;
 PokeGraph graph;
 
-void prob_load(std::istream &is) {
+void prob_load(std::istream& is) {
     is >> ngyms >> nstops >> bagSize;
 
     vector<Node> gyms;
@@ -18,16 +18,16 @@ void prob_load(std::istream &is) {
     gyms.reserve(ngyms);
     stops.reserve(nstops);
 
-    for (uint64_t i = 0; i < ngyms; i++) {
-        int64_t x,y,power;
+    for (int64_t i = 0; i < ngyms; i++) {
+        int64_t x, y, power;
         is >> x >> y >> power;
         gyms.push_back({{x, y}, power});
     }
 
-    for (uint64_t i = 0; i < ngyms; i++) {
-        int64_t x,y;
+    for (int64_t i = 0; i < ngyms; i++) {
+        int64_t x, y;
         is >> x >> y;
-        gyms.push_back({{x, y}, -3});
+        stops.push_back({{x, y}, -3});
     }
 
     graph = PokeGraph(move(gyms), move(stops));
@@ -35,18 +35,18 @@ void prob_load(std::istream &is) {
 
 void prob_reload() {}
 
-vector<uint64_t> prob_vars() { return {ngyms, nstops, bagSize}; }
+vector<uint64_t> prob_vars() {
+    return {(uint64_t)ngyms, (uint64_t)nstops, (uint64_t)bagSize};
+}
 
-void prob_print_input(std::ostream &os) {
-    os << ngyms << " " << nstops << " "  << bagSize << endl;
-    for(const Node& n : graph.gyms()) {
+void prob_print_input(std::ostream& os) {
+    os << ngyms << " " << nstops << " " << bagSize << endl;
+    for (const Node& n : graph.gyms()) {
         os << n.pos.x << " " << n.pos.y << " " << n.power << endl;
     }
-    for(const Node& n : graph.stops()) {
+    for (const Node& n : graph.stops()) {
         os << n.pos.x << " " << n.pos.y << endl;
     }
 }
 
-vector<Generator> prob_generators() {
-    return defaultGenerators();
-}
+vector<Generator> prob_generators() { return defaultGenerators(); }

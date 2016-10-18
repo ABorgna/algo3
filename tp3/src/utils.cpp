@@ -1,33 +1,41 @@
 #include <utils.h>
 #include <cassert>
 
-bool esCaminoValido(vector<uint64_t> orden, int64_t bagSize,
+bool esCaminoValido(vector<int64_t>::iterator start,
+                    vector<int64_t>::iterator end, int64_t bagSize,
                     const PokeGraph& graph) {
     int64_t power = 0;
-    for (uint64_t i : orden) {
-        // Las paradas siempre valen -3
-        power += graph[i].power;
-        if (power > 0) {
-            return false;
-        } else if (-power > bagSize) {
-            power = -bagSize;
-        }
-    }
-    return true;
+    return esCaminoValido(start, end, bagSize, graph, power);
 }
 
-double distanciaCamino(vector<uint64_t> orden, const PokeGraph& graph) {
-    assert(orden.size() > 0);
+bool esCaminoValido(vector<int64_t>::iterator start,
+                    vector<int64_t>::iterator end, int64_t bagSize,
+                    const PokeGraph& graph, int64_t& powerAcum) {
+    for (auto it = start; it != end; it++) {
+        // Las paradas siempre valen -3
+        powerAcum -= graph[*it].power;
+        if (powerAcum < 0) {
+            break;
+        } else if (powerAcum > bagSize) {
+            powerAcum = bagSize;
+        }
+    }
+    return powerAcum >= 0;
+}
+
+double distanciaCamino(vector<int64_t>::iterator start,
+                       vector<int64_t>::iterator end, const PokeGraph& graph) {
+    assert(start != end);
     double dist = 0;
     double sinceLastGym = 0;
-    uint64_t last = orden[0];
-    for (uint64_t i : orden) {
-        sinceLastGym += graph.distance(last, i);
-        if (graph.isGym(i)) {
+    uint64_t last = *start;
+    for (auto it = start; it != end; it++) {
+        sinceLastGym += graph.distance(last, *it);
+        if (graph.isGym(*it)) {
             dist += sinceLastGym;
             sinceLastGym = 0;
         }
-        last = i;
+        last = *it;
     }
     return dist;
 }
