@@ -34,7 +34,7 @@ poda_t poda = poda_none;
 
 vector<int64_t> orden;
 
-// Bruteforce solution
+// ------------------------------------ Solución por fuerza bruta
 
 pair<double, uint64_t> bruteforce() {
     // Inicializar la combinacion
@@ -71,71 +71,58 @@ pair<double, uint64_t> bruteforce() {
     return {mejorDist, orden.size()};
 }
 
-// Backtracking solution
+// ------------------------------------ Solución por Backtracking
 
-pair<double, uint64_t> backtracking() {
     // Inicializar la combinacion
     // Suponemos que siempre hay solucion
-    orden = vector<int64_t>(ngyms + nstops, -1);
 
-    double mejorDist = numeric_limits<double>::infinity();
-    auto mejorOrden = orden;
-    uint64_t mejorOrdenLen = 0;
+    vector<int64_t> distanciaAcumulada;
+    double mejorDist;
+    uint64_t mejorOrdenLen;
+    vector<int64_t> mejorOrden;
+    vector<int64_t> powerAcumulado;
+    vector<bool> used;
 
-    uint64_t pos = 0;
-    int64_t gymCounter = 0;
-    vector<bool> used(ngyms + nstops, false);
-    vector<int64_t> powerAcumulado(ngyms + nstops, 0);
-    vector<int64_t> distanciaAcumulada(ngyms + nstops, 0);
+void backtracking_rec(uint64_t pos, int64_t gymCounter) {
 
-    while (orden[0] < ngyms + nstops) {
-        if (pos == orden.size() || orden[pos] >= ngyms + nstops) {
-            pos--;
-            used[orden[pos]] = false;
-            if (graph.isGym(orden[pos]))
-                gymCounter--;
-        }
+    // Calculo distancia para orden[0..pos-1]
+    if (pos > 1) {
+        distanciaAcumulada[pos-1] = graph.distance( orden[pos-2], orden[pos-1]) + distanciaAcumulada[pos - 2];
+    }
 
-        do {
-            orden[pos]++;
-        } while (used[orden[pos]] and orden[pos] < ngyms + nstops);
-        if (orden[pos] >= ngyms + nstops)
-            continue;
+    // Vemos si orden[0..pos-1] es solución
+    if (pos > 0) {
+        if (graph.isGym(orden[pos-1]))
+            gymCounter++;
 
-        powerAcumulado[pos] = pos > 0 ? powerAcumulado[pos - 1] : 0;
-
-        bool valido =
-            esCaminoValido(orden.begin() + pos, orden.begin() + pos + 1,
-                           bagSize, graph, powerAcumulado[pos]);
-
-        if (!valido)
-            continue;
-
-        if (pos > 0) {
-            distanciaAcumulada[pos] =
-                graph.distance(orden[pos - 1], orden[pos]) +
-                distanciaAcumulada[pos - 1];
-        }
-
-        if (!graph.isGym(orden[pos]) or gymCounter < ngyms - 1) {
-            if(graph.isGym(orden[pos]))
-                gymCounter++;
-            used[orden[pos]] = true;
-            pos++;
-            orden[pos] = -1;
-        } else {
+        if (gymCounter == ngyms) {
             // Llegamos a una posible solucion
-            if(distanciaAcumulada[pos] < mejorDist) {
-                mejorDist = distanciaAcumulada[pos];
+            if(distanciaAcumulada[pos-1] < mejorDist) {
+                mejorDist = distanciaAcumulada[pos-1];
                 mejorOrden = orden;
-                mejorOrdenLen = pos+1;
+                mejorOrdenLen = pos;
+                return;
             }
         }
     }
 
-    orden = mejorOrden;
-    orden.resize(mejorOrdenLen);
-    return {mejorDist, mejorOrdenLen};
+    bool valido;
+    powerAcumulado[pos] = pos > 0 ? powerAcumulado[pos-1] : 0;
+
+    for (int i = 0; i < ngyms + nstops; i++) {
+        orden[pos] = i;
+
+        int64_t pow_anterior = powerAcumulado[pos];
+        valido = esCaminoValido(orden.begin() + pos, orden.begin() + pos + 1, bagSize, graph, powerAcumulado[pos]);
+
+        if (not valido or used[i])
+            continue;
+
+        used[i] = true;
+        backtracking_rec(pos+1, gymCounter);
+        powerAcumulado[pos] = pow_anterior;
+        used[i] = false;
+    }
 }
 
 /**************************************
@@ -152,7 +139,17 @@ int prob_solve(std::ostream& os) {
             tie(d, k) = bruteforce();
             break;
         case poda_backtracking:
-            tie(d, k) = backtracking();
+            orden = vector<int64_t>(ngyms + nstops, -1);
+            mejorDist = numeric_limits<double>::infinity();
+            mejorOrden = orden;
+            used = vector<bool>(ngyms + nstops, false);
+            powerAcumulado = vector<int64_t>(ngyms + nstops, 0);
+            distanciaAcumulada = vector<int64_t>(ngyms + nstops, 0);
+            mejorOrdenLen = 0;
+
+            backtracking_rec(0,0);
+            tie(d, k) = make_pair(mejorDist, orden.size());
+
             break;
     }
 
