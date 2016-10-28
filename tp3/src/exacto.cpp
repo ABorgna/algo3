@@ -115,8 +115,10 @@ void backtracking_rec(uint64_t pos, int64_t gymCounter) {
         int64_t pow_anterior = powerAcumulado[pos];
         valido = esCaminoValido(orden.begin() + pos, orden.begin() + pos + 1, bagSize, graph, powerAcumulado[pos]);
 
-        if (not valido or used[i])
+        if (not valido or used[i]) {
+            powerAcumulado[pos] = pow_anterior;
             continue;
+        }
 
         used[i] = true;
         backtracking_rec(pos+1, gymCounter);
@@ -148,6 +150,7 @@ int prob_solve(std::ostream& os) {
             mejorOrdenLen = 0;
 
             backtracking_rec(0,0);
+            orden = mejorOrden;
             tie(d, k) = make_pair(mejorDist, orden.size());
 
             break;
