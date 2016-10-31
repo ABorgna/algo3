@@ -22,7 +22,8 @@ CFLAGS += -I $(INCLUDES)
 HEURISTICAS = exacto greedy local
 EXTRA_SOURCES = $(SRC_DIR)/bench/benchmark.cpp $(SRC_DIR)/bench/pcg.cpp \
 				$(SRC_DIR)/graph/generators.cpp $(SRC_DIR)/graph/pokegraph.cpp \
-				$(SRC_DIR)/boilerplate.cpp $(SRC_DIR)/utils.cpp
+				$(SRC_DIR)/boilerplate.cpp $(SRC_DIR)/utils.cpp \
+				$(SRC_DIR)/algoritmos.cpp
 
 BINARIOS = $(HEURISTICAS:%=$(OUT_DIR)/%)
 EXTRA_OBJS = $(EXTRA_SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

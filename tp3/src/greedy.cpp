@@ -2,19 +2,12 @@
 #include <interfaz.h>
 #include <pokegraph.h>
 #include <utils.h>
+#include <algoritmos.h>
 
 #include <math.h>
-#include <stdint.h>
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <limits>
-#include <map>
-#include <numeric>
-#include <queue>
-#include <set>
-#include <tuple>
-#include <vector>
 
 using namespace std;
 
@@ -26,27 +19,7 @@ extern PokeGraph graph;
 extern int64_t generator;
 extern string generatorName;
 
-vector<int64_t> orden;
-
 double lastResult = 0;
-
-pair<double, uint64_t> omNomNom() {
-    // Inicializar la combinacion
-    // Suponemos que siempre hay solucion
-    orden.resize(ngyms + nstops);
-
-    // Simple greedy is best greedy
-    iota(orden.begin(), orden.end(), 0);
-
-    double dist = distanciaCamino(orden.begin(), orden.end(), graph);
-
-    // Recortamos las paradas del final
-    auto lastGym = find_if(orden.rbegin(), orden.rend(),
-                           [](uint64_t i) { return graph.isGym(i); });
-    orden.resize(orden.size() - distance(orden.rbegin(), lastGym));
-
-    return {dist, orden.size()};
-}
 
 /**************************************
  * Funciones del framework de testeo
@@ -57,7 +30,9 @@ int prob_solve(std::ostream& os) {
     double d;
     uint64_t k;
 
-    tie(d, k) = omNomNom();
+    vector<int64_t> orden;
+
+    tie(d, k) = greedy_omNomNom(orden);
 
     lastResult = d;
 
