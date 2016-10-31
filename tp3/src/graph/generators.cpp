@@ -7,6 +7,7 @@
 extern int64_t ngyms, nstops, bagSize;
 extern PokeGraph graph;
 extern int64_t generator;
+extern string generatorName;
 
 // Utilities
 
@@ -22,6 +23,7 @@ vector<Generator> defaultGenerators() {
 
 void randomGenerator(const vector<uint64_t>& v) {
     generator = 1;
+    generatorName = "random";
 
     ngyms = v[0];
     nstops = v[1];
@@ -54,6 +56,7 @@ void randomGenerator(const vector<uint64_t>& v) {
 
 void separatedGenerator(const vector<uint64_t>& v) {
     generator = 2;
+    generatorName = "separated";
 
     ngyms = v[0];
     nstops = v[1];
@@ -86,6 +89,7 @@ void separatedGenerator(const vector<uint64_t>& v) {
 
 void zigzagGenerator(const vector<uint64_t>& v) {
     generator = 3;
+    generatorName = "zigzag";
 
     ngyms = v[0];
     nstops = v[1];

@@ -23,6 +23,12 @@ void prob_reload();
 // por el generador de instancias aleatorizado.
 std::vector<uint64_t> prob_vars();
 
+// Se llama cada vez que se guarda una medicion
+void prob_extra_info(std::ostream &os);
+
+//
+std::string prob_print_generator();
+
 // Esta función retorna los generadores del problema
 std::vector<Generator> prob_generators();
 

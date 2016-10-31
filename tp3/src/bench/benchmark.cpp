@@ -128,12 +128,13 @@ uint64_t measure(vector<uint64_t>& mediciones) {
 }
 
 void print_measure(ostream& os, uint64_t iteraciones,
-                   const vector<uint64_t>& vars) {
+                   const vector<uint64_t>& vars, const string& generator,
+                   const string& extra_info) {
     vector<uint64_t> times(iteraciones);
     uint64_t res = measure(times);
     for (const uint64_t v : vars) os << v << " ";
-    os << *min_element(times.begin(), times.end()) << " " << times.size() << " "
-       << res << endl;
+    os << "," << *min_element(times.begin(), times.end()) << "," << times.size()
+       << "," << res << "," << generator << "," << extra_info << endl;
 }
 
 int compare_streams(ostream& os, istream& resultados, istream& respuestas) {
@@ -212,7 +213,10 @@ void measure_multiple(ostream& os, istream& is, uint64_t iteraciones) {
         ;
     for (uint64_t p = num_problema; load_next(is); p++) {
         cerr << "Problema Nᵒ " << p << endl;
-        print_measure(os, iteraciones, prob_vars());
+        ostringstream extra_info;
+        prob_extra_info(extra_info);
+        print_measure(os, iteraciones, prob_vars(), prob_print_generator(),
+                      extra_info.str());
     }
     cerr << "Terminado." << endl;
 }
@@ -240,7 +244,10 @@ void generate_measure(ostream& os, const vector<Range>& ranges,
 
             // Si es all, sino generate
             if (iteraciones) {
-                print_measure(os, iteraciones, vars);
+                ostringstream extra_info;
+                prob_extra_info(extra_info);
+                print_measure(os, iteraciones, vars, prob_print_generator(),
+                              extra_info.str());
             } else {
                 prob_print_input(os);
                 prob_solve(os);

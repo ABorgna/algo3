@@ -29,8 +29,12 @@ enum poda_t {
 extern int64_t ngyms, nstops, bagSize;
 extern PokeGraph graph;
 extern int64_t generator;
+extern string generatorName;
 
 poda_t poda = poda_none;
+string poda_name = "none";
+
+double lastResult = 0;
 
 vector<int64_t> orden;
 
@@ -73,32 +77,33 @@ pair<double, uint64_t> bruteforce() {
 
 // ------------------------------------ Solución por Backtracking
 
-    // Inicializar la combinacion
-    // Suponemos que siempre hay solucion
+// Inicializar la combinacion
+// Suponemos que siempre hay solucion
 
-    vector<int64_t> distanciaAcumulada;
-    double mejorDist;
-    uint64_t mejorOrdenLen;
-    vector<int64_t> mejorOrden;
-    vector<int64_t> powerAcumulado;
-    vector<bool> used;
+vector<int64_t> distanciaAcumulada;
+double mejorDist;
+uint64_t mejorOrdenLen;
+vector<int64_t> mejorOrden;
+vector<int64_t> powerAcumulado;
+vector<bool> used;
 
 void backtracking_rec(uint64_t pos, int64_t gymCounter) {
-
     // Calculo distancia para orden[0..pos-1]
     if (pos > 1) {
-        distanciaAcumulada[pos-1] = graph.distance( orden[pos-2], orden[pos-1]) + distanciaAcumulada[pos - 2];
+        distanciaAcumulada[pos - 1] =
+            graph.distance(orden[pos - 2], orden[pos - 1]) +
+            distanciaAcumulada[pos - 2];
     }
 
     // Vemos si orden[0..pos-1] es solución
     if (pos > 0) {
-        if (graph.isGym(orden[pos-1]))
+        if (graph.isGym(orden[pos - 1]))
             gymCounter++;
 
         if (gymCounter == ngyms) {
             // Llegamos a una posible solucion
-            if(distanciaAcumulada[pos-1] < mejorDist) {
-                mejorDist = distanciaAcumulada[pos-1];
+            if (distanciaAcumulada[pos - 1] < mejorDist) {
+                mejorDist = distanciaAcumulada[pos - 1];
                 mejorOrden = orden;
                 mejorOrdenLen = pos;
                 return;
@@ -107,13 +112,14 @@ void backtracking_rec(uint64_t pos, int64_t gymCounter) {
     }
 
     bool valido;
-    powerAcumulado[pos] = pos > 0 ? powerAcumulado[pos-1] : 0;
+    powerAcumulado[pos] = pos > 0 ? powerAcumulado[pos - 1] : 0;
 
     for (int i = 0; i < ngyms + nstops; i++) {
         orden[pos] = i;
 
         int64_t pow_anterior = powerAcumulado[pos];
-        valido = esCaminoValido(orden.begin() + pos, orden.begin() + pos + 1, bagSize, graph, powerAcumulado[pos]);
+        valido = esCaminoValido(orden.begin() + pos, orden.begin() + pos + 1,
+                                bagSize, graph, powerAcumulado[pos]);
 
         if (not valido or used[i]) {
             powerAcumulado[pos] = pow_anterior;
@@ -121,10 +127,28 @@ void backtracking_rec(uint64_t pos, int64_t gymCounter) {
         }
 
         used[i] = true;
-        backtracking_rec(pos+1, gymCounter);
+        backtracking_rec(pos + 1, gymCounter);
         powerAcumulado[pos] = pow_anterior;
         used[i] = false;
     }
+}
+
+pair<double, uint64_t> dp() {
+    // Para ngyms+nstops <= 64
+    int64_t n = ngyms + nstops;
+
+    if (n > 64)
+        return {0, 0};
+
+    for (int64_t init = 0; init < n; init++) {
+        if (graph[init].power > 0)
+            continue;
+
+        vector<vector<double>> d(
+            1 << n, vector<double>(n, numeric_limits<double>::infinity()));
+    }
+
+    return {0, 0};
 }
 
 /**************************************
@@ -149,12 +173,14 @@ int prob_solve(std::ostream& os) {
             distanciaAcumulada = vector<int64_t>(ngyms + nstops, 0);
             mejorOrdenLen = 0;
 
-            backtracking_rec(0,0);
+            backtracking_rec(0, 0);
             orden = mejorOrden;
             tie(d, k) = make_pair(mejorDist, orden.size());
 
             break;
     }
+
+    lastResult = d;
 
     os << d << " " << k;
     for (auto i : orden) os << " " << i + 1;
@@ -163,7 +189,10 @@ int prob_solve(std::ostream& os) {
     return N_HEURISTICA * 100 + generator * 10 + poda;
 }
 
+void prob_extra_info(std::ostream& os) { os << lastResult << " " << poda_name; }
+
 int setPrune(const vector<string>& s) {
+    poda_name = s[0];
     if (s[0] == "none") {
         poda = poda_none;
     } else if (s[0] == "backtracking") {

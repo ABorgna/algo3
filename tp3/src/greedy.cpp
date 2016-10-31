@@ -24,8 +24,11 @@ const uint64_t N_HEURISTICA = 1;
 extern int64_t ngyms, nstops, bagSize;
 extern PokeGraph graph;
 extern int64_t generator;
+extern string generatorName;
 
 vector<int64_t> orden;
+
+double lastResult = 0;
 
 pair<double, uint64_t> omNomNom() {
     // Inicializar la combinacion
@@ -56,11 +59,15 @@ int prob_solve(std::ostream& os) {
 
     tie(d, k) = omNomNom();
 
+    lastResult = d;
+
     os << d << " " << k;
     for (auto i : orden) os << " " << i + 1;
     os << endl;
 
     return N_HEURISTICA * 100 + generator * 10;
 }
+
+void prob_extra_info(std::ostream& os) { os << lastResult; }
 
 vector<Option> prob_custom_options() { return {}; }
