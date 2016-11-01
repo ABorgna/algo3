@@ -6,6 +6,9 @@
 #include <functional>
 #include <numeric>
 
+#include <iostream>
+#include <cassert>
+
 extern int64_t ngyms, nstops, bagSize;
 extern PokeGraph graph;
 
@@ -162,28 +165,48 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
     // pero quizás es mejor arrancar un poco más cerca de un resultado
     // 'no-tan-fruta')
     greedy_omNomNom(orden);
-
+    
+    // Para que esto funcione como debe, orden no puede tener
+    // trimeado el resto de las paradas (tienen que estar para que
+    // el swapeo de la mayor cantidad posible de combinaciones)
+    for (int64_t i = 0; i < ngyms + nstops; i++) {
+        if (find(orden.begin(), orden.end(), i) == orden.end())
+            orden.push_back(i);
+    }
+   
     double dist, dist_vecino;
     bool mejora, valido;
     vector<int64_t> orden_vecino(orden.size(), -1);
 
     do {
         mejora = false;
+        
+        // distanciaCamino solo mide hasta el último gym
         dist = distanciaCamino(orden.begin(), orden.end(), graph);
+        
         for (uint64_t i = 0; i < orden.size() - 1; i++) {
-            for (uint64_t j = i + 1; j < orden.size(); j++) {
-                // Swap 2opt i-j
+            for (uint64_t j = i + 2; i + j <= orden.size(); j++) {
+
+                // Swap 2opt [i..j)
                 orden_vecino = orden;
                 reverse_copy(orden.begin() + i, orden.begin() + i + j,
-                             orden_vecino.begin() + i);
-
-                // TODO: Para que esto funcione como debe, orden no puede tener
-                // trimeado el resto de las paradas (tienen que estar para que
-                // el swapeo de la mayor cantidad posible de combinaciones)
-
+                             orden_vecino.begin() + i);                           
+                             
+                //Nos interesa saber si hay camino válido (y su longitud)
+                //únicamente hasta el último gym, el resto está por 'completitud'
+                //para swaps.
+                
+                auto ultimo_gym = orden_vecino.end();
+                for (auto it = orden_vecino.begin(); it != orden_vecino.end(); it++) {
+                    if (graph.isGym(*it))
+                        ultimo_gym = it;
+                }                  
+                
+                assert(ultimo_gym != orden_vecino.end());
+                       
                 int64_t pow = 0;
                 valido =
-                    esCaminoValido(orden_vecino.begin(), orden_vecino.end(),
+                    esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
                                    bagSize, graph, pow);
 
                 if (not valido)
@@ -203,6 +226,18 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
         }
 
     } while (mejora);
+    
+    //Trim sobre las paradas tras el último gym
+    
+    auto ultimo_gym = orden.rend();
+    for (auto it = orden.rbegin(); it != orden.rend(); it++) {
+        if (graph.isGym(*it)) {
+            ultimo_gym = it;
+            break;
+        }
+    }
+                    
+    orden.resize(orden.size() - distance(orden.rbegin(), ultimo_gym));
 
     return {dist, orden.size()};
 }
