@@ -158,14 +158,14 @@ pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
     return {dist, orden.size()};
 }
 
-// ------------------------------------ Solución greedy trivial
+// ------------------------------------ Solución búsqueda local por 2opt
 
 pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
     // Unleash the greedy (se puede arrancar también con un iota sobre orden,
     // pero quizás es mejor arrancar un poco más cerca de un resultado
     // 'no-tan-fruta')
     greedy_omNomNom(orden);
-    
+
     // Para que esto funcione como debe, orden no puede tener
     // trimeado el resto de las paradas (tienen que estar para que
     // el swapeo de la mayor cantidad posible de combinaciones)
@@ -173,37 +173,46 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
         if (find(orden.begin(), orden.end(), i) == orden.end())
             orden.push_back(i);
     }
-   
+
     double dist, dist_vecino;
     bool mejora, valido;
     vector<int64_t> orden_vecino(orden.size(), -1);
 
     do {
         mejora = false;
-        
+
         // distanciaCamino solo mide hasta el último gym
         dist = distanciaCamino(orden.begin(), orden.end(), graph);
-        
-        for (uint64_t i = 0; i < orden.size() - 1; i++) {
-            for (uint64_t j = i + 2; i + j <= orden.size(); j++) {
+
+        for (uint64_t i = 0; i < orden.size(); i++) {
+            for (uint64_t j = 1; j <= orden.size(); j++) {
 
                 // Swap 2opt [i..j)
                 orden_vecino = orden;
-                reverse_copy(orden.begin() + i, orden.begin() + i + j,
-                             orden_vecino.begin() + i);                           
-                             
-                //Nos interesa saber si hay camino válido (y su longitud)
-                //únicamente hasta el último gym, el resto está por 'completitud'
-                //para swaps.
-                
+                uint64_t desde = i;
+                uint64_t hasta = j;
+                while (hasta != desde) {
+                    // A esto los seres humanos decentes le dicen 'módulo'
+                    // pero experimentando con el operador % me salió fruta
+                    hasta = (hasta == 0) ? orden.size() - 1 : hasta - 1 ;
+                    if (hasta == desde) break;
+                    orden_vecino[desde] = orden[hasta];
+                    orden_vecino[hasta] = orden[desde];
+                    desde = (desde == orden.size() - 1) ? 0 : desde + 1;
+                }
+
+                // Nos interesa saber si hay camino válido (y su longitud)
+                // únicamente hasta el último gym, el resto está por 'completitud'
+                // para swaps.
+
                 auto ultimo_gym = orden_vecino.end();
                 for (auto it = orden_vecino.begin(); it != orden_vecino.end(); it++) {
                     if (graph.isGym(*it))
                         ultimo_gym = it;
-                }                  
-                
+                }
+
                 assert(ultimo_gym != orden_vecino.end());
-                       
+
                 int64_t pow = 0;
                 valido =
                     esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
@@ -226,9 +235,9 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
         }
 
     } while (mejora);
-    
-    //Trim sobre las paradas tras el último gym
-    
+
+    // Trim sobre las paradas tras el último gym
+
     auto ultimo_gym = orden.rend();
     for (auto it = orden.rbegin(); it != orden.rend(); it++) {
         if (graph.isGym(*it)) {
@@ -236,8 +245,75 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
             break;
         }
     }
-                    
+
     orden.resize(orden.size() - distance(orden.rbegin(), ultimo_gym));
 
     return {dist, orden.size()};
+}
+
+// ------------------------------------ Solución búsqueda local por swap de nodos
+
+pair<double, uint64_t> local_swap(vector<int64_t> &orden) {
+
+    greedy_omNomNom(orden);
+
+    for (int64_t i = 0; i < ngyms + nstops; i++) {
+        if (find(orden.begin(), orden.end(), i) == orden.end())
+            orden.push_back(i);
+    }
+
+    double dist, dist_vecino;
+    bool mejora, valido;
+    vector<int64_t> orden_vecino(orden.size(), -1);
+
+    do {
+        mejora = false;
+        dist = distanciaCamino(orden.begin(), orden.end(), graph);
+        for (size_t i = 0; i < orden.size(); i++) {
+            for (size_t j = i + 1; j < orden.size(); j++) {
+
+                orden_vecino = orden;
+                orden_vecino[i] = orden[j];
+                orden_vecino[j] = orden[i];
+
+                auto ultimo_gym = orden_vecino.end();
+                for (auto it = orden_vecino.begin(); it != orden_vecino.end(); it++) {
+                    if (graph.isGym(*it))
+                        ultimo_gym = it;
+                }
+
+                assert(ultimo_gym != orden_vecino.end());
+
+                int64_t pow = 0;
+                valido =
+                    esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
+                                   bagSize, graph, pow);
+
+                if (not valido)
+                    continue;
+
+                dist_vecino = distanciaCamino(orden_vecino.begin(),
+                                              orden_vecino.end(), graph);
+
+                if (dist_vecino < dist) {
+                    mejora = true;
+                    dist = dist_vecino;
+                    orden = orden_vecino;
+                }
+            }
+        }
+    } while (mejora);
+
+    auto ultimo_gym = orden.rend();
+    for (auto it = orden.rbegin(); it != orden.rend(); it++) {
+        if (graph.isGym(*it)) {
+            ultimo_gym = it;
+            break;
+        }
+    }
+
+    orden.resize(orden.size() - distance(orden.rbegin(), ultimo_gym));
+
+    return {dist, orden.size()};
+
 }
