@@ -160,7 +160,7 @@ pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
 
 // ------------------------------------ Solución búsqueda local por 2opt
 
-pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
+pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
     // Unleash the greedy (se puede arrancar también con un iota sobre orden,
     // pero quizás es mejor arrancar un poco más cerca de un resultado
     // 'no-tan-fruta')

@@ -15,6 +15,7 @@ extern int64_t generator;
 extern string generatorName;
 
 double lastResult = 0;
+bool verbose = false;
 
 /**************************************
  * Funciones del framework de testeo
@@ -27,7 +28,7 @@ int prob_solve(std::ostream& os) {
 
     vector<int64_t> orden;
 
-    tie(d, k) = local_dos_opt(orden);
+    tie(d, k) = local_dos_opt(orden, verbose);
 
     lastResult = d;
 
@@ -40,4 +41,12 @@ int prob_solve(std::ostream& os) {
 
 void prob_extra_info(std::ostream& os) { os << lastResult; }
 
-vector<Option> prob_custom_options() { return {}; }
+int setVerbose(__attribute__((unused)) const vector<string>& s) {
+    verbose = true;
+    return 0;
+}
+
+vector<Option> prob_custom_options() {
+    return {{'v', "verbose", 0, false, &setVerbose, "",
+             "Seleccionar el tipo de poda a usar."}};
+}
