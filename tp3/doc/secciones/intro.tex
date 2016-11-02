@@ -1,0 +1,24 @@
+\section{Introducción}
+    El problema del cual nos ocuparemos en este trabajo se presenta desde el siguiente contexto narrativo: queremos encontrar el tiempo mínimo para recorrer un conjunto de ubicaciones en un mapa (que llamaremos \emph{gimnasios}) pero manteniendo una cantidad no-negativa de ciertos objetos (\emph{pociones}) que disminuyen cada vez que recorremos un gimnasio. La cantidad de pociones presentes estará en todo momento acotada por una constante que consideraremos el \emph{tamaño de mochila}. Las pociones se recargan de a 3 unidades (si la recarga supera el tamaño de la mochila, el valor final será el tope mismo de la mochila) visitando ubicaciones que llamaremos \emph{paradas} y no pueden visitarse cada una más de una vez, sin embargo pueden no visitarse todas.
+
+    Recibimos por input $n$ (parámetro) gimnasios de la forma $(X_k, Y_k, P_k)$ con las primeras y segundas coordenadas como su ubicación en el mapa (correspondiente a un grafo euclideano) y las terceras como la cantidad de pociones que consumen. También recibimos $m$ (también parámetro) paradas de la forma $(X_{k'}, Y_{k'})$ que convertimos en tuplas $(X_{k'}, Y_{k'}, -3)$. Esto se debe a que vamos a considerar la secuencia de mínima distancia (definida más adelante), correspondiente al camino buscado, $orden = \langle {(X_0, Y_0, P_0)\ ..\ (X_{|orden|-1}, Y_{|orden|-1}, P_{|orden|-1})} \rangle$ que contenga solamente las paradas y todos los gimnasios (apareciendo una única vez cada uno) del input y definiremos la cantidad de pociones acumuladas al momento de realizar la i-ésima ubicación de la secuencia como:
+    \\
+
+    $$f(i)=  \left\{
+            \begin{array}{lcc}
+                P_0                    &  si     & i = 0                \\
+                \min(f(i-1) - P_i,\ 3) &  si     & i < |orden|          \\
+            \end{array}
+            \right.
+   $$
+   \\
+
+   De modo que para todo $i$ valga $f(i) > 0$, manteniendo el requisito de la cantidad no-negativa de pociones acumuladas. Nos queda especificar la noción de distancia total de la secuencia:
+
+   $$ distancia(orden) = \sum_{i=1}^{|orden|-1} \sqrt{(X_i - X_{i-1})^2 + (Y_i - Y_{i-1})^2} $$
+   \\
+
+   * acá iría un ejemplo con grafo, quizás robado del test*
+   \\
+
+   El problema es de la clase NP, esto se puede ver dado que se puede transformar una instancia del problema conocido como \emph{Shortest Hamiltonian Path} sobre grafos dirigidos (NP) en una instancia de nuestro problema solamente tomando por cada nodo un gimnasio que consuma 3 pociones y una parada superpuesta al gimnasio. Permitiéndonos cierta informalidad, un supuesto algoritmo polinomial que resolvería nuestro problema recorrería de a pares superpuestos dado que, para mantener la cantidad de pociones no-negativa, hay que alternar paradas y gimnasios. Siendo claramente los gimnasios superpuestos a cada una de las paradas la forma óptima de tomar estos gimnasios, porque de lo contrario el camino estaría no solamente pagando la distancia entre gimnasios sino también entre gimnasios y paradas. Que sea de la clase NP implica que los algoritmos necesarios para conseguir una solución exacta al problema son del tipo de los que recorren el espacio de soluciones del problema buscando el orden apropiado para las ubicaciones. Mencionaremos más sobre esto en la sección correspondiente a dichas implementaciones.
