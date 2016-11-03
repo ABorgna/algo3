@@ -98,22 +98,36 @@
             usado[i] = false
     \end{lstlisting}
 
-    Al ser recursivo, algoritmo requiere un \emph{launcher} que se encargue de inicializar las estructuras y hacer el primer llamado a la función:
+    Al ser recursivo, el algoritmo requiere un \emph{launcher} que se encargue de inicializar las estructuras y variables (globales) para luego hacer el primer llamado a la función:
 
     \begin{lstlisting}
     orden $\gets$ [ngyms + nstops] $\times$ (-1)                $\emph{// orden = [-1,-1...-1]}$
 
-    distanciaAcumulada $\gets$ [ngyms + nstops] $\times$ (0)
+    distanciaAcumulada $\gets$ [#gimnasios + #paradas] $\times$ (0)
     mejorDist $\gets$ $\infty$
     mejorOrdenLen $\gets$ 0
     mejorOrden $\gets$ orden
-    powerAcumulado $\gets$ [ngyms + nstops] $\times$ (0)
-    used $\gets$ [ngyms + nstops] $\times$ (false)
+    powerAcumulado $\gets$ [#gimnasios + #paradas] $\times$ (0)
+    used $\gets$ [#gimnasios + #paradas] $\times$ (false)
 
     recursiva(0, 0)
     orden $\gets$ mejorOrden
 
-    $\textbf{retornar}$ $\langle$mejorDist, |orden|$\rangle$
+    $\textbf{Retornar}$ $\langle$mejorDist, |orden|, orden$\rangle$
     \end{lstlisting}
 
     \subsubsection{Complejidad del algoritmo}
+
+    Empezando por el \emph{launcher}, inicializar los vectores nos cuesta $\mathcal{O}(\#gimnasios + \#paradas)$. Ahora veamos el costo de la función $recursiva$, para luego calcular cuántas veces es llamada.
+    \\
+
+    Las guardas de los condicionales antes del ciclo son todas comparaciones numéricas (la representación del grafo, presentada en la introducción, hace que saber si un nodo es gimnasio o no sea consultar si su numeración es menor a la cantidad de gimnasios totales) por lo que su costo es $\mathcal{O}(1)$. A su vez sus cuerpos solamente realizan asignaciones, algunas dentro de condicionales anidados con guardas también $\mathcal{O}(1)$, de a lo sumo $\mathcal{O}(\#gimnasios + \#paradas)$ para actualizar un nuevo mejor orden. Por lo tanto, antes del ciclo de la función, tenemos un costo de $\mathcal{O}(\#gimnasios + \#paradas)$.
+    \\
+
+    Dentro del ciclo \emph{for}, que se ejecuta $()\#gimnasios + \#paradas)$ veces, tenemos asignaciones de variables y elementos de vectores numéricos/booleanos con costo $\mathcal{O}(1)$ además del costo de consultar si el nuevo camino formado es válido con el tamaño de mochila y la cantidad de pociones acumuladas hasta el momento lo cual es $\mathcal{O}(1)$ porque se calcula asumiendo que el camino hasta la ubicación anterior era válida (de lo contrario se hubiera realizado una poda) y solamente se chequea si la nueva ubicación es válida. Por lo tanto el ciclo tiene un costo $\mathcal{O}(\#gimnasios + \#paradas)$.
+    \\
+
+    Por último, queremos una cota de peor caso para la cantidad de veces que es llamada la función recursivamente. Si bien a primera vista podría suponerse que en cada llamado se abren $n$ ramas posibles, teniendo $n = (\#gimnasios + \#paradas)$ posiciones para llenar (quedando $n^n$ llamados), esto no considera la poda que realiza la guarda que consulta si la ubicación escogida para $orden[pos]$ ya fue utilizada. Esto significa que en cada iteración descartamos una ubicación para el camino, realizando $n$ llamados para $pos=0$, $n-1$ para $pos=1$, hasta llegar a una única ubicación libre en el llamado con $pos=n-1$. Esto nos deja un total de $(\#gimnasios + \#paradas)!$ potenciales llamados descartando podas por invalidez de caminos (en peor caso son todos válidos) con costo $\mathcal{O}(\#gimnasios + \#paradas)$.
+    \\
+
+    Por lo tanto, sumando el costo de la inicilización del \emph{launcher} al producto entre la cantidad espectulada de llamadas y tu respectivo costo tenemos una complejidad $\mathcal{O}(\#gimnasios + \#paradas (\#gimnasios + \#paradas)*(\#gimnasios + \#paradas)!) = \mathcal{O}((\#gimnasios + \#paradas)!)$. Que es, en potencial y teórico peor caso, equivalente a la de fuerza bruta, sin considerar podas que disminuyan tiempos de ejecución en casos promedio.

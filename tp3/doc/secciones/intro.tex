@@ -19,7 +19,64 @@
    $$ distancia(orden) = \sum_{i=1}^{|orden|-1} \sqrt{(X_i - X_{i-1})^2 + (Y_i - Y_{i-1})^2} $$
    \\
 
-   * acá iría un ejemplo con grafo, quizás robado del test*
+   {\color{red}* acá iría un ejemplo con grafo, quizás robado del test*}
    \\
 
    El problema es de la clase NP, esto se puede ver dado que se puede transformar una instancia del problema conocido como \emph{Shortest Hamiltonian Path} sobre grafos dirigidos (NP \footnote{Christos H. Papadimitriou, Computational Complexity, Page 190, Addison-Wesley Publishing Company, Inc.,1994.}) en una instancia de nuestro problema solamente tomando por cada nodo un gimnasio que consuma 3 pociones y una parada superpuesta al gimnasio. Permitié ndonos cierta informalidad, un supuesto algoritmo polinomial que resolvería nuestro problema recorrería de a pares superpuestos dado que, para mantener la cantidad de pociones no-negativa, hay que alternar paradas y gimnasios. Siendo claramente los gimnasios superpuestos a cada una de las paradas la forma óptima de tomar estos gimnasios, porque de lo contrario el camino estaría no solamente pagando la distancia entre gimnasios sino también entre gimnasios y paradas. Que sea de la clase NP implica que los algoritmos necesarios para conseguir una solución exacta al problema son del tipo de los que recorren el espacio de soluciones del problema buscando el orden apropiado para las ubicaciones. Mencionaremos más sobre esto en la sección correspondiente a dichas implementaciones.
+
+   \subsection{Funciones auxiliares recurrentes y representación del grafo mapa}
+
+   Antes de proceder específicamente sobre las implementaciones es conveniente explicar cómo representamos y tratamos las ubicaciones del mapa del problema. Si bien, como dijimos, las ubicaciones se corresponden a tuplas de la pinta $(X_k, Y_k, P_k)$, las enumeraremos como índices del 0 a $(n + m - 1)$ en el orden que se pasan por parámetro (primero $n$ gimnasios y luego $m$ paradas) de modo que para saber si una ubicación es gimnasio o parada basta con comparar su valor numérico contra $n$ y $m$.
+   \\
+
+   De esta manera, el grafo que sobre el cual trabajaremos consiste en dos secuencias de nodos $(X, Y, P)$ para gimnasios y paradas (el índice número $i$ es el nodo gimnasio i-ésimo o la parada (i-n)-ésima).
+   \\
+
+   También por conveniencia, presentamos el pseudocódigo de algunas funciones auxiliares que utilizaremos regularmente en las subsecciones de las implementaciones. Estas son aquellas que definen la validez de una secuencia como camino dado un tamaño de mochila y una cantidad acumulada de pociones hasta el momento (actualizando además dicha cantidad), y la distancia de un camino dado hasta su último gimnasio. Más adelante se detallará por qué, pero para buscar caminos mínimos en nuestro problema nos alcanza con saber distancias hasta el último gimnasio, sin contar las paradas restantes.
+   \\
+
+   \begin{lstlisting}
+    $\textbf{Def}$ esCaminoValido(camino, mochila, pocionesAcum) $\rightarrow$ bool:
+        $\textbf{Para}$ i en camino:
+            $\emph{// Las paradas siempre valen -3}$
+            nodo $\gets$ nodos_gimnasios[i] $\textbf{si}$ i < #Gimnasios $\textbf{sino}$ nodos_paradas[i - #Gimnasios]
+            pocionesAcum $\gets$ pocionesAcum - nodo.p
+            $\textbf{Si}$ pocionesAcum < 0:
+                $\textbf{terminar ciclo}$
+            $\textbf{Sino si}$ pocionesAcum > mochila:
+                pocionesAcum $\gets$ mochila
+
+        $\textbf{Retornar}$ pocionesAcum $\geq$ 0
+
+    $\textbf{Def}$ esCaminoValido(camino, mochila) $\rightarrow$ bool:
+        $\textbf{Retornar}$ esCaminoValido(camino, mochila, 0)
+   \end{lstlisting}
+
+   \begin{lstlisting}
+   $\textbf{Def}$ distanciaCamino(camino) $\rightarrow$ float:
+       $\emph{//}$ |$\emph{camino}$| > 0
+       dist $\gets$ 0
+       ultimo $\gets$ camino[0]
+       desdeUltimoGim $\gets$ 0
+       $\textbf{Para}$ i en camino:
+           desdeUltimoGim $\gets$ desdeUltimoGim + distancia(ultimo, i)
+           $\textbf{Si}$ i < #Gimnasios:
+               dist $\gets$ dist desdeUltimoGim
+               desdeUltimoGim $\gets$ 0
+           ultimo $\gets$ i
+
+       $\textbf{Retornar}$ dist
+
+    $\textbf{Def}$ distancia(i, j) $\rightarrow$ float:
+        nodo_i $\gets$ nodos_gimnasios[i] $\textbf{si}$ i < #Gimnasios $\textbf{sino}$ nodos_paradas[i - #Gimnasios]
+        nodo_j $\gets$ nodos_gimnasios[j] $\textbf{si}$ j < #Gimnasios $\textbf{sino}$ nodos_paradas[j - #Gimnasios]
+        dx $\gets$ nodo_i.x - nodo_i.x
+        dy $\gets$ nodo_i.y - nodo_i.y
+        $\textbf{Retornar}$ $sqrt(dx^2 + dy^2)$
+   \end{lstlisting}
+
+
+
+
+   \subsection{Generadores}
+   {\color{red}* Børg's magic *}
