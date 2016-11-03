@@ -185,7 +185,7 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden) {
         dist = distanciaCamino(orden.begin(), orden.end(), graph);
 
         for (uint64_t i = 0; i < orden.size(); i++) {
-            for (uint64_t j = 1; j <= orden.size(); j++) {
+            for (uint64_t j = i + 2; j <= orden.size(); j++) {
 
                 // Swap 2opt [i..j)
                 orden_vecino = orden;
