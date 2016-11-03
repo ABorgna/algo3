@@ -58,59 +58,69 @@
 
     \subsubsection{Pseudocódigo del algoritmo}
 
-    En nuestra formulación recursiva del backtracking se empieza desde la posición $pos = 0$ de un vector 'orden' (donde $orden[0..pos)$ es el camino generado hasta el momento) y se van eligiendo las ubicaciones numeradas del 0 a $(\#gimnasios + \#paradas - 1)$ para la posición actual que no hayan sido ya utilizadas y que además formen un camino válido, es decir, que mantengan no negativa la cantidad de pociones, de modo que no se siga trabajando sobre caminos cuyos prefijos ya son inválidos (lo que los invalida a ellos también). Esta poda es la más básica de las que vamos a realizar, luego presentaremos algunas más con la idea de poder contrastar su rendimiento combinado.
+    En nuestra formulación recursiva del backtracking se empieza desde la posición $pos = 0$ de un vector 'orden' (donde $orden[0..pos]$ es el camino generado hasta el momento) y se van eligiendo las ubicaciones numeradas del 0 a $(\#gimnasios + \#paradas - 1)$ para la posición siguiente que no hayan sido ya utilizadas y que además formen un camino válido, es decir, que mantengan no negativa la cantidad de pociones, de modo que no se siga trabajando sobre caminos cuyos prefijos ya son inválidos (lo que los invalida a ellos también). Esta poda es la más básica de las que vamos a realizar, luego presentaremos algunas más con la idea de poder contrastar su rendimiento combinado.
     \\
 
-    En cada iteración se actualizan, en función de la ubicación insertada en $pos-1$ (si $pos \neq 0$), variables como un contador de gimnasios recorridos (cuando se recorren todos se compara la distancia total contra la mínima hasta el momento y se procede a otra rama) y la distancia actual.
+    En cada iteración se actualizan, en función de la ubicación insertada en $pos$ (si $pos \neq 0$), variables como un contador de gimnasios recorridos (cuando se recorren todos se compara la distancia total contra la mínima hasta el momento y se procede a otra rama) y la distancia actual.
     \newpage
 
     \begin{lstlisting}
-    $\textbf{Def}$ recursiva(pos, gymCounter) $\rightarrow$ void:
-        $\textbf{Si}$ pos > 1:
-            distanciaAcumulada[pos - 1] $\gets$ distancia(orden[pos - 2], orden[pos - 1]) +
-            distanciaAcumulada[pos - 2]
+        $\emph{//pow = cantidad de pociones}$
+    $\textbf{Def}$ recursiva(pos, gymCounter, powAcumulado, dist) $\rightarrow$ void:
 
-        $\textbf{Si}$ pos > 0:
-            $\textbf{Si}$ esGimnasio(orden[pos - 1]):
-                gymCounter++
-            $\textbf{Si}$ gymCounter = #gimnasios $\land$ distanciaAcumulada[pos - 1] < mejorDist:
-                mejorDist $\gets$ distanciaAcumulada[pos - 1]
+        $\emph{// Calculo distancia para orden[0..pos]}$
+        $\textbf{Si}$ pos $\geq$ 1:
+            dist $\gets$ dist + distancia(orden[pos - 1], orden[pos])
+
+        $\emph{// Vemos si orden[0..pos] es solucion}$
+        $\textbf{Si}$ esGimnasio(orden[pos]):
+            gymCounter++
+
+        $\textbf{Si}$ gymCounter = ngyms:
+            $\emph{// Llegamos a una posible solucion}$
+            $\textbf{Si}$ distancia < mejorDist:
+                mejorDist $\gets$ dist
                 mejorOrden $\gets$ orden
                 mejorOrdenLen $\gets$ pos
-                $\textbf{retornar}$
+            $\textbf{Retornar}$
+        }
 
-        powerAcumulado[pos] $\gets$ powerAcumulado[pos - 1] Si pos > 0 sino 0
+        $\textbf{Si}$ pos + 1 = #gimnasios + #paradas:
+            $\textbf{Retornar}$
 
         $\textbf{Para}$ i $\gets$ 0 ... #gimnasios + #paradas - 1:
-            orden[pos] = i
+            $\textbf{Si}$ usado[i]:
+                $\textbf{continuar}$
+            orden[pos+1] $\gets$ i
 
-            pow_anterior $\gets$ powerAcumulado[pos]
-            $\emph{//power = cantidad de pociones}$
-            valido $\gets$  esCaminoValido(orden[pos..pos + 1), tam_mochila, powerAcumulado[pos])
-
-            $\textbf{Si}$ $\neg$valido $\vee$ usado[i]:
-                powerAcumulado[pos] $\gets$ pow_anterior
+            nuevoPowAcumulado $\gets$ powAcumulado
+            $\textbf{Si}$ $\neg$esCaminoValido(orden[pos + 1..pos + 2), tam_mochila, nuevoPowAcumulado):
                 $\textbf{continuar}$
 
-            usado[i] = true
-            recursiva(pos + 1, gymCounter)
-            powerAcumulado[pos] = pow_anterior
-            usado[i] = false
+            usado[i] $\gets$ true
+            recursiva(pos + 1, gymCounter, nuevoPowAcumulado, dist);
+            usado[i] $\gets$ false
     \end{lstlisting}
 
-    Al ser recursivo, el algoritmo requiere un \emph{launcher} que se encargue de inicializar las estructuras y variables (globales) para luego hacer el primer llamado a la función:
+    Al ser recursivo, el algoritmo requiere un \emph{launcher} que se encargue de inicializar las estructuras y variables (globales) para luego hacer los llamados a la función para $pos=0$:
 
     \begin{lstlisting}
     orden $\gets$ [ngyms + nstops] $\times$ (-1)                $\emph{// orden = [-1,-1...-1]}$
 
-    distanciaAcumulada $\gets$ [#gimnasios + #paradas] $\times$ (0)
     mejorDist $\gets$ $\infty$
     mejorOrdenLen $\gets$ 0
     mejorOrden $\gets$ orden
-    powerAcumulado $\gets$ [#gimnasios + #paradas] $\times$ (0)
     used $\gets$ [#gimnasios + #paradas] $\times$ (false)
 
-    recursiva(0, 0)
+    $\textbf{Para}$ i $\gets$ 0 ... #gimnasios + #paradas - 1:
+        nodo_i $\gets$ nodos_gimnasios[i] $\textbf{si}$ esGimnasio(i) $\textbf{sino}$ nodos_paradas[i - #gimnasios]
+        $\textbf{Si}$ nodo_i.p > 0:
+            $\emph{//No se puede comenzar con cantidad negativa de pociones}$
+            $\textbf{continuar}$
+        orden[0] $\gets$ i;
+        used[i] $\gets$ true;
+        recursiva(0, 0, -nodo_i.p, 0);
+        used[i] $\gets$ false;
     orden $\gets$ mejorOrden
 
     $\textbf{Retornar}$ $\langle$mejorDist, |orden|, orden$\rangle$
@@ -118,16 +128,18 @@
 
     \subsubsection{Complejidad del algoritmo}
 
-    Empezando por el \emph{launcher}, inicializar los vectores nos cuesta $\mathcal{O}(\#gimnasios + \#paradas)$. Ahora veamos el costo de la función $recursiva$, para luego calcular cuántas veces es llamada.
+    Empezando por el \emph{launcher}, asignar los vectores nos cuesta $\mathcal{O}(\#gimnasios + \#paradas)$, el resto de las asignaciones $\mathcal{O}(1)$. El ciclo itera $n+m = \#gimnasios + \#paradas$ veces realizando únicamente comparaciones y asignaciones numéricas o booleanas, lo cual es $\mathcal{O}(1)$, dejando una complejidad total de $\mathcal{O}(n+m)$. Ahora veamos el costo de la función $recursiva$, para luego calcular cuántas veces es llamada.
     \\
 
-    Las guardas de los condicionales antes del ciclo son todas comparaciones numéricas (la representación del grafo, presentada en la introducción, hace que saber si un nodo es gimnasio o no sea consultar si su numeración es menor a la cantidad de gimnasios totales) por lo que su costo es $\mathcal{O}(1)$. A su vez sus cuerpos solamente realizan asignaciones, algunas dentro de condicionales anidados con guardas también $\mathcal{O}(1)$, de a lo sumo $\mathcal{O}(\#gimnasios + \#paradas)$ para actualizar un nuevo mejor orden. Por lo tanto, antes del ciclo de la función, tenemos un costo de $\mathcal{O}(\#gimnasios + \#paradas)$.
+    Las guardas de los condicionales antes del ciclo son todas comparaciones numéricas (la representación del grafo, presentada en la introducción, hace que saber si un nodo es gimnasio o no sea consultar si su numeración es menor a la cantidad de gimnasios totales) por lo que su costo es $\mathcal{O}(1)$. A su vez sus cuerpos solamente realizan asignaciones, algunas dentro de condicionales anidados con guardas también $\mathcal{O}(1)$, de a lo sumo $\mathcal{O}(n+m)$ para actualizar un nuevo mejor orden. Por lo tanto, antes del ciclo de la función, tenemos un costo de $\mathcal{O}(n+m)$.
     \\
 
-    Dentro del ciclo \emph{for}, que se ejecuta $()\#gimnasios + \#paradas)$ veces, tenemos asignaciones de variables y elementos de vectores numéricos/booleanos con costo $\mathcal{O}(1)$ además del costo de consultar si el nuevo camino formado es válido con el tamaño de mochila y la cantidad de pociones acumuladas hasta el momento lo cual es $\mathcal{O}(1)$ porque se calcula asumiendo que el camino hasta la ubicación anterior era válida (de lo contrario se hubiera realizado una poda) y solamente se chequea si la nueva ubicación es válida. Por lo tanto el ciclo tiene un costo $\mathcal{O}(\#gimnasios + \#paradas)$.
+    Dentro del ciclo \emph{for}, que se ejecuta $n+m$ veces, tenemos asignaciones de variables y elementos de vectores numéricos/booleanos con costo $\mathcal{O}(1)$ además del costo de consultar si el nuevo camino formado es válido con el tamaño de mochila y la cantidad de pociones acumuladas hasta el momento lo cual es $\mathcal{O}(1)$ porque se calcula asumiendo que el camino hasta la ubicación anterior era válida (de lo contrario se hubiera realizado una poda) y solamente se chequea si la nueva ubicación es válida. Por lo tanto el ciclo tiene un costo $\mathcal{O}(n+m)$.
     \\
 
-    Por último, queremos una cota de peor caso para la cantidad de veces que es llamada la función recursivamente. Si bien a primera vista podría suponerse que en cada llamado se abren $n$ ramas posibles, teniendo $n = (\#gimnasios + \#paradas)$ posiciones para llenar (quedando $n^n$ llamados), esto no considera la poda que realiza la guarda que consulta si la ubicación escogida para $orden[pos]$ ya fue utilizada. Esto significa que en cada iteración descartamos una ubicación para el camino, realizando $n$ llamados para $pos=0$, $n-1$ para $pos=1$, hasta llegar a una única ubicación libre en el llamado con $pos=n-1$. Esto nos deja un total de $(\#gimnasios + \#paradas)!$ potenciales llamados descartando podas por invalidez de caminos (en peor caso son todos válidos) con costo $\mathcal{O}(\#gimnasios + \#paradas)$.
+    Por último, queremos una cota de peor caso para la cantidad de veces que es llamada la función recursivamente. Si bien a primera vista podría suponerse que en cada llamado se abren $n+m$ ramas posibles, teniendo $n+m$ posiciones para llenar a lo sumo (quedando $(n+m)^{n+m}$ llamados), esto no considera la poda que realiza la guarda que consulta si la ubicación escogida para $orden[pos+1]$ ya fue utilizada. Esto significa que en cada iteración descartamos una ubicación para el camino, realizando $n$ llamados para $pos=0$, $n-1$ para $pos=1$, hasta llegar a una única ubicación libre en el llamado con $pos=n-1$. Esto nos deja un total de $(n+m)!$ potenciales llamados descartando podas por invalidez de caminos (en peor caso son todos válidos) con costo $\mathcal{O}(n+m)$.
     \\
 
-    Por lo tanto, sumando el costo de la inicilización del \emph{launcher} al producto entre la cantidad espectulada de llamadas y tu respectivo costo tenemos una complejidad $\mathcal{O}(\#gimnasios + \#paradas (\#gimnasios + \#paradas)*(\#gimnasios + \#paradas)!) = \mathcal{O}((\#gimnasios + \#paradas)!)$. Que es, en potencial y teórico peor caso, equivalente a la de fuerza bruta, sin considerar podas que disminuyan tiempos de ejecución en casos promedio.
+    Por lo tanto, sumando el costo de la inicilización del \emph{launcher} al producto entre la cantidad espectulada de llamadas y tu respectivo costo tenemos una complejidad $\mathcal{O}(n+m + (n+m)*(n+m)!) = \mathcal{O}((n+m)!)$. Que es, en potencial y teórico peor caso, equivalente a la de fuerza bruta, sin considerar podas que disminuyan tiempos de ejecución en casos promedio.
+
+    \subsection{Experimentación}

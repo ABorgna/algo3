@@ -52,6 +52,8 @@
         $\textbf{Retornar}$ esCaminoValido(camino, mochila, 0)
    \end{lstlisting}
 
+   Es fácil ver que la complejidad es $\mathcal{O}(|camino|)$, dado que el cuerpo del ciclo solamente realiza comparaciones y asignaciones numéricas o de nodos (tuplas numéricas).
+
    \begin{lstlisting}
    $\textbf{Def}$ distanciaCamino(camino) $\rightarrow$ float:
        $\emph{//}$ |$\emph{camino}$| > 0
@@ -74,6 +76,8 @@
         dy $\gets$ nodo_i.y - nodo_i.y
         $\textbf{Retornar}$ $sqrt(dx^2 + dy^2)$
    \end{lstlisting}
+
+   Para $distanciaCamino$ se vuelve a proponer una complejidad temporal peor caso de $\mathcal{O}(|camino|)$ dado que las asignaciones y comparaciones del resto del algoritmo son $\mathcal{O}(1)$ (se asume esta complejidad para la operación $distancia$ si consideramos $sqrt$ constante en peor caso independientemente de la arquitectura, considerando una cantidad de $ticks$ de CPU necesaria acotada \footnote{http://stackoverflow.com/questions/6884359/c-practical-computational-complexity-of-cmath-sqrt})
 
 
 
