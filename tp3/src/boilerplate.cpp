@@ -26,7 +26,7 @@ void prob_load(std::istream& is) {
         gyms.push_back({{x, y}, power});
     }
 
-    for (int64_t i = 0; i < ngyms; i++) {
+    for (int64_t i = 0; i < nstops; i++) {
         int64_t x, y;
         is >> x >> y;
         stops.push_back({{x, y}, -3});
