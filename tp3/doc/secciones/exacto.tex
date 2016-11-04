@@ -1,1 +1,145 @@
 \section{Algoritmo exacto}
+    Nuestro primer acercamiento al problema consiste encontrar una solución exacta al problema, es decir, alguna de las secuencias de menor distancia (no necesariamente existe una única) con el orden de ubicaciones a recorrer correspondiente al camino deseado. Como anticipamos en la introducción, para encontrarla vamos a tener que recorrer potencialmente todo el espacio de soluciones posibles para hallar la exacta.
+    \\
+
+    \subsection{Fuerza bruta sobre permutaciones totales}
+
+    La forma más simple de implementar un algoritmo exacto es iterando sobre cada permutación posible de las ubicaciones y comparar cada una contra la de menor distancia vista hasta al momento. Como el problema no requiere recorrer todas las paradas pero sí los gimnasios, solamente consideraremos la distancia hasta el último gimnasio de cada secuencia. No podría suceder que una solución fuera óptima recorriendo más paradas tras haber recorrido todos los gimnasios de no ser que estas estén superpuestas en el plano con el último gimnasio, sumando distancias nulas, pero aún así nuestro algoritmo tomaría aquella que termina en este último gimnasio dado que ya recorrió todos y tendrá distancia menor o igual a aquellas secuencias de las que es prefijo.
+    \\
+
+    \subsubsection{Pseudocódigo del algoritmo}
+
+    Si bien cada vez que encontramos una mejor secuencia podríamos ir pisando una variable auxiliar, para ahorrarnos esa variable y sus asignaciones guardamos el \emph{'índice' de la permutación} (la std de C++ provee funciones para avanzar y retroceder entre permutaciones respecto de un orden lexicográfico sobre la secuencia, que volveremos a mencionar más adelante para tratar la complejidad del algoritmo). Una vez iteradas todas las permutaciones, retrocedemos desde la última hasta aquella con el índice deseado. La decisión no afecta la complejidad final del algoritmo.
+    \\
+
+    \begin{lstlisting}
+        mejorDist $\gets$ $\infty$
+        mejorComb, comb $\gets$ 0
+
+        $\textbf{Para}$ cada orden $\gets$ permutacion de $\langle$0... #gims + #paradas - 1$\rangle$:
+            $\textbf{Si}$ esCaminoValido(orden, tam_mochila, 0):
+                dist $\gets$ distanciaCamino(orden)
+                $\textbf{Si}$ dist < mejorDist:
+                    mejorDist $\gets$ dist
+                    mejorComb $\gets$ comb
+            comb++
+
+        $\textbf{Mientras}$ comb > mejorComb:
+            comb$--$
+            anteriorPermutacion(orden)
+
+        ultimoGim $\gets$ indice del ultimo gimnasio de orden
+
+        orden $\gets$ orden[0..ultimoGim]
+
+        $\textbf{Retornar}$ $\langle$mejorDist, |orden|, orden$\rangle$
+    \end{lstlisting}
+
+    \subsubsection{Complejidad del algoritmo}
+
+    Primero consideramos el costo de inicializar las estructuras que usamos, que es $\mathcal{O}(\#gimnasios + \#paradas)$ dado que orden es la única variable cuya asignación no es en $\mathcal{O}(1)$.
+    \\
+
+    Las iteraciones sobre permutaciones se realizan un total de $(\#gimnasios + \#paradas)!$ veces (cantidad de permutaciones de la secuencia orden, considerando que es creciente estricta y todos sus elementos distintos por lo tanto), con el costo en cada iteración de conseguir la próxima permutación en $\mathcal{O}(1)$ amortizado \footnote{http://stackoverflow.com/questions/4973077/the-amortized-complexity-of-stdnext-permutation}, evaluar si el camino generado es válido en $\mathcal{O}(\#gimnasios + \#paradas)$ peor caso (como se menciona en la introducción del informe), y comparando y actualizando cada variable al conseguir mejores soluciones, ambos valores numéricos por lo que consideramos su comparación y asignación $\mathcal{O}(1)$. Por lo tanto nos queda un ciclo con complejidad $\mathcal{O}((\#gimnasios + \#paradas)*(\#gimnasios + \#paradas)!) = \mathcal{O} ((\#gimnasios + \#paradas)!)$
+    \\
+
+    Luego tenemos el costo de retroceder en las permutaciones hasta la mejor combinación vista, en peor caso hace falta recorrer todas de vuelta: $\mathcal{O}()(\#gimnasios + \#paradas)!)$ (se asume la misma complejidad para retroceder que para avanzar entre permutaciones).
+    \\
+
+    Finalmente encontrar el índice de la última ubicación correspondida a un gimnasio nos cuesta siempre el largo del vector en peor caso, $\mathcal{O}(\#gimnasios + \#paradas)$, dado que en su implementación iteramos de fin a principio el vector buscando la 'primer' aparición \footnote{En realidad, en la implementación la búsqueda devuelve un iterador sobre el cual luego se recorta llamando a $resize$ del vector 'orden' con la distancia entre el iterador devuelto y $orden.begin()$. Pero a efectos de complejidad es equivalente y se simplifica la lectura del pseudocódigo considerando índices.}. Luego hacemos el recorte, que en su implementación correspondiente se hace con la operación $resize$ sobre el tipo $vector$, con complejidad equivalente a la cantidad de elementos recortados \footnote{http://en.cppreference.com/w/cpp/container/vector/resize\#Complexity}, es decir, $\mathcal{O}(\#gimnasios + \#paradas)$ peor caso.
+    \\
+
+    Sumando las complejidades de cada porción de código llegamos a una complejidad total de $\mathcal{O} ((\#gimnasios + \#paradas)!)$.
+
+    \subsection{Backtracking con podas}
+
+    Considerando que la complejidad de peor caso del algoritmo de fuerza bruta anterior es similar a la de todos los casos porque siempre se iteran las $(\#gimnasios + \#paradas)!)$ permutaciones posibles, surge la necesidad de poder optimizar utilizando podas u otras estrategias para mejorar rendimiento. Para esto hace falta reformular el algoritmo como un algoritmo sobre backtracking que permita ejecutar de forma ramificada en $DFS$ y abortar ramas de ejecución según sea conveniente.
+    \\
+
+    \subsubsection{Pseudocódigo del algoritmo}
+
+    En nuestra formulación recursiva del backtracking se empieza desde la posición $pos = 0$ de un vector 'orden' (donde $orden[0..pos]$ es el camino generado hasta el momento) y se van eligiendo las ubicaciones numeradas del 0 a $(\#gimnasios + \#paradas - 1)$ para la posición siguiente que no hayan sido ya utilizadas y que además formen un camino válido, es decir, que mantengan no negativa la cantidad de pociones, de modo que no se siga trabajando sobre caminos cuyos prefijos ya son inválidos (lo que los invalida a ellos también). Esta poda es la más básica de las que vamos a realizar, luego presentaremos algunas más con la idea de poder contrastar su rendimiento combinado.
+    \\
+
+    En cada iteración se actualizan, en función de la ubicación insertada en $pos$ (si $pos \neq 0$), variables como un contador de gimnasios recorridos (cuando se recorren todos se compara la distancia total contra la mínima hasta el momento y se procede a otra rama) y la distancia actual.
+    \newpage
+
+    \begin{lstlisting}
+        $\emph{//pow = cantidad de pociones}$
+    $\textbf{Def}$ recursiva(pos, gymCounter, powAcumulado, dist) $\rightarrow$ void:
+
+        $\emph{// Calculo distancia para orden[0..pos]}$
+        $\textbf{Si}$ pos $\geq$ 1:
+            dist $\gets$ dist + distancia(orden[pos - 1], orden[pos])
+
+        $\emph{// Vemos si orden[0..pos] es solucion}$
+        $\textbf{Si}$ esGimnasio(orden[pos]):
+            gymCounter++
+
+        $\textbf{Si}$ gymCounter = ngyms:
+            $\emph{// Llegamos a una posible solucion}$
+            $\textbf{Si}$ distancia < mejorDist:
+                mejorDist $\gets$ dist
+                mejorOrden $\gets$ orden
+                mejorOrdenLen $\gets$ pos
+            $\textbf{Retornar}$
+        }
+
+        $\textbf{Si}$ pos + 1 = #gimnasios + #paradas:
+            $\textbf{Retornar}$
+
+        $\textbf{Para}$ i $\gets$ 0 ... #gimnasios + #paradas - 1:
+            $\textbf{Si}$ usado[i]:
+                $\textbf{continuar}$
+            orden[pos+1] $\gets$ i
+
+            nuevoPowAcumulado $\gets$ powAcumulado
+            $\textbf{Si}$ $\neg$esCaminoValido(orden[pos + 1..pos + 2), tam_mochila, nuevoPowAcumulado):
+                $\textbf{continuar}$
+
+            usado[i] $\gets$ true
+            recursiva(pos + 1, gymCounter, nuevoPowAcumulado, dist);
+            usado[i] $\gets$ false
+    \end{lstlisting}
+
+    Al ser recursivo, el algoritmo requiere un \emph{launcher} que se encargue de inicializar las estructuras y variables (globales) para luego hacer los llamados a la función para $pos=0$:
+
+    \begin{lstlisting}
+    orden $\gets$ [ngyms + nstops] $\times$ (-1)                $\emph{// orden = [-1,-1...-1]}$
+
+    mejorDist $\gets$ $\infty$
+    mejorOrdenLen $\gets$ 0
+    mejorOrden $\gets$ orden
+    used $\gets$ [#gimnasios + #paradas] $\times$ (false)
+
+    $\textbf{Para}$ i $\gets$ 0 ... #gimnasios + #paradas - 1:
+        nodo_i $\gets$ nodos_gimnasios[i] $\textbf{si}$ esGimnasio(i) $\textbf{sino}$ nodos_paradas[i - #gimnasios]
+        $\textbf{Si}$ nodo_i.p > 0:
+            $\emph{//No se puede comenzar con cantidad negativa de pociones}$
+            $\textbf{continuar}$
+        orden[0] $\gets$ i;
+        used[i] $\gets$ true;
+        recursiva(0, 0, -nodo_i.p, 0);
+        used[i] $\gets$ false;
+    orden $\gets$ mejorOrden
+
+    $\textbf{Retornar}$ $\langle$mejorDist, |orden|, orden$\rangle$
+    \end{lstlisting}
+
+    \subsubsection{Complejidad del algoritmo}
+
+    Empezando por el \emph{launcher}, asignar los vectores nos cuesta $\mathcal{O}(\#gimnasios + \#paradas)$, el resto de las asignaciones $\mathcal{O}(1)$. El ciclo itera $n+m = \#gimnasios + \#paradas$ veces realizando únicamente comparaciones y asignaciones numéricas o booleanas, lo cual es $\mathcal{O}(1)$, dejando una complejidad total de $\mathcal{O}(n+m)$. Ahora veamos el costo de la función $recursiva$, para luego calcular cuántas veces es llamada.
+    \\
+
+    Las guardas de los condicionales antes del ciclo son todas comparaciones numéricas (la representación del grafo, presentada en la introducción, hace que saber si un nodo es gimnasio o no sea consultar si su numeración es menor a la cantidad de gimnasios totales) por lo que su costo es $\mathcal{O}(1)$. A su vez sus cuerpos solamente realizan asignaciones, algunas dentro de condicionales anidados con guardas también $\mathcal{O}(1)$, de a lo sumo $\mathcal{O}(n+m)$ para actualizar un nuevo mejor orden. Por lo tanto, antes del ciclo de la función, tenemos un costo de $\mathcal{O}(n+m)$.
+    \\
+
+    Dentro del ciclo \emph{for}, que se ejecuta $n+m$ veces, tenemos asignaciones de variables y elementos de vectores numéricos/booleanos con costo $\mathcal{O}(1)$ además del costo de consultar si el nuevo camino formado es válido con el tamaño de mochila y la cantidad de pociones acumuladas hasta el momento lo cual es $\mathcal{O}(1)$ porque se calcula asumiendo que el camino hasta la ubicación anterior era válida (de lo contrario se hubiera realizado una poda) y solamente se chequea si la nueva ubicación es válida. Por lo tanto el ciclo tiene un costo $\mathcal{O}(n+m)$.
+    \\
+
+    Por último, queremos una cota de peor caso para la cantidad de veces que es llamada la función recursivamente. Si bien a primera vista podría suponerse que en cada llamado se abren $n+m$ ramas posibles, teniendo $n+m$ posiciones para llenar a lo sumo (quedando $(n+m)^{n+m}$ llamados), esto no considera la poda que realiza la guarda que consulta si la ubicación escogida para $orden[pos+1]$ ya fue utilizada. Esto significa que en cada iteración descartamos una ubicación para el camino, realizando $n$ llamados para $pos=0$, $n-1$ para $pos=1$, hasta llegar a una única ubicación libre en el llamado con $pos=n-1$. Esto nos deja un total de $(n+m)!$ potenciales llamados descartando podas por invalidez de caminos (en peor caso son todos válidos) con costo $\mathcal{O}(n+m)$.
+    \\
+
+    Por lo tanto, sumando el costo de la inicilización del \emph{launcher} al producto entre la cantidad espectulada de llamadas y tu respectivo costo tenemos una complejidad $\mathcal{O}(n+m + (n+m)*(n+m)!) = \mathcal{O}((n+m)!)$. Que es, en potencial y teórico peor caso, equivalente a la de fuerza bruta, sin considerar podas que disminuyan tiempos de ejecución en casos promedio.
+
+    \subsection{Experimentación}

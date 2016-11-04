@@ -6,8 +6,8 @@
 #include <functional>
 #include <numeric>
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 extern int64_t ngyms, nstops, bagSize;
 extern PokeGraph graph;
@@ -52,64 +52,71 @@ pair<double, uint64_t> exacto_bruteforce(vector<int64_t> &orden) {
 // ------------------------------------ Solución exacta por Backtracking
 
 pair<double, uint64_t> exacto_backtracking(vector<int64_t> &orden) {
-    orden = vector<int64_t>(ngyms + nstops, -1);
+    orden = vector<int64_t>(ngyms + nstops, 0);
 
-    vector<int64_t> distanciaAcumulada(ngyms + nstops, 0);
     double mejorDist = numeric_limits<double>::infinity();
     uint64_t mejorOrdenLen = 0;
     vector<int64_t> mejorOrden = orden;
-    vector<int64_t> powerAcumulado(ngyms + nstops, 0);
     vector<bool> used(ngyms + nstops, false);
 
-    function<void(uint64_t, int64_t)> recursiva = [&](uint64_t pos,
-                                                      int64_t gymCounter) {
-        // Calculo distancia para orden[0..pos-1]
-        if (pos > 1) {
-            distanciaAcumulada[pos - 1] =
-                graph.distance(orden[pos - 2], orden[pos - 1]) +
-                distanciaAcumulada[pos - 2];
+    function<void(uint64_t, int64_t, int64_t, double)> recursiva = [&](
+        int64_t pos, int64_t gymCounter, int64_t powAcumulado,
+        double distancia) {
+
+        if (pos >= ngyms + nstops) {
+            // Algo salió mal
+            return;
         }
 
-        // Vemos si orden[0..pos-1] es solución
-        if (pos > 0) {
-            if (graph.isGym(orden[pos - 1]))
-                gymCounter++;
+        // Calculo distancia para orden[0..pos]
+        if (pos >= 1) {
+            distancia += graph.distance(orden[pos - 1], orden[pos]);
+        }
 
-            if (gymCounter == ngyms) {
-                // Llegamos a una posible solucion
-                if (distanciaAcumulada[pos - 1] < mejorDist) {
-                    mejorDist = distanciaAcumulada[pos - 1];
-                    mejorOrden = orden;
-                    mejorOrdenLen = pos;
-                    return;
-                }
+        // Vemos si orden[0..pos] es solución
+        if (graph.isGym(orden[pos]))
+            gymCounter++;
+
+        if (gymCounter == ngyms) {
+            // Llegamos a una posible solucion
+            if (distancia < mejorDist) {
+                mejorDist = distancia;
+                mejorOrden = orden;
+                mejorOrdenLen = pos;
             }
+            return;
         }
 
-        bool valido;
-        powerAcumulado[pos] = pos > 0 ? powerAcumulado[pos - 1] : 0;
+        if (pos + 1 == ngyms + nstops)
+            return;
 
         for (int i = 0; i < ngyms + nstops; i++) {
-            orden[pos] = i;
-
-            int64_t pow_anterior = powerAcumulado[pos];
-            valido =
-                esCaminoValido(orden.begin() + pos, orden.begin() + pos + 1,
-                               bagSize, graph, powerAcumulado[pos]);
-
-            if (not valido or used[i]) {
-                powerAcumulado[pos] = pow_anterior;
+            if (used[i])
                 continue;
-            }
+
+            orden[pos + 1] = i;
+            int64_t newPowAcumulado = powAcumulado;
+
+            if (not esCaminoValido(orden.begin() + pos + 1,
+                                   orden.begin() + pos + 2, bagSize, graph,
+                                   newPowAcumulado))
+                continue;
 
             used[i] = true;
-            recursiva(pos + 1, gymCounter);
-            powerAcumulado[pos] = pow_anterior;
+            recursiva(pos + 1, gymCounter, newPowAcumulado, distancia);
             used[i] = false;
         }
     };
 
-    recursiva(0, 0);
+    for (int i = 0; i < ngyms + nstops; i++) {
+        if (graph[i].power > 0)
+            continue;
+        orden[0] = i;
+        used[i] = true;
+        recursiva(0, 0, -graph[i].power, 0);
+        used[i] = false;
+    }
+
     orden = mejorOrden;
 
     return {mejorDist, orden.size()};
@@ -221,8 +228,7 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
         dist = distanciaCamino(orden.begin(), orden.end(), graph);
 
         for (uint64_t i = 0; i < orden.size(); i++) {
-            for (uint64_t j = 1; j <= orden.size(); j++) {
-
+            for (uint64_t j = i + 2; j <= orden.size(); j++) {
                 // Swap 2opt [i..j)
                 orden_vecino = orden;
                 uint64_t desde = i;
@@ -230,19 +236,22 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
                 while (hasta != desde) {
                     // A esto los seres humanos decentes le dicen 'módulo'
                     // pero experimentando con el operador % me salió fruta
-                    hasta = (hasta == 0) ? orden.size() - 1 : hasta - 1 ;
-                    if (hasta == desde) break;
+                    hasta = (hasta == 0) ? orden.size() - 1 : hasta - 1;
+                    if (hasta == desde)
+                        break;
                     orden_vecino[desde] = orden[hasta];
                     orden_vecino[hasta] = orden[desde];
                     desde = (desde == orden.size() - 1) ? 0 : desde + 1;
                 }
 
                 // Nos interesa saber si hay camino válido (y su longitud)
-                // únicamente hasta el último gym, el resto está por 'completitud'
+                // únicamente hasta el último gym, el resto está por
+                // 'completitud'
                 // para swaps.
 
                 auto ultimo_gym = orden_vecino.end();
-                for (auto it = orden_vecino.begin(); it != orden_vecino.end(); it++) {
+                for (auto it = orden_vecino.begin(); it != orden_vecino.end();
+                     it++) {
                     if (graph.isGym(*it))
                         ultimo_gym = it;
                 }
@@ -250,9 +259,8 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
                 assert(ultimo_gym != orden_vecino.end());
 
                 int64_t pow = 0;
-                valido =
-                    esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
-                                   bagSize, graph, pow);
+                valido = esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
+                                        bagSize, graph, pow);
 
                 if (not valido)
                     continue;
@@ -287,10 +295,10 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
     return {dist, orden.size()};
 }
 
-// ------------------------------------ Solución búsqueda local por swap de nodos
+// ------------------------------------ Solución búsqueda local por swap de
+// nodos
 
 pair<double, uint64_t> local_swap(vector<int64_t> &orden) {
-
     greedy_omNomNom(orden);
 
     for (int64_t i = 0; i < ngyms + nstops; i++) {
@@ -307,13 +315,13 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden) {
         dist = distanciaCamino(orden.begin(), orden.end(), graph);
         for (size_t i = 0; i < orden.size(); i++) {
             for (size_t j = i + 1; j < orden.size(); j++) {
-
                 orden_vecino = orden;
                 orden_vecino[i] = orden[j];
                 orden_vecino[j] = orden[i];
 
                 auto ultimo_gym = orden_vecino.end();
-                for (auto it = orden_vecino.begin(); it != orden_vecino.end(); it++) {
+                for (auto it = orden_vecino.begin(); it != orden_vecino.end();
+                     it++) {
                     if (graph.isGym(*it))
                         ultimo_gym = it;
                 }
@@ -321,9 +329,8 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden) {
                 assert(ultimo_gym != orden_vecino.end());
 
                 int64_t pow = 0;
-                valido =
-                    esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
-                                   bagSize, graph, pow);
+                valido = esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
+                                        bagSize, graph, pow);
 
                 if (not valido)
                     continue;
@@ -351,5 +358,4 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden) {
     orden.resize(orden.size() - distance(orden.rbegin(), ultimo_gym));
 
     return {dist, orden.size()};
-
 }
