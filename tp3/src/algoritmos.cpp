@@ -141,21 +141,57 @@ pair<double, uint64_t> exacto_dinamica(vector<int64_t> &orden) {
 // ------------------------------------ Solución greedy trivial
 
 pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
-    // Inicializar la combinacion
-    // Suponemos que siempre hay solucion
-    orden = vector<int64_t>(ngyms + nstops);
+    double distRecorrida = 0;
+    uint64_t cantPasos = 0;
+    
+    vector<Node> gyms = graph.gyms();
+    vector<Node> paradas = graph.stops();
+    int64_t potas_actual = 0;
+        
+    auto it = gyms.begin();
+    std::sort(gyms.begin(), gyms.end(), [](Node a, Node b) {return b.power < a.power;});
 
-    // Simple greedy is best greedy
-    iota(orden.begin(), orden.end(), 0);
+    auto nodo_actual = it;
 
-    double dist = distanciaCamino(orden.begin(), orden.end(), graph);
-
-    // Recortamos las paradas del final
-    auto lastGym = find_if(orden.rbegin(), orden.rend(),
-                           [](uint64_t i) { return graph.isGym(i); });
-    orden.resize(orden.size() - distance(orden.rbegin(), lastGym));
-
-    return {dist, orden.size()};
+    while (!gyms.empty()){
+      if (it->power <= potas_actual){
+        // hay por lo menos un gym al que ir
+        // Checkear la distancia para guardarse el mínimo
+        auto gym_candidato = it;
+        while (it->power <= potas_actual){
+          if(graph.distance(*nodo_actual,*it) < graph.distance(*nodo_actual,*gym_candidato))
+            gym_candidato = it;
+          it++;
+        }
+        // Voy a ese gimnasio y pierdo las potas que pide
+        distRecorrida += graph.distance(*nodo_actual,*gym_candidato);
+        nodo_actual = gym_candidato;
+        potas_actual -= gym_candidato->power;
+        gyms.erase(gym_candidato);
+      }else{
+        //Chequeamos si quedan pokeparadas
+        if(!paradas.empty()){
+          // agarramos una pokeparada
+          // Buscar el de mínima distancia linealmente en paradas
+          auto parada_mas_cercana = paradas.begin();
+          for(auto paradas_it = parada_mas_cercana; it != paradas.end(); it++){
+            if(graph.distance(*nodo_actual,*paradas_it) < graph.distance(*nodo_actual,*parada_mas_cercana))
+              parada_mas_cercana = paradas_it;
+          }
+          // Voy a la parada y actualizo mi cantidad de potas
+          distRecorrida += graph.distance(*nodo_actual,*parada_mas_cercana);
+          nodo_actual = parada_mas_cercana;
+          potas_actual = min(potas_actual + 3, bagSize);
+          paradas.erase(nodo_actual);
+        }else{
+          distRecorrida = -1;
+          cantPasos = -1;
+          gyms.clear();
+        }
+      }
+      cantPasos++;
+    }
+    return {distRecorrida, cantPasos};
 }
 
 // ------------------------------------ Solución búsqueda local por 2opt
