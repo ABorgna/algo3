@@ -28,37 +28,42 @@ class Grapher:
         pointsSet = {}
 
         for line in args.infile:
-            values = [int(x) for x in line.split()]
-
-            # Last number is the function return value
-            # Ignore this datapoint if non zero
-            ret = values.pop()
-            if len(args.exitstatus) and int(ret) not in args.exitstatus:
-                continue
-
-            # Next is the number of runs
-            values.pop()
+            values = line.split(",")
+            variables = values[0].split()
 
             # Minimum runtime, in nS
-            time = values.pop()
+            time = values[1]
 
-            # What's left is the original variables
+            # Next is the number of runs
+            reps = values[2]
+
+            # Next number is the function return value
+            exitCode = values[3]
+
+            # Extra variables
+            extra = values[4].split()
+            result = float(extra[0])
+
+            # Filter by exitCode if required
+            if len(args.exitstatus) and int(exitCode) not in args.exitstatus:
+                continue
+
+            # Process the variables
             x = None
-
             if args.mode == 'sum':
-                x = sum(values)
+                x = sum(variables)
             elif args.mode == 'prod':
                 x = 1
-                for v in values:
+                for v in variables:
                     x *= v
             elif args.mode == 'simple':
-                if len(values) != len(args.modevars):
+                if len(variables) != len(args.modevars):
                     print('Incorrect number of variables for mode "simple", expected',
-                            len(values), 'but got', len(args.modevars), file=sys.stderr)
+                            len(variables), 'but got', len(args.modevars), file=sys.stderr)
                     sys.exit(2)
 
                 x = 0
-                for mv, v in zip(args.modevars,values):
+                for mv, v in zip(args.modevars,variables):
                     valid = True
                     use = False
 
@@ -93,10 +98,10 @@ class Grapher:
             point = (x,time)
 
             if not args.colorize:
-                ret = 0
-            if not ret in pointsSet:
-                pointsSet[ret] = []
-            pointsSet[ret].append(point)
+                exitCode = 0
+            if not exitCode in pointsSet:
+                pointsSet[exitCode] = []
+            pointsSet[exitCode].append(point)
 
         for k in pointsSet.keys():
             pointsSet[k].sort()

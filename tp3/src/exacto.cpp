@@ -1,8 +1,8 @@
+#include <algoritmos.h>
 #include <generators.h>
 #include <interfaz.h>
 #include <pokegraph.h>
 #include <utils.h>
-#include <algoritmos.h>
 
 #include <iostream>
 #include <limits>
@@ -60,7 +60,9 @@ int prob_solve(std::ostream& os) {
     return N_HEURISTICA * 100 + generator * 10 + poda;
 }
 
-void prob_extra_info(std::ostream& os) { os << lastResult << " " << poda_name; }
+void prob_extra_info(std::ostream& os) {
+    os << lastResult << " exacto " << poda_name;
+}
 
 int setPrune(const vector<string>& s) {
     poda_name = s[0];
@@ -80,5 +82,5 @@ int setPrune(const vector<string>& s) {
 vector<Option> prob_custom_options() {
     return {{'p', "poda", 1, false, &setPrune, "<poda>",
              "Seleccionar el tipo de poda a usar.\n"
-             "Opciones: none, backtracking, dinamica. Default=backtracking"}};
+             "Opciones: none, backtracking. Default=backtracking"}};
 }
