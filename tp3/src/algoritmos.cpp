@@ -429,7 +429,8 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
 // ------------------------------------ Solución búsqueda local por swap de
 // nodos
 
-pair<double, uint64_t> local_swap(vector<int64_t> &orden) {
+pair<double, uint64_t> local_swap(vector<int64_t> &orden,
+                                  __attribute__((unused)) bool verbose) {
     greedy_omNomNom(orden);
 
     for (int64_t i = 0; i < ngyms + nstops; i++) {
