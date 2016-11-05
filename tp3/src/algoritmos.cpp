@@ -1,5 +1,6 @@
     #include <algoritmos.h>
     #include <pokegraph.h>
+    #include <interfaz.h> // rnd
 
     #include <utils.h>
     #include <algorithm>
@@ -231,6 +232,103 @@ pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
   }
   return {distRecorrida, orden.size()};
 }
+
+// ------------------------------------ Solución greedy random
+
+pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
+  double distRecorrida = 0;
+
+  orden = std::vector<int64_t>();
+  set<pair<int64_t, int64_t>> gyms;
+  for(int i=0; i<ngyms; i++) {
+    gyms.emplace(graph[i].power, i);
+  }
+
+  set<int64_t> paradas;
+  for(int i=0; i<nstops; i++) {
+    paradas.insert(i + ngyms);
+  }
+
+  int64_t potas_actual = 0;
+
+        // Arranco en un gimnasio.
+  int nodo_actual;
+
+        // Si no es un gimnasio gratis, arranco en una parada random.
+  if(gyms.begin()->first > 0) {
+    nodo_actual = *paradas.begin();
+    paradas.erase(paradas.begin());
+    potas_actual = min((int64_t)3,bagSize);
+  } else {
+    nodo_actual = gyms.begin()->second;
+    gyms.erase(gyms.begin());
+  }
+  orden.push_back(nodo_actual);
+
+  while (!gyms.empty()){
+    if (gyms.begin()->first <= potas_actual){
+                // hay por lo menos un gym al que ir
+                // Checkear la distancia para guardarse el mínimo
+      vector<pair<int64_t, int64_t>> candidatos;
+      double dist_candidato;
+
+      for (auto it = gyms.begin(); it != gyms.end() and it->first <= potas_actual; it++) {
+        dist_candidato = graph.distance(nodo_actual, it->second);
+        candidatos.push_back({dist_candidato, it->second});
+      }
+                // Ordena por menor distancia
+      sort(candidatos.begin(), candidatos.end());
+
+                // el próximo gimnasio aleatoriamente entre la mitad más cercana
+      uint64_t indice_random = rnd(0, candidatos.size()/2);
+      pair<int64_t, int64_t> siguiente = candidatos[indice_random];
+                // Voy a ese gimnasio y pierdo las potas que pide
+      distRecorrida += siguiente.first;
+      nodo_actual = siguiente.second;
+      potas_actual -= graph[nodo_actual].power;
+      auto it = gyms.find({graph[siguiente.second].power, siguiente.second});
+      gyms.erase(it);
+
+    } else {
+
+                //Chequeamos si quedan pokeparadas
+      if (not paradas.empty()) {
+
+                  // agarramos una pokeparada
+                  // Buscar el de mínima distancia linealmente en paradas
+        vector<pair<int64_t, int64_t>> candidatos;
+        double dist_candidato;
+
+        for(auto it = paradas.begin(); it != paradas.end(); it++) {
+            dist_candidato = graph.distance(nodo_actual, *it);
+            candidatos.push_back({dist_candidato, *it});
+        }
+                  // Ordena por menor distancia
+        sort(candidatos.begin(), candidatos.end());
+
+                  // la próxima parada aleatoriamente entre la mitad más cercana
+        uint64_t indice_random = rnd(0, candidatos.size()/2);
+        pair<int64_t, int64_t> siguiente = candidatos[indice_random];
+
+                  // Voy a la parada y actualizo mi cantidad de potas
+
+        distRecorrida += siguiente.first;
+        nodo_actual = siguiente.second;
+        potas_actual = min(potas_actual + 3, bagSize);
+        auto it = paradas.find(nodo_actual);
+        paradas.erase(it);
+
+      } else {
+
+        distRecorrida = -1;
+        break;
+      }
+    }
+    orden.push_back(nodo_actual);
+  }
+  return {distRecorrida, orden.size()};
+}
+
 
     // ------------------------------------ Solución búsqueda local por 2opt
 
