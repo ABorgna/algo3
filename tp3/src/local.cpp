@@ -41,7 +41,6 @@ int prob_solve(std::ostream& os) {
             tie(d, k) = local_dos_opt(orden, verbose);
             break;
         case tipo_swap:
-
             tie(d, k) = local_swap(orden, verbose);
             break;
     }
@@ -52,7 +51,7 @@ int prob_solve(std::ostream& os) {
     for (auto i : orden) os << " " << i + 1;
     os << endl;
 
-    return N_HEURISTICA * 100 + generator * 10;
+    return N_HEURISTICA * 100 + generator * 10 + tipo_local;
 }
 
 void prob_extra_info(std::ostream& os) {
@@ -66,7 +65,7 @@ int setTipo(const vector<string>& s) {
     } else if (s[0] == "swap") {
         tipo_local = tipo_swap;
     } else {
-        cerr << s[0] << " no es una poda válida" << endl;
+        cerr << s[0] << " no es un tipo válido" << endl;
         return 1;
     }
     return 0;
