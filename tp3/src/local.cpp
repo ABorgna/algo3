@@ -9,10 +9,18 @@ using namespace std;
 // Cambiar esto para cada heuristica
 const uint64_t N_HEURISTICA = 2;
 
+enum tipo_local_t {
+    tipo_dos_opt = 0,
+    tipo_swap = 1,
+};
+
 extern int64_t ngyms, nstops, bagSize;
 extern PokeGraph graph;
 extern int64_t generator;
 extern string generatorName;
+
+tipo_local_t tipo_local = tipo_dos_opt;
+string tipo_local_name = "dos_opt";
 
 double lastResult = 0;
 bool verbose = false;
@@ -28,7 +36,15 @@ int prob_solve(std::ostream& os) {
 
     vector<int64_t> orden;
 
-    tie(d, k) = local_dos_opt(orden, verbose);
+    switch (tipo_local) {
+        case tipo_dos_opt:
+            tie(d, k) = local_dos_opt(orden, verbose);
+            break;
+        case tipo_swap:
+
+            tie(d, k) = local_swap(orden, verbose);
+            break;
+    }
 
     lastResult = d;
 
@@ -39,7 +55,22 @@ int prob_solve(std::ostream& os) {
     return N_HEURISTICA * 100 + generator * 10;
 }
 
-void prob_extra_info(std::ostream& os) { os << lastResult; }
+void prob_extra_info(std::ostream& os) {
+    os << lastResult << " local " << tipo_local_name;
+}
+
+int setTipo(const vector<string>& s) {
+    tipo_local_name = s[0];
+    if (s[0] == "dos_opt") {
+        tipo_local = tipo_dos_opt;
+    } else if (s[0] == "swap") {
+        tipo_local = tipo_swap;
+    } else {
+        cerr << s[0] << " no es una poda válida" << endl;
+        return 1;
+    }
+    return 0;
+}
 
 int setVerbose(__attribute__((unused)) const vector<string>& s) {
     verbose = true;
@@ -47,6 +78,9 @@ int setVerbose(__attribute__((unused)) const vector<string>& s) {
 }
 
 vector<Option> prob_custom_options() {
-    return {{'v', "verbose", 0, false, &setVerbose, "",
+    return {{'t', "tipo", 1, false, &setTipo, "<tipo>",
+             "Seleccionar el tipo de busqueda local a realizar.\n"
+             "Opciones: dos_opt, swap. Default=dos_opt"},
+            {'v', "verbose", 0, false, &setVerbose, "",
              "Seleccionar el tipo de poda a usar."}};
 }
