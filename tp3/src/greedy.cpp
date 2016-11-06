@@ -43,6 +43,8 @@ int prob_solve(std::ostream& os) {
     return N_HEURISTICA * 100 + generator * 10;
 }
 
-void prob_extra_info(std::ostream& os) { os << lastResult << " greedy"; }
+void prob_extra_info(std::ostream& os) {
+    os << lastResult << ",greedy," << "closest";
+}
 
 vector<Option> prob_custom_options() { return {}; }

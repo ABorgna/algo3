@@ -131,8 +131,8 @@ void print_measure(ostream& os, uint64_t iteraciones,
                    const vector<uint64_t>& vars, const string& generator) {
     vector<uint64_t> times(iteraciones);
     uint64_t res = measure(times);
-    for (const uint64_t v : vars) os << v << " ";
-    os << "," << *min_element(times.begin(), times.end()) << "," << times.size()
+    for (const uint64_t v : vars) os << v << ",";
+    os << *min_element(times.begin(), times.end()) << "," << times.size()
        << "," << res << "," << generator << ",";
     prob_extra_info(os);
     os << endl;

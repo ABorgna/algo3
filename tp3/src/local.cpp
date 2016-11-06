@@ -55,7 +55,7 @@ int prob_solve(std::ostream& os) {
 }
 
 void prob_extra_info(std::ostream& os) {
-    os << lastResult << " local " << tipo_local_name;
+    os << lastResult << ",local," << tipo_local_name;
 }
 
 int setTipo(const vector<string>& s) {

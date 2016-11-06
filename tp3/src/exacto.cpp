@@ -61,7 +61,7 @@ int prob_solve(std::ostream& os) {
 }
 
 void prob_extra_info(std::ostream& os) {
-    os << lastResult << " exacto " << poda_name;
+    os << lastResult << ",exacto," << poda_name;
 }
 
 int setPrune(const vector<string>& s) {
