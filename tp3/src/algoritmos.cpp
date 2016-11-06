@@ -332,6 +332,38 @@ pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
     return {distRecorrida, orden.size()};
 }
 
+// ---------------------------- G R A S P 
+
+pair<double, uint64_t> grasp(vector<int64_t> &orden) {
+
+    //Llamo a Greedy random para tener alguna solucion
+    pair<double, uint64_t> mejor = greedy_random (orden);
+    
+    bool flag = true;
+    pair<double, uint64_t> actual ;
+    // Mi idea es usar algunas veces 2opt y otras veces swap de nodos
+    for (int i = 0; i < 100; ++i)
+    {
+        if (flag)
+        {
+            actual = local_dos_opt(orden,false);
+        }
+
+        else
+        {
+            actual = local_swap(orden,false);
+        }
+        flag = !flag;
+        mejor =  actual.first < mejor.first ? actual : mejor;
+    }
+
+
+return mejor ;
+
+}
+
+
+
 // ------------------------------------ Solución búsqueda local por 2opt
 
 pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
