@@ -1,0 +1,79 @@
+\section{Heurística constructiva-golosa}
+    Como vimos en la sección anterior, el costo en complejidad temporal de un algoritmo que nos asegure una solución exacta a nuestro problema no es desdeñable incluso aplicando podas y estrategias para aminorar tiempos de ejecución. En esta sección nos encargaremos de presentar técnicas heurísticas para el problema, particularmente del tipo \emph{greedy}, que proporcionen soluciones en tiempo polinomial aún sin proveer garantías de soluciones óptimas.
+
+\subsection{Gimnasio más cercano}
+    Ya mencionamos en la introducción cierto paralelismo en la naturaleza del problema con el de buscar un camino hamiltoniano mínimo, el cual a su se asemeja al \emph{TSP}\footnote{Travelling Salesman Problem: https://en.wikipedia.org/wiki/Travelling_salesman_problem}. Nuestro \emph{approach} a una heurística \emph{greedy} está fuertemente basada en el homólogo \emph{Nearest neighbour algorithm} \footnote{https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm} pensada para encontrar soluciones al \emph{TSP}.
+    \\
+
+    La idea es tomar en cada momento, de todos los gimnasios con requisitos de pociones menores a la cantidad acumulada, aquel que sea más cercano a la ubicación 'actual'. De no contar con suficientes pociones para ninguno de los gimnasios restantes, se busca la parada más cercana. En caso de que no queden paradas sin visitar y falten gimnasios por visitar, el algoritmo devolverá un camino inválido.
+    \\
+
+    En muchas ocasiones el algoritmo puede no encontrar una solución factible incluso frente a la existencia de una. Por ejemplo:
+    \\
+
+    {\color{red} * ejemplo acá *}
+    \\
+
+\subsubsection{Pseudocódigo del algoritmo}
+
+    \begin{lstlisting}
+    distRecorrida $\gets$ 0
+    orden $\gets$ $\langle {\ } \rangle$
+
+    gims $\gets$ $\emptyset$
+    $\textbf{Para}$ i $\gets$ 0.. #gimnasios:
+        gims $\gets$ gims $\cup\ \{ \langle P(i),\ i \rangle \}$
+
+    paradas $\gets$ $\emptyset$
+    $\textbf{Para}$ i $\gets$ 0.. #paradas:
+        paradas $\gets$ paradas $\cup\ \{i + \#gimnasios\}$
+    pociones_actuales $\gets$ 0
+
+    $\textbf{Si}$ min(gims).first > 0:
+        nodo_actual $\gets$ min(gims)
+        paradas $\gets$ paradas - min(gims)
+        pociones_actuales $\gets$ min{3, tam_mochila}
+    $\textbf{Sino:}$
+        nodo_actual $\gets$ min(gims).second
+        gims $\gets$ gims - min(gims)
+    orden $\gets$ orden ++ [nodo_actual]
+
+    Mientras gims $\neq$ $\emptyset$:
+        $\textbf{Si}$ min(gims).first $\geq$ pociones_actuales:
+            gim_candidato $\gets$ min(gims)
+            dist_candidato $\gets$ distancia(nodo_actual, gim_candidato.second)
+
+            $\textbf{Para}$ it = gyms.begin(), it != gyms.end() and it->first <= pociones_actuales; it++:
+                $\textbf{Si}$ graph.distance(nodo_actual, it->second) < dist_candidato:
+                    gym_candidato $\gets$ it
+                    dist_candidato $\gets$ graph.distance(nodo_actual, gym_candidato->second)
+
+            gim_candidato $\gets$ $\{p \in$ paradas$ \big  |  \forall p' \in$ paradas $distancia($nodo_actual$, p) \leq distancia($nodo_actual$, p')\}$
+
+            distRecorrida $\gets$ distRecorrida + dist_candidato
+            nodo_actual $\gets$ gym_candidato->second
+            pociones_actuales $\gets$ pociones_actuales - gym_candidato->first
+            gyms.erase(gym_candidato)
+
+        $\textbf{Sino si}$ paradas $\neq$ $\emptyset$:
+            parada_mas_cercana $\gets$ min(paradas)
+            dist_candidato $\gets$ distancia(nodo_actual, parada_mas_cercana)
+
+            $\textbf{Para}$ auto it = paradas.begin(); it != paradas.end(); it++)
+                $\textbf{Si}$ graph.distance(nodo_actual, *parada_mas_cercana) < dist_candidato:
+                    parada_mas_cercana $\gets$ it
+                    dist_candidato $\gets$ graph.distance(nodo_actual, *parada_mas_cercana)
+
+            distRecorrida $\gets$ distRecorrida + dist_candidato
+            nodo_actual $\gets$ *parada_mas_cercana
+            pociones_actuales $\gets$ min(pociones_actuales + 3, tam_mochila)
+            paradas.erase(nodo_actual)
+
+        $\textbf{Sino:}$
+            distRecorrida $\gets$ -1
+            $\textbf{Terminar}$
+        orden $\gets$ orden ++ [nodo_actual]
+    $\textbf{Retornar}$ {distRecorrida, orden.size()}
+    \end{lstlisting}
+
+\subsubsection{Complejidad del algoritmo}
