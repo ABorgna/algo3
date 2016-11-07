@@ -338,17 +338,19 @@ pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
 pair<double, uint64_t> grasp(vector<int64_t> &orden) {
     // Llamo a Greedy random para tener alguna solucion
     pair<double, uint64_t> mejor = greedy_random(orden);
-
+    pair<double, uint64_t> actual = greedy_random(orden);
+    
     bool flag = true;
-    pair<double, uint64_t> actual;
+    
     // Mi idea es usar algunas veces 2opt y otras veces swap de nodos
-    for (int i = 0; i < 100; ++i) {
+    int limit = orden.size();
+    for (int i = 0; i < limit; ++i) {
         if (flag) {
-            actual = local_dos_opt(orden, false);
+            actual = local_dos_opt(actual);
         }
 
         else {
-            actual = local_swap(orden, false);
+            actual = local_swap(actual);
         }
         flag = !flag;
         mejor = actual.first < mejor.first ? actual : mejor;
