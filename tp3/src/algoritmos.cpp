@@ -452,9 +452,13 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose,
     // Para que esto funcione como debe, orden no puede tener
     // trimeado el resto de las paradas (tienen que estar para que
     // el swapeo de la mayor cantidad posible de combinaciones)
-    for (int64_t i = 0; i < ngyms + nstops; i++) {
-        if (find(orden.begin(), orden.end(), i) == orden.end())
-            orden.push_back(i);
+    vector<bool> usedStops(nstops, false);
+    for (int64_t i : orden) {
+        if(i >= ngyms) usedStops[i-ngyms] = true;
+    }
+    for(int64_t stop=0; stop<nstops; stop++) {
+        if(!usedStops[stop])
+            orden.push_back(stop + ngyms);
     }
 
     double dist;
@@ -541,9 +545,17 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose,
         // No nos mandaron una solución válida
         return {numeric_limits<double>::infinity(), 0};
     }
-    for (int64_t i = 0; i < ngyms + nstops; i++) {
-        if (find(orden.begin(), orden.end(), i) == orden.end())
-            orden.push_back(i);
+
+    // Para que esto funcione como debe, orden no puede tener
+    // trimeado el resto de las paradas (tienen que estar para que
+    // el swapeo de la mayor cantidad posible de combinaciones)
+    vector<bool> usedStops(nstops, false);
+    for (int64_t i : orden) {
+        if(i >= ngyms) usedStops[i-ngyms] = true;
+    }
+    for(int64_t stop=0; stop<nstops; stop++) {
+        if(!usedStops[stop])
+            orden.push_back(stop + ngyms);
     }
 
     double dist;
