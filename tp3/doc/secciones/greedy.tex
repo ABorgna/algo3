@@ -5,7 +5,7 @@
     Ya mencionamos en la introducción cierto paralelismo en la naturaleza del problema con el de buscar un camino hamiltoniano mínimo, el cual a su se asemeja al \emph{TSP}\footnote{Travelling Salesman Problem: https://en.wikipedia.org/wiki/Travelling_salesman_problem}. Nuestro \emph{approach} a una heurística \emph{greedy} está fuertemente basada en el homólogo \emph{Nearest neighbour algorithm} \footnote{https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm} pensada para encontrar soluciones al \emph{TSP}.
     \\
 
-    La idea es tomar en cada momento, de todos los gimnasios con requisitos de pociones menores a la cantidad acumulada, aquel que sea más cercano a la ubicación 'actual'. De no contar con suficientes pociones para ninguno de los gimnasios restantes, se busca la parada más cercana. En caso de que no queden paradas sin visitar y falten gimnasios por visitar, el algoritmo devolverá un camino inválido.
+    La idea es tomar en cada momento, de todos los gimnasios con requisitos de pociones menores a la cantidad acumulada, aquel que sea más cercano a la ubicación 'actual'. De no contar con suficientes pociones para ninguno de los gimnasios restantes, se busca la parada más cercana. En caso de que no queden paradas sin visitar y falten gimnasios por visitar el algoritmo terminará, devolviendo que no hay solución.
     \\
 
     En muchas ocasiones el algoritmo puede no encontrar una solución factible incluso frente a la existencia de una. Por ejemplo:
