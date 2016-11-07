@@ -335,31 +335,24 @@ pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
 
 // ---------------------------- G R A S P
 
-pair<double, uint64_t> grasp(vector<int64_t> &orden) {
+pair<double, uint64_t> grasp(vector<int64_t> &orden, uint8_t exp) {
     // Llamo a Greedy random para tener alguna solucion
-    vector<int64_t> mejor1 , actual1 ; // PlaceHolders
-    pair<double, uint64_t> mejor = greedy_random(mejor1);
+    vector<int64_t> orden_actual ; // PlaceHolders
+    double mejor = numeric_limits<double>::infinity();
     pair<double, uint64_t> actual;
 
-    bool flag = true;
     // Mi idea es usar algunas veces 2opt y otras veces swap de nodos
-    int limit = orden.size();
+    int n = orden.size();
 
-    for (int i = 0; i < limit; ++i) {
-    actual = greedy_random(actual1);
-        if (flag) {
-           actual = local_dos_opt(actual1,false,i);
-        }
-
-        else {
-            actual = local_swap(actual1,false,i);
-        }
-        flag = !flag;
-        mejor = actual.first < mejor.first ? actual : mejor;
-        orden = actual.first < mejor.first ? actual1 : mejor1;
+    for (int i = 0; i < n; ++i) {
+        auto par = greedy_random(orden_actual);
+        if (par.first == numeric_limits<double>::infinity())
+            continue;
+        actual = local_swap(orden_actual, false, (int) pow(n, exp));
+        if (actual.first < mejor) orden = orden_actual;
     }
 
-    return mejor;
+    return {mejor, orden.size()};
 }
 
 // ------------------------------------ Corrida de opt (devuelve dist y si hubo mejora)
