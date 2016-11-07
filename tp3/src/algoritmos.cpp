@@ -149,10 +149,15 @@ pair<double, uint64_t> exacto_dinamica(vector<int64_t> &orden) {
 
 // ------------------------------------ Solución greedy trivial
 
-pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
+pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden,
+                                       bool closest_first) {
     double distRecorrida = 0;
 
     orden = std::vector<int64_t>();
+
+    auto compare = [closest_first](double d, double best) {
+        return closest_first ? d < best : best < d;
+    };
 
     set<pair<int64_t, int64_t>> gyms;
     for (int i = 0; i < ngyms; i++) {
@@ -165,11 +170,9 @@ pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
     }
 
     int64_t potas_actual = 0;
-
-    // Arranco en un gimnasio.
     int nodo_actual;
 
-    // Si no es un gimnasio gratis, arranco en una parada random.
+    // Si no hay un gimnasio gratis, arranco en una parada random.
     if (gyms.begin()->first > 0) {
         nodo_actual = *paradas.begin();
         paradas.erase(paradas.begin());
@@ -190,7 +193,8 @@ pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
 
             for (auto it = gyms.begin();
                  it != gyms.end() and it->first <= potas_actual; it++) {
-                if (graph.distance(nodo_actual, it->second) < dist_candidato) {
+                if (compare(graph.distance(nodo_actual, it->second),
+                            dist_candidato)) {
                     gym_candidato = it;
                     dist_candidato =
                         graph.distance(nodo_actual, gym_candidato->second);
@@ -213,8 +217,9 @@ pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
                     graph.distance(nodo_actual, *parada_mas_cercana);
 
                 for (auto it = paradas.begin(); it != paradas.end(); it++) {
-                    if (graph.distance(nodo_actual, *parada_mas_cercana) <
-                        dist_candidato) {
+                    if (compare(
+                            graph.distance(nodo_actual, *parada_mas_cercana),
+                            dist_candidato)) {
                         parada_mas_cercana = it;
                         dist_candidato =
                             graph.distance(nodo_actual, *parada_mas_cercana);
@@ -354,8 +359,8 @@ pair<double, uint64_t> grasp(vector<int64_t> &orden, double expLimite,
         if (resGreedy.first == numeric_limits<double>::infinity())
             continue;
 
-        auto res = i%2 ? local_dos_opt(orden_actual, false, limite):
-                         local_swap(orden_actual, false, limite);
+        auto res = i % 2 ? local_dos_opt(orden_actual, false, limite)
+                         : local_swap(orden_actual, false, limite);
 
         if (res.first < mejorRes) {
             mejorRes = res.first;
@@ -454,10 +459,11 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose,
     // el swapeo de la mayor cantidad posible de combinaciones)
     vector<bool> usedStops(nstops, false);
     for (int64_t i : orden) {
-        if(i >= ngyms) usedStops[i-ngyms] = true;
+        if (i >= ngyms)
+            usedStops[i - ngyms] = true;
     }
-    for(int64_t stop=0; stop<nstops; stop++) {
-        if(!usedStops[stop])
+    for (int64_t stop = 0; stop < nstops; stop++) {
+        if (!usedStops[stop])
             orden.push_back(stop + ngyms);
     }
 
@@ -551,10 +557,11 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose,
     // el swapeo de la mayor cantidad posible de combinaciones)
     vector<bool> usedStops(nstops, false);
     for (int64_t i : orden) {
-        if(i >= ngyms) usedStops[i-ngyms] = true;
+        if (i >= ngyms)
+            usedStops[i - ngyms] = true;
     }
-    for(int64_t stop=0; stop<nstops; stop++) {
-        if(!usedStops[stop])
+    for (int64_t stop = 0; stop < nstops; stop++) {
+        if (!usedStops[stop])
             orden.push_back(stop + ngyms);
     }
 

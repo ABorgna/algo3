@@ -37,7 +37,7 @@ int prob_solve(std::ostream& os) {
     vector<int64_t> orden;
 
     // Inicializamos la solución con un greedy
-    greedy_omNomNom(orden);
+    greedy_omNomNom(orden, true);
 
     switch (tipo_local) {
         case tipo_dos_opt:
