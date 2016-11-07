@@ -38,10 +38,10 @@ int prob_solve(std::ostream& os) {
 
     switch (tipo_local) {
         case tipo_dos_opt:
-            tie(d, k) = local_dos_opt(orden, verbose);
+            tie(d, k) = local_dos_opt(orden, verbose, 0);
             break;
         case tipo_swap:
-            tie(d, k) = local_swap(orden, verbose);
+            tie(d, k) = local_swap(orden, verbose, 0);
             break;
     }
 
