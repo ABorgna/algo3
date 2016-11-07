@@ -132,9 +132,9 @@ uint64_t measure(vector<uint64_t>& mediciones) {
 }
 
 void print_measure(ostream& os, uint64_t iteraciones,
-                   const vector<uint64_t>& vars, const string& generator) {
+                   const vector<uint64_t>& vars, const string& generator,
+                   pcg64 prev_pcg) {
     vector<uint64_t> times(iteraciones);
-    pcg64 prev_pcg = eng;
     uint64_t res = measure(times);
     for (const uint64_t v : vars) os << v << ",";
     os << *min_element(times.begin(), times.end()) << "," << times.size()
@@ -221,7 +221,7 @@ void measure_multiple(ostream& os, istream& is, uint64_t iteraciones) {
         ;
     for (uint64_t p = num_problema; load_next(is); p++) {
         cerr << "Problema Nᵒ " << p << endl;
-        print_measure(os, iteraciones, prob_vars(), prob_print_generator());
+        print_measure(os, iteraciones, prob_vars(), prob_print_generator(),eng);
     }
     cerr << "Terminado." << endl;
 }
@@ -241,15 +241,18 @@ void generate_measure(ostream& os, const vector<Range>& ranges,
         cont = increment_ranges(vars, ranges);
     while (cont) {
         for (uint64_t i = indice_instancia; i < cantidad; i++, num_problema++) {
-            cerr << "Problema Nᵒ " << num_problema << ", RNG State: ";
-            print_rng_state(cerr) << " Vars:";
+            pcg64 prev_pcg = eng;
             generator(vars);
+
+            cerr << "Problema Nᵒ " << num_problema << ", RNG State: ";
+            print_rng_state(cerr,prev_pcg,' ');
+            cerr << " Vars:";
             for (const uint64_t v : vars) cerr << " " << v;
             cerr << endl;
 
             // Si es all, sino generate
             if (iteraciones) {
-                print_measure(os, iteraciones, vars, prob_print_generator());
+                print_measure(os, iteraciones, vars, prob_print_generator(), prev_pcg);
             } else {
                 prob_print_input(os);
                 prob_solve(os);
