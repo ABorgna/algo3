@@ -81,8 +81,12 @@ uint64_t rnd(uint64_t inicio, uint64_t fin) {
     return pcg64_bounded(&eng, fin - inicio + 1) + inicio;
 }
 
+ostream& print_rng_state(ostream& os, pcg64 pcg, char sep) {
+    return os << (uint64_t)(pcg.state >> 64) << sep << (uint64_t)pcg.state;
+}
+
 ostream& print_rng_state(ostream& os) {
-    return os << (uint64_t)(eng.state >> 64) << " " << (uint64_t)eng.state;
+    return print_rng_state(os, eng, ' ');
 }
 
 bool load_next(istream& is) {
@@ -130,11 +134,14 @@ uint64_t measure(vector<uint64_t>& mediciones) {
 void print_measure(ostream& os, uint64_t iteraciones,
                    const vector<uint64_t>& vars, const string& generator) {
     vector<uint64_t> times(iteraciones);
+    pcg64 prev_pcg = eng;
     uint64_t res = measure(times);
     for (const uint64_t v : vars) os << v << ",";
     os << *min_element(times.begin(), times.end()) << "," << times.size()
        << "," << res << "," << generator << ",";
     prob_extra_info(os);
+    os << ",";
+    print_rng_state(os, prev_pcg, ',');
     os << endl;
 }
 

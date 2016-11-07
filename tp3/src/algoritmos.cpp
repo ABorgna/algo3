@@ -227,8 +227,8 @@ pair<double, uint64_t> greedy_omNomNom(vector<int64_t> &orden) {
                 potas_actual = min(potas_actual + 3, bagSize);
                 paradas.erase(nodo_actual);
             } else {
-                distRecorrida = -1;
-
+                distRecorrida = numeric_limits<double>::infinity();
+                orden.resize(0);
                 break;
             }
         }
@@ -323,7 +323,8 @@ pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
                 paradas.erase(it);
 
             } else {
-                distRecorrida = -1;
+                distRecorrida = numeric_limits<double>::infinity();
+                orden.resize(0);
                 break;
             }
         }
@@ -332,45 +333,42 @@ pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
     return {distRecorrida, orden.size()};
 }
 
-// ---------------------------- G R A S P 
+// ---------------------------- G R A S P
 
 pair<double, uint64_t> grasp(vector<int64_t> &orden) {
+    // Llamo a Greedy random para tener alguna solucion
+    pair<double, uint64_t> mejor = greedy_random(orden);
 
-    //Llamo a Greedy random para tener alguna solucion
-    pair<double, uint64_t> mejor = greedy_random (orden);
-    
     bool flag = true;
-    pair<double, uint64_t> actual ;
+    pair<double, uint64_t> actual;
     // Mi idea es usar algunas veces 2opt y otras veces swap de nodos
-    for (int i = 0; i < 100; ++i)
-    {
-        if (flag)
-        {
-            actual = local_dos_opt(orden,false);
+    for (int i = 0; i < 100; ++i) {
+        if (flag) {
+            actual = local_dos_opt(orden, false);
         }
 
-        else
-        {
-            actual = local_swap(orden,false);
+        else {
+            actual = local_swap(orden, false);
         }
         flag = !flag;
-        mejor =  actual.first < mejor.first ? actual : mejor;
+        mejor = actual.first < mejor.first ? actual : mejor;
     }
 
-
-return mejor ;
-
+    return mejor;
 }
-
-
 
 // ------------------------------------ Solución búsqueda local por 2opt
 
-pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
+pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden,
+                                     __attribute__((unused)) bool verbose) {
     // Unleash the greedy (se puede arrancar también con un iota sobre orden,
     // pero quizás es mejor arrancar un poco más cerca de un resultado
     // 'no-tan-fruta')
-    greedy_omNomNom(orden);
+    auto p = greedy_omNomNom(orden);
+    if (p.first == numeric_limits<double>::infinity()) {
+        // No encontró solución
+        return p;
+    }
 
     // Para que esto funcione como debe, orden no puede tener
     // trimeado el resto de las paradas (tienen que estar para que
@@ -463,7 +461,11 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose) {
 
 pair<double, uint64_t> local_swap(vector<int64_t> &orden,
                                   __attribute__((unused)) bool verbose) {
-    greedy_omNomNom(orden);
+    auto p = greedy_omNomNom(orden);
+    if (p.first == numeric_limits<double>::infinity()) {
+        // No encontró solución
+        return p;
+    }
 
     for (int64_t i = 0; i < ngyms + nstops; i++) {
         if (find(orden.begin(), orden.end(), i) == orden.end())
