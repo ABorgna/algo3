@@ -113,15 +113,17 @@ pair<double, uint64_t> exacto_backtracking(vector<int64_t> &orden) {
     for (int i = 0; i < ngyms + nstops; i++) {
         if (graph[i].power > 0)
             continue;
+        int64_t powAcumulado = min(bagSize, -graph[i].power);
         orden[0] = i;
         used[i] = true;
-        recursiva(0, 0, -graph[i].power, 0);
+        recursiva(0, 0, powAcumulado, 0);
         used[i] = false;
     }
 
     orden = mejorOrden;
+    orden.resize(mejorOrdenLen);
 
-    return {mejorDist, orden.size()};
+    return {mejorDist, mejorOrdenLen};
 }
 
 // ------------------------------------ Solución exacta por dinamic programming
