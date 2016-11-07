@@ -346,7 +346,7 @@ pair<double, uint64_t> grasp(vector<int64_t> &orden) {
     int limit = orden.size();
 
     for (int i = 0; i < limit; ++i) {
-    actual = greedy_random(actual1);       
+    actual = greedy_random(actual1);
         if (flag) {
            actual = local_dos_opt(actual1,false,i);
         }
@@ -461,8 +461,10 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose, int c
     bool seguir;
     do {
         pair<double, bool> ult_corrida = iterar2opt(orden, verbose);
+        seguir = ult_corrida.second;
         dist = ult_corrida.first;
-        seguir = (corridas == 0)? ult_corrida.second : (--corridas > 0);
+        if (corridas > 0)
+            seguir &= (--corridas > 0);
     } while (seguir);
 
     // Trim sobre las paradas tras el último gym
@@ -546,12 +548,13 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose, int corr
     }
 
     double dist;
-    bool seguir = false;
-
+    bool seguir;
     do {
         pair<double, bool> ult_corrida = iterar_swap(orden, verbose);
+        seguir = ult_corrida.second;
         dist = ult_corrida.first;
-        seguir = (corridas == 0)? ult_corrida.second : (--corridas > 0);
+        if (corridas > 0)
+            seguir &= (--corridas > 0);
     } while (seguir);
 
     auto ultimo_gym = orden.rend();
