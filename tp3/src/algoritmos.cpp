@@ -2,6 +2,7 @@
 #include <interfaz.h>  // rnd
 #include <pokegraph.h>
 
+#include <math.h>
 #include <utils.h>
 #include <algorithm>
 #include <functional>
@@ -335,30 +336,40 @@ pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
 
 // ---------------------------- G R A S P
 
-pair<double, uint64_t> grasp(vector<int64_t> &orden, uint8_t exp) {
-    // Llamo a Greedy random para tener alguna solucion
-    vector<int64_t> orden_actual ; // PlaceHolders
-    double mejor = numeric_limits<double>::infinity();
-    pair<double, uint64_t> actual;
+pair<double, uint64_t> grasp(vector<int64_t> &orden, double expLimite,
+                             double expInicios) {
+    double mejorRes = numeric_limits<double>::infinity();
+    vector<int64_t> orden_actual;  // PlaceHolders
+    orden = vector<int64_t>();
 
     // Mi idea es usar algunas veces 2opt y otras veces swap de nodos
-    int n = orden.size();
+    int n = ngyms + nstops;
 
-    for (int i = 0; i < n; ++i) {
-        auto par = greedy_random(orden_actual);
-        if (par.first == numeric_limits<double>::infinity())
+    int inicios = max(1, (int)pow(n, expInicios));
+    int limite = max(1, (int)pow(n, expLimite));
+
+    for (int i = 0; i < inicios; ++i) {
+        auto resGreedy = greedy_random(orden_actual);
+
+        if (resGreedy.first == numeric_limits<double>::infinity())
             continue;
-        actual = local_swap(orden_actual, false, (int) pow(n, exp));
-        if (actual.first < mejor) orden = orden_actual;
+
+        auto res = i%2 ? local_dos_opt(orden_actual, false, limite):
+                         local_swap(orden_actual, false, limite);
+
+        if (res.first < mejorRes) {
+            mejorRes = res.first;
+            orden = orden_actual;
+        }
     }
 
-    return {mejor, orden.size()};
+    return {mejorRes, orden.size()};
 }
 
-// ------------------------------------ Corrida de opt (devuelve dist y si hubo mejora)
+// ------------------------------------ Corrida de opt (devuelve dist y si hubo
+// mejora)
 
 pair<double, bool> iterar2opt(vector<int64_t> &orden, bool verbose) {
-
     // Para que esto funcione como debe, orden no puede tener
     // trimeado el resto de las paradas (tienen que estar para que
     // el swapeo de la mayor cantidad posible de combinaciones)
@@ -431,16 +442,13 @@ pair<double, bool> iterar2opt(vector<int64_t> &orden, bool verbose) {
 
 // ------------------------------------ Solución búsqueda local por 2opt
 // Si corridas == 0, se itera hasta que deje de encontrar mejoras
-pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose, int corridas) {
-    // Unleash the greedy (se puede arrancar también con un iota sobre orden,
-    // pero quizás es mejor arrancar un poco más cerca de un resultado
-    // 'no-tan-fruta')
-    auto p = greedy_omNomNom(orden);
-
-    if (p.first == numeric_limits<double>::infinity()) {
-        // No encontró solución
-        return p;
+pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose,
+                                     int corridas) {
+    if (!orden.size()) {
+        // No nos mandaron una solución válida
+        return {numeric_limits<double>::infinity(), 0};
     }
+
     // Para que esto funcione como debe, orden no puede tener
     // trimeado el resto de las paradas (tienen que estar para que
     // el swapeo de la mayor cantidad posible de combinaciones)
@@ -475,11 +483,10 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose, int c
     return {dist, orden.size()};
 }
 
-
-// ------------------------------------ Corrida de swap (devuelve dist y si hubo mejora)
+// ------------------------------------ Corrida de swap (devuelve dist y si hubo
+// mejora)
 
 pair<double, bool> iterar_swap(vector<int64_t> &orden, bool verbose) {
-
     double dist, dist_vecino;
     bool valido;
     vector<int64_t> orden_vecino(orden.size(), -1);
@@ -528,12 +535,11 @@ pair<double, bool> iterar_swap(vector<int64_t> &orden, bool verbose) {
 // ------------------------------------ Solución búsqueda local por swap de
 // nodos
 // Si corridas == 0, se itera hasta que deje de encontrar mejoras
-pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose, int corridas) {
-    auto p = greedy_omNomNom(orden);
-
-    if (p.first == numeric_limits<double>::infinity()) {
-        // No encontró solución
-        return p;
+pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose,
+                                  int corridas) {
+    if (!orden.size()) {
+        // No nos mandaron una solución válida
+        return {numeric_limits<double>::infinity(), 0};
     }
     for (int64_t i = 0; i < ngyms + nstops; i++) {
         if (find(orden.begin(), orden.end(), i) == orden.end())

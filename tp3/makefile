@@ -19,7 +19,7 @@ DIRS = $(OUT_DIR) $(OBJ_DIR) $(BENCH_OBJ_DIR) $(GRAPH_OBJ_DIR) \
 INCLUDES = $(SRC_DIR)/include/
 CFLAGS += -I $(INCLUDES)
 
-HEURISTICAS = exacto greedy local
+HEURISTICAS = exacto greedy local grasp
 EXTRA_SOURCES = $(SRC_DIR)/bench/benchmark.cpp $(SRC_DIR)/bench/pcg.cpp \
 				$(SRC_DIR)/graph/generators.cpp $(SRC_DIR)/graph/pokegraph.cpp \
 				$(SRC_DIR)/boilerplate.cpp $(SRC_DIR)/utils.cpp \
