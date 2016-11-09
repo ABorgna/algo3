@@ -14,66 +14,84 @@
     {\color{red} * ejemplo acá *}
     \\
 
-\subsubsection{Pseudocódigo del algoritmo}
+    {\color{red} * demo de que la solución puede ser arbitrariamente peor que la del exacto *}
 
-    \begin{lstlisting}
-    distRecorrida $\gets$ 0
-    orden $\gets$ $\langle {\ } \rangle$
+    \subsubsection{Pseudocódigo del algoritmo}
 
-    gims $\gets$ $\emptyset$
-    $\textbf{Para}$ i $\gets$ 0.. #gimnasios:
-        gims $\gets$ gims $\cup\ \{ \langle P(i),\ i \rangle \}$
+    Haciendo uso de conjuntos, implementados sobre estructuras de acceso logarítmico en su cardinal \footnote{http://en.cppreference.com/w/cpp/container/set}, guardamos por un lado el total de nodos paradas (numerados desde $\#gimnasios$ hasta $(\#gimnasios + \#paradas - 1)$ y, por el otro lado, por cada gimnasio (van de 0 a $\#gimnasios-1$) una tupla de $\langle pociones\ requeridas,\ gimnasio \rangle$ de modo que tengamos acceso logarítmico al gimnasio con menos pociones requeridas (el tipo set ordena primero por primer componente en pares). Esto nos va a permitir recortar búsquedas lineales cuando, al recorrer de menor a mayor en requerimientos de pociones, veamos el primer gimnasio que supera nuestra cantidad acumulada.
+    \\
 
-    paradas $\gets$ $\emptyset$
-    $\textbf{Para}$ i $\gets$ 0.. #paradas:
-        paradas $\gets$ paradas $\cup\ \{i + \#gimnasios\}$
-    pociones_actuales $\gets$ 0
+    Como el esquema del vecino más cercano nos permite elegir cualquier ubicación inicial válida, tomamos como punto de partida del camino el gimnasio 'gratuito' de menor numeración (correspondiente al mínimo sobre el conjunto, dado que es el elemento con menor segunda componente de aquellos con pociones requeridas igual a 0), sino, la primer parada enumerada.
+        \begin{lstlisting}
+        distRecorrida $\gets$ 0
+        orden $\gets$ $\langle {\ } \rangle$
 
-    $\textbf{Si}$ min(gims).first > 0:
-        nodo_actual $\gets$ min(gims)
-        paradas $\gets$ paradas - min(gims)
-        pociones_actuales $\gets$ min{3, tam_mochila}
-    $\textbf{Sino:}$
-        nodo_actual $\gets$ min(gims).second
-        gims $\gets$ gims - min(gims)
-    orden $\gets$ orden ++ [nodo_actual]
+        gims $\gets$ $\emptyset$
+        $\textbf{Para}$ i $\gets$ 0.. #gimnasios:
+            gims $\gets$ gims $\cup\ \{ \langle P(i),\ i \rangle \}$
 
-    Mientras gims $\neq$ $\emptyset$:
-        $\textbf{Si}$ min(gims).first $\geq$ pociones_actuales:
-            gim_candidato $\gets$ min(gims)
-            dist_candidato $\gets$ distancia(nodo_actual, gim_candidato.second)
+        paradas $\gets$ $\emptyset$
+        $\textbf{Para}$ i $\gets$ 0.. #paradas:
+            paradas $\gets$ paradas $\cup\ \{i + \#gimnasios\}$
+        pociones_actuales $\gets$ 0
 
-            $\textbf{Para}$ it = gyms.begin(), it != gyms.end() and it->first <= pociones_actuales; it++:
-                $\textbf{Si}$ graph.distance(nodo_actual, it->second) < dist_candidato:
-                    gym_candidato $\gets$ it
-                    dist_candidato $\gets$ graph.distance(nodo_actual, gym_candidato->second)
-
-            gim_candidato $\gets$ $\{p \in$ paradas$ \big  |  \forall p' \in$ paradas $distancia($nodo_actual$, p) \leq distancia($nodo_actual$, p')\}$
-
-            distRecorrida $\gets$ distRecorrida + dist_candidato
-            nodo_actual $\gets$ gym_candidato->second
-            pociones_actuales $\gets$ pociones_actuales - gym_candidato->first
-            gyms.erase(gym_candidato)
-
-        $\textbf{Sino si}$ paradas $\neq$ $\emptyset$:
-            parada_mas_cercana $\gets$ min(paradas)
-            dist_candidato $\gets$ distancia(nodo_actual, parada_mas_cercana)
-
-            $\textbf{Para}$ auto it = paradas.begin(); it != paradas.end(); it++)
-                $\textbf{Si}$ graph.distance(nodo_actual, *parada_mas_cercana) < dist_candidato:
-                    parada_mas_cercana $\gets$ it
-                    dist_candidato $\gets$ graph.distance(nodo_actual, *parada_mas_cercana)
-
-            distRecorrida $\gets$ distRecorrida + dist_candidato
-            nodo_actual $\gets$ *parada_mas_cercana
-            pociones_actuales $\gets$ min(pociones_actuales + 3, tam_mochila)
-            paradas.erase(nodo_actual)
-
+        $\textbf{Si}$ min(gims).first > 0:
+            nodo_actual $\gets$ min(paradas)
+            paradas $\gets$ paradas - min(paradas)
+            pociones_actuales $\gets$ min{3, tam_mochila}
         $\textbf{Sino:}$
-            distRecorrida $\gets$ -1
-            $\textbf{Terminar}$
+            nodo_actual $\gets$ min(gims).second
+            gims $\gets$ gims - min(gims)
         orden $\gets$ orden ++ [nodo_actual]
-    $\textbf{Retornar}$ {distRecorrida, orden.size()}
-    \end{lstlisting}
+
+        Mientras gims $\neq$ $\emptyset$:
+            $\textbf{Si}$ min(gims).first $\geq$ pociones_actuales:
+                gim_candidato $\gets$ $(g \in$ gims | g.first $ \leq $ pociones_actuales $\land$
+                  ($\forall \ g'\in$ gims, g'.first$\leq$ pociones_actuales) $distancia($nodo_actual, g.second$) \leq$
+                                                            $distancia($nodo_actual, g'.second))
+
+                dist_candidato $\gets$ $distancia$(nodo_actual, gim_candidato.second)
+
+                distRecorrida $\gets$ distRecorrida + dist_candidato
+                nodo_actual $\gets$ gim_candidato.second
+                pociones_actuales $\gets$ pociones_actuales - gim_candidato.first
+                gims $\gets$ gims - {gim_candidato}
+
+            $\textbf{Sino si}$ paradas $\neq$ $\emptyset$:
+                parada_mas_cercana $\gets$ $(p \in$ paradas | $\forall \ p'\in$ paradas, $distancia($nodo_actual$, p) \leq$
+                                                                 $distancia($nodo_actual$, p'))$
+
+                dist_candidato $\gets$ $distancia$(nodo_actual, parada_mas_cercana)
+
+                distRecorrida $\gets$ distRecorrida + dist_candidato
+                nodo_actual $\gets$ parada_mas_cercana
+                pociones_actuales $\gets$ min(pociones_actuales + 3, tam_mochila)
+                paradas $\gets$ paradas - {nodo_actual}
+
+            $\textbf{Sino:}$
+                distRecorrida $\gets$ -1
+                $\textbf{Terminar}$
+            orden $\gets$ orden ++ [nodo_actual]
+        $\textbf{Retornar}$ {distRecorrida, orden.size()}
+        \end{lstlisting}
 
 \subsubsection{Complejidad del algoritmo}
+    El costo de inicializar ambos conjuntos con todos sus elementos iniciales es $\mathcal{O}(\#gimnasios * log(\#gimnasios)\ +\ \#paradas*log(\#paradas))$ acotando para ambos casos el costo de cada inserción como aquel en el que ya se encuentran todos los elementos en la estructura. Además, conseguir los requisitos de pociones de cada gimnasio es $\mathcal{O}(1)$ considerando que esa información está contenida en las tuplas que representan al grafo, mencionadas en la sección de introducción, las cuales se coleccionan en vectores de acceso $\mathcal{O}(1)$ desde índices.
+    \\
+
+    Para determinar la posición inicial hace falta consultar la cantidad de pociones que pide el gimnasio de menor requisitos, esto tiene un costo asociado de $\mathcal{O}(log(\#gimnasios))$. Si no es 'gratuito' entonces tenemos que asignar la ubicación actual como la menor parada numerda y eliminarla del conjunto de paradas candidatas, ambas operaciones en $\mathcal{O}(log(\#paradas))$, y luego incrementar la cantidad acumulada de pociones tomando mínimo entre las 3 que otorga la parada y el tamaño total de mochila en $\mathcal{O}(1)$. De ser gratuito, se asigna el mínimo gimnasio como ubicación actual y se lo elimina de la lista de candidatos en $\mathcal{O}(log(\#gimnasios))$. En ambos casos, agregar la nueva ubicación a la lista de orden es $\mathcal{O}(1)$ amortizado, implementado en el tipo vector de la STL de C++ \footnote{http://www.cplusplus.com/reference/vector/vector/push_back/\#complexity}. Por lo tanto asignar la primer ubicación tiene un costo $\mathcal{O}(log(\#gimnasios)+log(\#paradas))$ sumando ambas ramas y la guarda.
+    \newpage
+
+    Nos resta ver el costo del ciclo. El ciclo itera hasta cubrir todos los gimnasios candidatos, pero en peor caso necesita para ello cubrir también todas las paradas. Entonces el ciclo itera, en peor caso, un orden de $(\#gimnasios+\#paradas)$ veces.
+    \\
+
+    En cada iteración se consulta si el conjunto de gimnasios candidatos es vacío, en tiempo constante \footnote{http://www.cplusplus.com/reference/vector/vector/empty/\#complexity}. Y además se inserta, como vimos ya en $\mathcal{O}(1)$ amortizado, la ubicación elegida.
+    \\
+
+    En la rama en que no alcanzan las pociones actuales y quedan paradas hace falta recorrer linealmente todas las paradas en busca de aquella más cercana, como la operación de distancia tiene complejidad $\mathcal{O}(1)$ (visto en la introducción) el costo de buscar la más cercana tiene en el peor caso asociado a recorrer todas las paradas sin considerar borrados de $\mathcal{O}(\#paradas)$. Luego se actualizan variables numéricas como pociones actuales y distancia recorrida en $\mathcal{O}(1)$ y finalmente se elimina la parada elegida en $\mathcal{O}(log(\#paradas))$. La rama tiene un costo peor caso, entonces, de $\mathcal{O}(\#paradas)$ considerando también el costo de consultar en la guarda si el conjunto de candidatos está vacío que, como ya vimos, es constante.
+    \\
+
+    En la rama en que existe al menos un gimnasio recorrible con la cantidad de pociones acumuladas, también hace falta buscar linealmente en la lista de gimnasios a aquel con menor distancia y que además pida menos pociones que las acumuladas, estas dos operaciones se realizan en tiempo constante y por lo tanto la búsqueda tiene un costo peor caso (al igual que en las paradas, considerando que siempre van a estar todos los gimnasios sin considerar que se van eliminando) de $\mathcal{O}(\#gimnasios)$. Nuevamente se actualizan las pociones, distancias recorridas, y ubicación actual en tiempo constante para finalmente eliminar el gimnasio elegido del conjunto de candidatos en $\mathcal{O}(log(\#gimnasios))$. Sumando todos estos costos al de consultar en la guarda si el gimnasio de requisito mínimo pide menos pociones de las que tenemos en $\mathcal{O}(log(\#gimnasios))$ peor caso, nos queda una complejidad total de la rama de $\mathcal{O}(\#gimnasios)$.
+    \\
+
+    Despreciando el costo de la rama en que se aborta la ejecución porque solamente se actualiza la distancia recorrida y se retorna. Nos queda un costo total del ciclo que ejecuta $(\#gimnasios+\#paradas)$ con un costo por cuerpo de $(\#gimnasios+\#paradas)$, quedando la complejidad $\mathcal{O}((\#gimnasios+\#paradas) * (\#gimnasios+\#paradas)) = \mathcal{O}((\#gimnasios+\#paradas)^2)$.
