@@ -12,6 +12,7 @@ const uint64_t N_HEURISTICA = 2;
 enum tipo_local_t {
     tipo_dos_opt = 0,
     tipo_swap = 1,
+    tipo_swap_min = 2,
 };
 
 extern int64_t ngyms, nstops, bagSize;
@@ -46,6 +47,8 @@ int prob_solve(std::ostream& os) {
         case tipo_swap:
             tie(d, k) = local_swap(orden, verbose, 0);
             break;
+        case tipo_swap_min:
+            tie(d, k) = local_swap_min(orden, verbose, 0);
     }
 
     lastResult = d;
@@ -65,6 +68,8 @@ int setTipo(const vector<string>& s) {
     tipo_local_name = s[0];
     if (s[0] == "dos_opt") {
         tipo_local = tipo_dos_opt;
+    } else if (s[0] == "swap_min") {
+        tipo_local = tipo_swap_min;
     } else if (s[0] == "swap") {
         tipo_local = tipo_swap;
     } else {
@@ -82,7 +87,7 @@ int setVerbose(__attribute__((unused)) const vector<string>& s) {
 vector<Option> prob_custom_options() {
     return {{'t', "tipo", 1, false, &setTipo, "<tipo>",
              "Seleccionar el tipo de busqueda local a realizar.\n"
-             "Opciones: dos_opt, swap. Default=dos_opt"},
+             "Opciones: dos_opt, swap, swap_min. Default=dos_opt"},
             {'v', "verbose", 0, false, &setVerbose, "",
              "Seleccionar el tipo de poda a usar."}};
 }

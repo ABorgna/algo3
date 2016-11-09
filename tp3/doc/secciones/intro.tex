@@ -29,7 +29,7 @@
    Antes de proceder específicamente sobre las implementaciones es conveniente explicar cómo representamos y tratamos las ubicaciones del mapa del problema. Si bien, como dijimos, las ubicaciones se corresponden a tuplas de la pinta $(X_k, Y_k, P_k)$, las enumeraremos como índices de 0 a $(n + m - 1)$ en el orden que se pasan por parámetro (primero $n$ gimnasios y luego $m$ paradas) de modo que para saber si una ubicación es gimnasio o parada basta con comparar su valor numérico contra $n$ y $m$.
    \\
 
-   De esta manera, el grafo que sobre el cual trabajaremos consiste en dos secuencias de nodos $(X, Y, P)$ para gimnasios y paradas (el índice número $i$ es el nodo gimnasio i-ésimo o la parada (i-n)-ésima).
+   De esta manera, el grafo que sobre el cual trabajaremos consiste en dos secuencias de nodos $(X, Y, P)$ para gimnasios y paradas (el índice número $i$ es el nodo gimnasio i-ésimo o la parada (i-n)-ésima). Este grafo es completo dado que no hay restricción sobre qué ubicaciones se pueden visitar consecutivamente.
    \\
 
    También por conveniencia, presentamos el pseudocódigo de algunas funciones auxiliares que utilizaremos regularmente en las subsecciones de las implementaciones. Estas son aquellas que definen la validez de una secuencia como camino dado un tamaño de mochila y una cantidad acumulada de pociones hasta el momento (actualizando además dicha cantidad), y la distancia de un camino dado hasta su último gimnasio. Más adelante se detallará por qué, pero para buscar caminos mínimos en nuestro problema nos alcanza con saber distancias hasta el último gimnasio, sin contar las paradas restantes.

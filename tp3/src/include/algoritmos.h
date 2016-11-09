@@ -17,3 +17,5 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose,
                                   int corridas);
 pair<double, uint64_t> grasp(vector<int64_t> &orden, double expLimite,
                              double expInicios);
+ pair<double, uint64_t> local_swap_min(vector<int64_t> &orden, bool verbose,
+                                   int corridas);

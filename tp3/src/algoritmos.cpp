@@ -589,3 +589,100 @@ pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose,
 
     return {dist, orden.size()};
 }
+
+
+// ------------------------------------ Corrida de swap (devuelve dist y si hubo
+// mejora) RETORNA EL MINIMO DEL VECINDARIO DE ORDEN
+
+pair<double, bool> iterar_swap_min(vector<int64_t> &orden, bool verbose) {
+    double dist, dist_vecino;
+    bool valido;
+    vector<int64_t> orden_vecino(orden.size(), -1);
+    vector<int64_t> mejor_vecino(orden.size(), -1);
+
+    bool huboMejora = false;
+    dist = distanciaCamino(orden.begin(), orden.end(), graph);
+
+    for (size_t i = 0; i < orden.size(); i++) {
+        for (size_t j = i + 1; j < orden.size(); j++) {
+            orden_vecino = orden;
+            orden_vecino[i] = orden[j];
+            orden_vecino[j] = orden[i];
+
+            auto ultimo_gym = orden_vecino.end();
+            for (auto it = orden_vecino.begin(); it != orden_vecino.end();
+                 it++) {
+                if (graph.isGym(*it))
+                    ultimo_gym = it;
+            }
+
+            assert(ultimo_gym != orden_vecino.end());
+
+            int64_t pow = 0;
+            valido = esCaminoValido(orden_vecino.begin(), ultimo_gym + 1,
+                                    bagSize, graph, pow);
+
+            if (not valido)
+                continue;
+
+            dist_vecino = distanciaCamino(orden_vecino.begin(),
+                                          orden_vecino.end(), graph);
+
+            if (dist_vecino < dist) {
+                huboMejora = true;
+                dist = dist_vecino;
+                mejor_vecino = orden_vecino;
+                if (verbose)
+                    std::cerr << dist << std::endl;
+            }
+        }
+    }
+    orden = mejor_vecino;
+    return {dist, huboMejora};
+}
+
+// ------------------------------------ Solución búsqueda local por swap de
+// nodos
+// Si corridas == 0, se itera hasta que deje de encontrar mejoras
+pair<double, uint64_t> local_swap_min(vector<int64_t> &orden, bool verbose,
+                                  int corridas) {
+    if (!orden.size()) {
+        // No nos mandaron una solución válida
+        return {numeric_limits<double>::infinity(), 0};
+    }
+
+    // Para que esto funcione como debe, orden no puede tener
+    // trimeado el resto de las paradas (tienen que estar para que
+    // el swapeo de la mayor cantidad posible de combinaciones)
+    vector<bool> usedStops(nstops, false);
+    for (int64_t i : orden) {
+        if (i >= ngyms)
+            usedStops[i - ngyms] = true;
+    }
+    for (int64_t stop = 0; stop < nstops; stop++) {
+        if (!usedStops[stop])
+            orden.push_back(stop + ngyms);
+    }
+
+    double dist;
+    bool seguir;
+    do {
+        pair<double, bool> ult_corrida = iterar_swap_min(orden, verbose);
+        seguir = ult_corrida.second;
+        dist = ult_corrida.first;
+        if (corridas > 0)
+            seguir &= (--corridas > 0);
+    } while (seguir);
+
+    auto ultimo_gym = orden.rend();
+    for (auto it = orden.rbegin(); it != orden.rend(); it++) {
+        if (graph.isGym(*it)) {
+            ultimo_gym = it;
+            break;
+        }
+    }
+
+    orden.resize(orden.size() - distance(orden.rbegin(), ultimo_gym));
+
+    return {dist, orden.size()};
+}
