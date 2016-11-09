@@ -1,6 +1,7 @@
 targets = informe.pdf
 
-includes = secciones/exacto.tex secciones/src.tex
+includes = secciones/exacto.tex secciones/experimentos.tex secciones/greedy.tex \
+		   secciones/intro.tex secciones/src.tex
 
 libs = caratula.sty
 
