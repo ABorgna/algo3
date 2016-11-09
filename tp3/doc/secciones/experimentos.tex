@@ -6,20 +6,24 @@ Para las mediciones de tiempos se corre repetidamente el mismo problema no menos
 
 \subsection{Runtime de los algoritmos exactos}
 
+\subsubsection{En función de la cantidad de nodos}
+
 En la figura \ref{fig:time-exacto} comparamos el tiempo de ejecución del algoritmo exacto de fuerza bruta con el de backtracking.
 Para ello medimos con ambos 5 casos distintos para cada combinación de cantidad de gimnasios y paradas entre 2 y 5. Además usamos siempre un tamaño de mochila mayor a tres veces la cantidad de paradas.
 
+Como podemos observar, ambos se comportan exponencialmente pero el backtracking resulta ser cerca de un orden de magnitud mas rápido.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{time-exacto}
-	\caption{Tiempo de ejecución de algoritmos algoritmos exactos}
+	\includegraphics[width=14cm]{time-exacto}
+	\caption{Tiempo de ejecución de los algoritmos exactos}
 	\label{fig:time-exacto}
 \end{figure}
 
-Como podemos observar, ambos se comportan exponencialmente pero el backtracking resulta ser cerca de un orden de magnitud mas rápido.
-\\
+\subsubsection{En función del tamaño de la mochila}
 
 A continuación realizamos pruebas fijando la cantidad de gimnasios y paradas en 5 y variando el tamaño de la mochila.
+
 Desafortunadamente vemos en la figura \ref{fig:time-exacto-moch} que dentro del intervalo de tamaños de mochila
 interesantes, limitado por la cantidad de nodos que puede tener un problema a ser resuelto en un tiempo factible
 (ya que si el tamaño es mayor a tres veces la cantidad de paradas, no influirá en el comportamiento del algoritmo),
@@ -27,8 +31,134 @@ no podemos determinar propiamente el comportamiento.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{time-exacto-moch}
-	\caption{Tiempo de ejecución de algoritmos algoritmos exactos al variar el tamaño de la mochila}
+	\includegraphics[width=13.5cm]{time-exacto-moch}
+	\caption{Tiempo de ejecución de los algoritmos exactos al variar el tamaño de la mochila}
 	\label{fig:time-exacto-moch}
 \end{figure}
 
+\subsection{Runtime de las heurísticas greedy}
+
+\subsubsection{En función de la cantidad de nodos}
+
+Medimos el tiempo en la figura \ref{fig:time-greedy} generando 5 casos para cada combinación de entre 1000 y 10000 gimnasios y paradas, avanzando de a 1000, y tamaño de mochila mayor a 30000.
+
+Vemos en la figura \ref{fig:time-greedy-correlation} que estos tiempos tiempos se correlaciona fuertemente con un comportamiento cuadrático en función de la cantidad de nodos.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=13.5cm]{time-greedy}
+	\caption{Tiempo de ejecución de las heurísticas greedy}
+	\label{fig:time-greedy}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{time-greedy-correlation}
+	\caption{Correlación entre el tiempo de ejecución del greedy y una complejidad cuadrática}
+	\label{fig:time-greedy-correlation}
+\end{figure}
+
+\subsubsection{En función del tamaño de la mochila}
+
+Realizamos también pruebas fijando la cantidad de gimnasios y paradas en 2500 y variando el tamaño de la mochila entre 100 y 7500 en pasos de a 100, y nos encontramos con un comportamiento constante y con poco ruido para ambos tipos de greedy (con una correlación entre tiempo medido y tamaño de mochila de $0.170856$).
+
+En el cuadro \ref{tab:time-greedy-moch} se encuentra una descripción de los datos medidos.
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{| l r |}
+            \hline
+            count  & 76.000000 \\
+            mean   &  0.215175 \\
+            std    &  0.005658 \\
+            min    &  0.209863 \\
+            25\%   &  0.212328 \\
+            50\%   &  0.213131 \\
+            75\%   &  0.215283 \\
+            max    &  0.239380 \\
+            \hline
+        \end{tabular}
+        \caption{Descripción de las mediciones en función del tamaño de mochila}\label{tab:time-greedy-moch}
+    \end{center}
+\end{table}
+
+\subsection{Runtime de las heurísticas locales}
+
+\subsubsection{En función de la cantidad de nodos}
+
+Para las heurísticas locales medimos nuevamente los tiempos generando 5 casos para cada combinación de entre 10 y 100 gimnasios y paradas, avanzando de a 10, y tamaño de mochila mayor a 300. Los resultados se pueden apreciar en la figura \ref{fig:time-local}.
+
+Podemos corroborar en la figura \ref{fig:time-local-correlation} que ambas variaciones se corresponden con un comportamiento de orden cuarto en función de la cantidad de nodos.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=13.5cm]{time-local}
+	\caption{Tiempo de ejecución de las heurísticas locales}
+	\label{fig:time-local}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=13cm]{time-local-correlation}
+    \caption{Correlación entre el tiempo de ejecución de las heurísticas locales 2opt (izquierda) y swap (derecha), con una complejidad $n^4$}
+	\label{fig:time-local-correlation}
+\end{figure}
+
+\subsubsection{En función del tamaño de la mochila}
+
+Nuevamente realizamos pruebas fijando la cantidad de gimnasios y paradas en 50 y variando el tamaño de la mochila entre 10 y 150, y nos encontramos, al igual que con el greedy, con un comportamiento constante en función de la mochila para ambas variaciones (con una correlación entre tiempo medido y tamaño de mochila de $0.259633$ para swap y de $0.265672$ para 2opt).
+
+En el cuadro \ref{tab:time-local-moch} se encuentra una descripción de los datos medidos.
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{| l r r |}
+            \hline
+            & Swap & 2opt \\
+            \hline
+            count  & 141.000000 & 141.000000 \\
+            mean   &   0.263016 &   0.167931 \\
+            std    &   0.080163 &   0.034468 \\
+            min    &   0.124284 &   0.087849 \\
+            25\%   &   0.214029 &   0.143264 \\
+            50\%   &   0.253680 &   0.165566 \\
+            75\%   &   0.297979 &   0.193758 \\
+            max    &   0.566984 &   0.268200 \\
+            \hline
+        \end{tabular}
+        \caption{Descripción de las mediciones en función del tamaño de mochila}\label{tab:time-local-moch}
+    \end{center}
+\end{table}
+
+\subsection{Runtime de la metaheurística GRASP}
+
+\subsubsection{En función de la cantidad de nodos}
+
+Para medir el comportamiento de GRASP generamos 4 instancias para cada combinación de gimnasios y mochilas entre 10 y 50, avanzando de a 5, con un tamaño de mochila superior a 150. En la figura \ref{fig:time-grasp} pueden apreciarse los resultados. Como se observa en la figura \ref{fig:time-grasp-correlation}, el comportamiento está fuertemente correlacionado a un orden 5 sobre la cantidad de nodos.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=13.5cm]{time-grasp}
+	\caption{Tiempo de ejecución de la metaheurística grasp}
+	\label{fig:time-grasp}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{time-grasp-correlation}
+	\caption{Correlación entre el tiempo de ejecución de grasp y una complejidad de orden 5 en función de la cantidad de nodos}
+	\label{fig:time-grasp-correlation}
+\end{figure}
+
+\subsubsection{En función del tamaño de la mochila}
+
+Para medir el tiempo de ejecución en función del tamaño de la mochila fijamos la cantidad de gimnasios y paradas en 20 y variamos la mochila entre 10 y 60. Como se aprecia en la figura \ref{fig:time-grasp-moch}, nos encontramos con que para tamaños pequeños se observa una correlación entre la mochila y el tiempo de ejecución, pero mas o menos a partir del tamaño 30 los tiempos se mantienen relativamente constantes.
+
+Esto puede deberse a que cuando hay poco espacio el la mochila se limita la cantidad de opciones que puede tomar el algoritmo, lo que hace que termine mas temprano.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{time-grasp-moch}
+	\caption{Correlación entre el tiempo de ejecución de grasp y una complejidad de orden 5 en función de la cantidad de nodos}
+	\label{fig:time-grasp-moch}
+\end{figure}
