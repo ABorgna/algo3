@@ -1,0 +1,84 @@
+\section{Heurística de búsqueda local}
+Como vimos en la sección anterior, la heurística golosa no nos provee ninguna garantía de error máximo contra soluciones reales. Una manera de 'amortizar' esto, es realizar optimizaciones por búsqueda local sobre los resultados arrojados por dicha heurística. Dada una instancia de solución al problema y un vecindario definido de otras soluciones, tomamos la vecina de menor distancia total y reiteramos con algún criterio que determine cuándo parar. Si ninguna vecina tenía menor distancia, entonces no es posible ninguna optimización desde esa misma instancia.
+\\
+
+Presentaremos dos vecindarios experimentales con el fin de contrastar su rendimiento temporal y sus respectivos errores respecto de la solución real. Al igual que en el caso de la heurística golosa, decidimos basarnos en heurísticas clásicas utilizadas para \emph{TSP}.
+
+\subsection{Búsqueda local por swaps de nodos}
+La idea es sencilla: para cualquier par dado de nodos en un camino, supongamos $v$ y $w$ con $w$ recorrido posteriormente a $v$ ¿representa una mejora en la distancia total intercambiarlos de manera que a la hora de visitar $v$ en su lugar recorra $w$ y viceversa?
+\\
+
+Así, el vecindario de una solución son todas aquellas resultantes de swapear dos ubicaciones en el vector donde se encuentran por orden.
+
+\subsubsection{Pseudocódigo del algoritmo}
+
+Claramente es necesario recalcalcular la validez de un camino tras swapear dos de sus ubicaciones antes de considerarlo como candidato.
+
+    \begin{lstlisting}
+    $\textbf{Def}$ iterar_swap(orden) $\rightarrow\ \langle {float,\ bool} \rangle$
+
+        huboMejora $\gets$ false
+        dist $\gets$ distanciaCamino(orden, graph)
+
+        $\textbf{Para}$ i $\gets$ 0...|orden|-1:
+            $\textbf{Para}$ j $\gets$ i + 1...|orden|-1:
+                orden_vecino $\gets$ orden
+                orden_vecino[i] $\gets$ orden[j]
+                orden_vecino[j] $\gets$ orden[i]
+
+                $\textbf{Para}$ k $\gets$ 0...|orden|-1:
+                    $\textbf{Si}$ esGimnasio(orden[k]):
+                        ultimo_gim $\gets$ k
+
+                pow $\gets$ 0
+                valido $\gets$ esCaminoValido(orden_vecino[0..ultimo_gim], tam_mochila, pow)
+
+                $\textbf{Si}$ $\neg$valido:
+                    $\textbf{Proximo j}$
+
+                dist_vecino $\gets$ distanciaCamino(orden_vecino)
+
+                $\textbf{Si}$ dist_vecino < dist:
+                    huboMejora $\gets$ true
+                    dist $\gets$ dist_vecino
+                    mejor_vecino $\gets$ orden_vecino
+        Retornar $\langle$ dist, huboMejora $\rangle$
+    \end{lstlisting}
+
+    Veamos ahora el contexto de búsqueda en que se invoca la función. Recibimos por entrada el orden de recorrido de alguna solución válida desarrollada por la heurística \emph{greedy}, de no ser válida devolvemos un resultado anunciándolo pues no podríamos optimizar una solución inválida, y luego procedemos a insertarle al final todas las paradas que no contenga dicho recorrido. Esto se debe a que, aún cuando no se hayan usado en la solución original, nos interesa maximizar el vecindario de la instancia de modo que podamos explorar la mayor cantidad posible de swapeos. Si la solución que devolveremos no necesita esas paradas para recorrer todos los gimnasios, serán recortadas nuevamente.
+    \\
+
+    Un tema de interés respecto a la optimización por búsqueda local es el de escoger la cantidad necesaria de iteraciones a realizar. Por ejemplo, una opción sería iterar hasta que no se encuentre ninguna mejora en el último vecindario. Si bien maximiza posibilidades de encontrar una buena solución, es potencialmente costosa dado que si en cada llamado a $iterar_swap$ encontramos una nueva mejor solución podría llegar a ser necesario mejorar cada una de las permutaciones posibles del arreglo de ubicaciones (de cardinal factorial en su longitud) en un supuesto peor caso. Por lo tanto, buscando un comportamiento polinómico, iteramos una cantidad fija de veces de acuerdo a un parámetro de entrada (corridas). Si corridas es 0 se itera como describimos antes, hasta que no haya mejoras, de lo contrario se itera $corridas$ veces o hasta llegar a un vecindario sin mejores soluciones.
+
+    \begin{lstlisting}
+    $\textbf{Def}$ local_swap(orden, corridas) $\rightarrow \langle {float,\ int,\ vector} \rangle$
+
+        $\textbf{Si}$ |orden| = 0:
+            $\textbf{Retornar}$ $\langle$ $\infty$, 0, [] $\rangle$
+
+        usada $\gets$ [nstops] $\times$ (false)        $\emph{// usada = [false.. false]}$
+        $\textbf{Para}$ i en orden:
+            $\textbf{Si}$ i $\geq$ #gimnasios:
+                usada[i - #gimnasios] $\gets$ true
+
+        $\textbf{Para}$ parada $\gets$ 0..#paradas:
+            Si $\neg$usada[parada]:
+                orden $\gets$ orden ++ [parada + #gimnasios]
+
+        seguir $\gets$ true
+        $\textbf{Mientras}$ seguir:
+            ult_corrida $\gets$ iterar_swap(orden);
+            seguir $\gets$ ult_corrida.second
+            dist $\gets$ ult_corrida.first
+            $\textbf{Si}$ corridas > 0:
+                corridas $\gets$ corridas - 1
+                seguir $\gets$ (seguir $\land$ (corridas > 0))
+
+        $\textbf{Para}$ k $\gets$ 0...|orden|-1:
+            $\textbf{Si}$ esGimnasio(orden[k]):
+                ultimo_gim $\gets$ k
+
+        orden $\gets$ orden[0..ultimo_gim]
+
+        $\textbf{Retornar}$ $\langle$ dist, |orden|, orden $\rangle$
+    \end{lstlisting}
