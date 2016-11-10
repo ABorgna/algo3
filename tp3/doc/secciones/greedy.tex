@@ -14,7 +14,13 @@
     {\color{red} * ejemplo acá *}
     \\
 
-    {\color{red} * demo de que la solución puede ser arbitrariamente peor que la del exacto *}
+    Incluso no solo no provee garantías de llegar a un resultado válido, de existir, sino que tampoco podemos especular con un 'error máximo' de precisión respecto de la solución real. Supongamos que existe alguna cota k que caracterice "cuántas veces la distancia mínima real" puede a lo sumo llegar a ser aquella devuelta por nuestro algoritmo. Pero entonces podríamos suponer un escenario con tamaño de mochila $3*k$, $n$ paradas (0,0) superpuestas y $n$ gimnasios ($k$, 0, 3) también superpuestos.
+    \\
+
+    El algoritmo \emph{exacto} devolvería un orden que tome primero todas las paradas recorriendo distancia 0 y luego todos los gimnasios, con distancia $k$.
+    \\
+
+    El \emph{greedy}, en cambio, va a buscar la primer parada para tener al menos 3 pociones (necesarias para visitar cualquier gimnasio) para luego visitar alguno. Al quedar sin pociones, va a tener que reiterar el mecanismo repetidas veces hasta cubrir todas las paradas y gimnasios de manera alternada, haciendo $2k$ idas y $2k-1$ vueltas. Por lo tanto va a recorrer $k(2k-1)$ que es $2k-1$ veces la distancia del exacto, superando la supuesta cota $k$.
 
     \subsubsection{Pseudocódigo del algoritmo}
 
@@ -80,7 +86,7 @@
     \\
 
     Para determinar la posición inicial hace falta consultar la cantidad de pociones que pide el gimnasio de menor requisitos, esto tiene un costo asociado de $\mathcal{O}(log(\#gimnasios))$. Si no es 'gratuito' entonces tenemos que asignar la ubicación actual como la menor parada numerda y eliminarla del conjunto de paradas candidatas, ambas operaciones en $\mathcal{O}(log(\#paradas))$, y luego incrementar la cantidad acumulada de pociones tomando mínimo entre las 3 que otorga la parada y el tamaño total de mochila en $\mathcal{O}(1)$. De ser gratuito, se asigna el mínimo gimnasio como ubicación actual y se lo elimina de la lista de candidatos en $\mathcal{O}(log(\#gimnasios))$. En ambos casos, agregar la nueva ubicación a la lista de orden es $\mathcal{O}(1)$ amortizado, implementado en el tipo vector de la STL de C++ \footnote{http://www.cplusplus.com/reference/vector/vector/push_back/\#complexity}. Por lo tanto asignar la primer ubicación tiene un costo $\mathcal{O}(log(\#gimnasios)+log(\#paradas))$ sumando ambas ramas y la guarda.
-    \newpage
+    \\
 
     Nos resta ver el costo del ciclo. El ciclo itera hasta cubrir todos los gimnasios candidatos, pero en peor caso necesita para ello cubrir también todas las paradas. Entonces el ciclo itera, en peor caso, un orden de $(\#gimnasios+\#paradas)$ veces.
     \\

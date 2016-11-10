@@ -122,4 +122,56 @@ Claramente es necesario recalcalcular la validez de un camino tras swapear dos d
     Al no repetir pares $(i,j)$ dentro de un mismo llamado y siendo el código extremadamente similar (en vez de actualizar $mejor\_vecino$ se pisa $orden$ con $orden\_vecino$) la complejidad se mantiene igual que en la subsección anterior. Por los motivos anteriores no se considera necesario repetir el pseudocódigo.
     \\
 
-    Aún siendo menos ortodoxa que la implementación que mostramos anteriormente, nos interesó la cuestión de, si al tomar siempre la primer solución 'buena' de cada vecindario y pudiendo actualizar más de una solución por llamado a $iterar\_swap$.
+    Aunque no tome necesariamente el mínimo de los vecinos como sí lo hace la implementación que mostramos anteriormente, nos interesó la cuestión de, si al tomar siempre la primer solución 'buena' de cada vecindario y pudiendo actualizar más de una solución por llamado a $iterar\_swap$, se produjeran mejoras en rendimiento. Esto lo pondremos a prueba en la sección de experimentación.
+
+    \subsection{Búsqueda local por 2opt}
+
+    Dado un camino, ¿existen dos pares continuos de ubicaciones $(orden_i,\ orden_{i+1})$ y $(orden_k,\ orden_{k+1})$ tal que $distancia(orden_i,\ orden_{i+1})$ + $distancia(orden_k,\ orden_{k+1}) \ < \ distancia(orden_i,\ orden_k)$ + $distancia(orden_{i+1},\ orden_{k+1})$?
+    \\
+
+    De ser así, podemos 'swapear' las aristas $(orden_i,\ orden_{i+1})$ y $(orden_k,\ orden_{k+1})$ por $(orden_i,\ orden_k)$ y $(orden_{i+1},\ orden_{k+1})$ obteniendo un camino de mejor longitud aunque no sea necesariamente válido, por lo que haría falta corroborar su validez. Esta estrategia se llama $2opt$ \footnote{https://en.wikipedia.org/wiki/2-opt} y es un caso particular de la heurística \emph{Lin–Kernighan} \footnote{https://en.wikipedia.org/wiki/Lin-Kernighan_heuristic} usada generalmente para \emph{TSP}.
+    \\
+
+    Cabe destacar que en grafos dirigidos esto implicaría recorrer en sentido inverso $orden[i+1..k]$, lo cual no afecta la distancia del subcamino. Entonces nos alcanza con realizar la transformación $orden \gets orden[0..i] ++ reverso(orden[i+1..k]) ++ orden[k+1..|orden|-1]$ para realizar el swap de aristas deseado.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[height=8cm]{2opt}
+        \caption{Sea $(b,e)$ la arista $(orden_i,\ orden_{i+1})$ de nuestro ejemplo y $(c,f)$ nuestra $(orden_k,\ orden_{k+1})$, se puede apreciar que se recorre de manera reversa $orden[i+1..k]$ = $[e,d,c]$ tras el swap 2opt.}
+        \label{fig:2opt}
+    \end{figure}
+
+    Definimos entonces el vecindario de una solución para esta heurística como todas aquellas secuencias de ubicaciones resultantes de invertir una subsecuencia.
+
+    \newpage
+    \subsubsection{Pseudocódigo del algoritmo}
+
+    \begin{lstlisting}
+    $\textbf{Def}$ iterar2opt(orden, verbose) $\rightarrow$ $\langle {float,\ bool} \rangle$:
+
+        dist $\gets$ distanciaCamino(orden)
+
+        huboMejora $\gets$ false
+
+        $\textbf{Para}$ i $\gets$ 0..|orden|-1:
+            $\textbf{Para}$ j $\gets$ i + 1..orden.size()-1:
+                orden_vecino $\gets$ orden[0..i] ++ reverso(orden[i+1..j]) ++ orden[j+1..|orden|-1]
+
+                $\textbf{Para}$ k $\gets$ 0...|orden|-1:
+                    $\textbf{Si}$ esGimnasio(orden[k]):
+                        ultimo_gim $\gets$ k
+
+                pow $\gets$ 0
+                valido $\gets$ esCaminoValido(orden_vecino[0..ultimo_gim], tam_mochila, pow)
+
+                $\textbf{Si}$ $\neg$valido:
+                    $\textbf{Proximo j}$
+
+                dist_vecino $\gets$ distanciaCamino(orden_vecino)
+
+                $\textbf{Si}$ dist_vecino < dist:
+                    huboMejora $\gets$ true
+                    dist $\gets$ dist_vecino
+                    orden $\gets$ orden_vecino
+        Retornar $\langle$ dist, huboMejora $\rangle$
+    \end{lstlisting}
