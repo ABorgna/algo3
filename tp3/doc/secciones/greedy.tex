@@ -112,3 +112,12 @@
     \\
 
     Despreciando el costo de la rama en que se aborta la ejecución porque solamente se actualiza la distancia recorrida y se retorna. Nos queda un costo total del ciclo que ejecuta $(\#gimnasios+\#paradas)$ con un costo por cuerpo de $(\#gimnasios+\#paradas)$, quedando la complejidad $\mathcal{O}((\#gimnasios+\#paradas) * (\#gimnasios+\#paradas)) = \mathcal{O}((\#gimnasios+\#paradas)^2)$.
+
+    \subsection{Gimnasio más lejano}
+    Como nos interesaba poder comparar el \emph{greedy} anterior con otra heurística constructiva golosa a la hora de contrastar rendimientos con otras, implementamos otra heurística similar. El código es idéntico al de 'Gimnasio más cercano' salvo que en cada búsqueda lineal del siguiente candidato, se elije aquel que maximice la distancia al nodo actual.
+    \\
+
+    El algoritmo está basado en el esquema de inserción más lejana. La idea es que, como en muchos grafos hay ubicaciones costosas de recorrer, estas sean visitadas cuanto antes con la esperanza de que las remanentes formen un grafo más compacto.
+    \\
+
+    La complejidad es exactamente la misma y la implementación solo cambia la comparación de menor estricto a mayor estricto para las distancias de los candidatos.
