@@ -20,6 +20,7 @@ Claramente es necesario recalcalcular la validez de un camino tras swapear dos d
         huboMejora $\gets$ false
         dist $\gets$ distanciaCamino(orden, graph)
 
+        mejor_vecino $\gets$ orden
         $\textbf{Para}$ i $\gets$ 0...|orden|-1:
             $\textbf{Para}$ j $\gets$ i + 1...|orden|-1:
                 orden_vecino $\gets$ orden
@@ -42,6 +43,7 @@ Claramente es necesario recalcalcular la validez de un camino tras swapear dos d
                     huboMejora $\gets$ true
                     dist $\gets$ dist_vecino
                     mejor_vecino $\gets$ orden_vecino
+        orden $\gets$ mejor_vecino
         Retornar $\langle$ dist, huboMejora $\rangle$
     \end{lstlisting}
 
@@ -82,3 +84,42 @@ Claramente es necesario recalcalcular la validez de un camino tras swapear dos d
 
         $\textbf{Retornar}$ $\langle$ dist, |orden|, orden $\rangle$
     \end{lstlisting}
+
+\subsubsection{Complejidad del algoritmo}
+    Empecemos por calcular la complejidad de $iterar\_swap$. Arranca calculando la distancia del camino conformado por $orden$ con un costo de $\mathcal{O}(|orden|)$ que es $\mathcal{O}(\#gimnasios + \#paradas)$ considerando que se rellenan todas las paradas faltantes desde $local\_swap$. Luego se copia el contenido de $orden$ a $mejor\_vecino$, en $\mathcal{O}(\#gimnasios + \#paradas)$ en el mismo peor caso que ya mencionamos.
+    \\
+
+    Luego se ejecuta un ciclo que itera $\mathcal{O}((\#gimnasios + \#paradas)^2)$ veces.
+    \\
+
+    Dentro del ciclo se hace una copia de $orden$ en $\mathcal{O}(\#gimnasios + \#paradas)$, se hace el swap de ubicaciones en $\mathcal{O}(1)$ (asignar índices de nodos en un vector es constante), se busca el índice del gimnasio en $\mathcal{O}(\#gimnasios + \#paradas)$ \footnote{Como ya ha sucedido en otras secciones se aclara que en nuestra implementación algunas operaciones como esta se realizan sobre iteradores pero se usan versiones sobre índices equivalentes en complejidad por simplicidad de lectura de pseudocódigo.}. Luego, se calcula si el camino nuevo es válido con costo $\mathcal{O}(\#gimnasios + \#paradas)$ peor caso (que el último gimnasio sea la última ubicación del arreglo de órdenes), se calcula también su longitud hasta el último gimnasio, de ser válido el camino, en $\mathcal{O}(\#gimnasios + \#paradas)$ y por último se actualizan las variables que guardan los mejores resultados vistos hasta el momento en $\mathcal{O}(\#gimnasios + \#paradas)$, costo correspondiente al copiado de $orden\_vecino$ en el peor caso de contener todas las paradas además de gimnasios.
+    \\
+
+    Por lo tanto tenemos un costo total del ciclo de $\mathcal{O}((\#gimnasios + \#paradas)^3)$. Que se corresponde también con el costo total de la función considerando que absorbe los costos del primer cálculo de distancia y asignar a $orden$ la mejor solución hallada (ambos lineales en el tamaño de orden).
+    \\
+
+    Para $local\_swap$ empezamos corroborando que $orden$ sea una secuencia de tamaño mayor que 0 y retornando un valor específico en $\mathcal{O}(1)$. Inicializamos el vector de $bool$ sobre paradas usadas en $\mathcal{O}((\#paradas))$ y luego se marcan en $\mathcal{O}(|orden|)$, que en peor caso es $\mathcal{O}(\#gimnasios + \#paradas)$ por contener todas las ubicaciones, para después agregar en $\mathcal{O}(1)$ todas las paradas recorridas linealmente que no estén usadas ($\mathcal{O}(\#paradas)$).
+    \\
+
+    Para el ciclo que convoca a $iterar\_swap$ aparte del llamado a esta función solamente realizamos asignaciones y comparaciones numérico-booleanas, por lo que prepondera la complejidad de $iterar\_swap$ que es, como vimos antes, cúbica en la cantidad total de ubicaciones.
+    \\
+
+    Como la cantidad de veces que ejecuta el ciclo depende de si $corridas$ es mayor a 0 o igual, se separan dos casos: ejecutar el ciclo $corridas$ veces o ejecutar hasta que no se encuentren mejoras. Este último caso resulta ser de orden factorial hipotetizando algún peor caso en el que se realice una actualización (produciendo mejora) por cada permutación posible de $orden$. Aún si en cada llamado a $iterar\_swap$ cubrimos la cuota superior de mejorar un orden cuadrático de veces, aún faltaría hacer $\mathcal{O}((\#gimnasios + \#paradas)!/(\#gimnasios + \#paradas)^2) = \mathcal{O} ((\#gimnasios + \#paradas)!)$ llamados hasta dejar de ver mejoras.
+    \\
+
+    El ciclo entonces queda, con complejidad $\mathcal{O}(corridas*(\#gimnasios + \#paradas)^3)$ si $corridas > 0$, o $\mathcal{O}((\#gimnasios + \#paradas)!*(\#gimnasios + \#paradas)^3) = \mathcal{O}((\#gimnasios + \#paradas)!)$ si se debe iterar hasta dejar de ver mejoras. En ambos casos la complejidad de ubicar linealmente el índice del último gimnasio y recortar $orden$ es, en peor caso, $\mathcal{O}(\#gimnasios + \#paradas)$.
+    \\
+
+    Por lo tanto, sumando todas las complejidades, donde preponderan las del ciclo, queda $\mathcal{O}(corridas*(\#gimnasios + \#paradas)^3)$ si $corridas > 0$, o $\mathcal{O}((\#gimnasios + \#paradas)!)$ si $corridas = 0$. Esta última cota parecería indicar que iterar de esta manera sería similar en costo a la del backtracking o fuerza bruta, pero previo a realizar experimentaciones podemos especular con que realmente no sucedan por lo general casos donde se prolongue significativamente el hallazgo continuo de mejoras. Más adelante contrastaremos empíricamente si esto efectivamente es así.
+
+    \subsubsection{Variación alternativa del algoritmo}
+    Originalmente la idea que se nos había ocurrido era, en vez de tomar el mejor de los vecinos de la instancia en cada iteración, tomar el primer vecino que fuera mejor que el actual y seguir luego sin repetir pares $(i,j)$ aún tras haber actualizado la instancia sobre la cual se itera su vecindario.
+    \\
+
+    Es decir, cada vez que vemos una solución que mejore a la actual, la pisamos y seguimos con los pares $(i,j)$ restantes. Esto último se debe a que si volvieramos a tomarlos desde $(0,0)$ cada vez que se actualiza la solución, caeríamos en una situación similar a la del peor caso con $corridas = 0$ del algoritmo anterior donde potencialmente se recorrían todas las permutaciones (incluso cuando $corridas$ fuera distinta de 0).
+    \\
+
+    Al no repetir pares $(i,j)$ dentro de un mismo llamado y siendo el código extremadamente similar (en vez de actualizar $mejor\_vecino$ se pisa $orden$ con $orden\_vecino$) la complejidad se mantiene igual que en la subsección anterior. Por los motivos anteriores no se considera necesario repetir el pseudocódigo.
+    \\
+
+    Aún siendo menos ortodoxa que la implementación que mostramos anteriormente, nos interesó la cuestión de, si al tomar siempre la primer solución 'buena' de cada vecindario y pudiendo actualizar más de una solución por llamado a $iterar\_swap$.
