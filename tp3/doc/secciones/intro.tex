@@ -82,5 +82,99 @@
 
 
 
-   \subsection{Generadores}
-   {\color{red}* Børg's magic *}
+\subsection{Generadores}
+
+Para poder probar nuestras heurísticas diseñamos una serie de generadores de instancias aleatorios que se detalla a continuación.
+
+Cada uno recibe como variable la cantidad de gimnasios y paradas, y el tamaño de la mochila deseados
+(y opcionalmente la seed a utilizar en el generador de números aleatorios).
+
+\subsubsection{Generador \texttt{random}}
+\label{sec:generadores-random}
+
+El generador mas general, que usaremos en la mayoría de las mediciones.
+Es capaz de generar cualquier instancia válida
+(con las posiciones $x$ e $y$ dentro de los límites dados).
+
+Comienza ubicando cada uno de los gimnasios y paradas en una posición aleatoria con $0 \leq x,y \leq 65535$.
+A cada uno de gimnasios le asigna una cantidad de pociones aleatoria entre $0$ y $10$, cuidando que la cantidad total nunca supere 3 veces la cantidad de paradas.
+
+A continuación puede verse el pseudocódigo:
+
+\begin{lstlisting}
+    $\textbf{Def}$ randomGenerator(int nGyms, int nStops, int bagSize) $\rightarrow$ {[Gimnasio], [Parada]}:
+        gyms $\gets$ {}
+        stops $\gets$ {}
+        pocionesRestantes $\gets$ nStops * 3
+
+        $\textbf{Para}$ i de 0 a nGyms:
+            int gymsRestantes $\gets$ nGyms - i - 1
+            int potas $\gets$ min(random(0,10), pocionesRestantes - gymsRestantes)
+            potas = min(potas, bagSize)
+
+            int x $\gets$ random(0,65535)
+            int y $\gets$ random(0,65535)
+            agregar a gyms un gimnasio con {x,y,potas}
+            pocionesRestantes $\gets$ pocionesRestantes - potas
+
+        $\textbf{Para}$ i de 0 a nStops:
+            int x $\gets$ random(0,65535)
+            int y $\gets$ random(0,65535)
+            agregar a stops una parada con {x,y}
+
+        $\textbf{Retornar}$ {gyms, stops}
+\end{lstlisting}
+
+Es importante notar que existen casos donde se podría generar instancias sin solución.
+Por ejemplo, si deseamos una instancia con 2 gimnasios, 3 paradas y tamaño de mochila 6
+podría generarse el problema descripto en el cuadro \ref{tab:generadores-random-sinsolu}.
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{l | c c c}
+            Nodo   & X & Y & potas \\
+            \hline
+            Gimnasio 1 & 0 & 0 &  5 \\
+            Gimnasio 2 & 1 & 0 &  4 \\
+            Parada 1   & 2 & 0 & -3 \\
+            Parada 2   & 3 & 0 & -3 \\
+            Parada 3   & 4 & 0 & -3 \\
+        \end{tabular}
+        \caption{Instancia sin solución}\label{tab:generadores-random-sinsolu}
+    \end{center}
+\end{table}
+
+\subsubsection{Generador \texttt{separated}}
+
+La idea de este generador es agrupar los gimnasios y las paradas separando unos de otros,
+y generando dos \textit{cúmulos} de puntos.
+
+El algoritmo es similar al del \texttt{random}, descripto en la sección \ref{sec:generadores-random}, pero restringiendo las posiciones de los gimnasios a $0 \leq x,y \leq 16383$, y la de las paradas a $0 \leq y \leq 16383$ y $32768 \leq x \leq 49152$.
+
+\subsubsection{Generador \texttt{zigzag}}
+
+Este generador intenta generar instancias donde el camino solución deba ir zigzageando entre dos columnas. Para ello fuerza el tamaño de la mochila a 3, la cantidad de pociones a 3, y coloca los gimnasios y las paradas en dos columnas separadas.
+
+El algoritmo nuevamente es una modificación del \texttt{random} de la sección \ref{sec:generadores-random},
+esta vez fijando $x = 0$ para los gimnasios e $x = 16383$ para las paradas y variando la coordenada $y$ de ambos entre $0$ y $16383$.
+Además, setea el tamaño de la mochila a $3$ y la cantidad de pociones de cada gimnasio a $3$ (si hay suficientes paradas, sino debe dejar algunos en 0 para asegurar que haya solución).
+
+Este nuevo pseudocódigo se muestra a continuación:
+
+\begin{lstlisting}
+    $\textbf{Def}$ zigzagGenerator(int nGyms, int nStops, int bagSize) $\rightarrow$ {[Gimnasio], [Parada]}:
+        gyms $\gets$ {}
+        stops $\gets$ {}
+        setear el tamano de la mochila a 3
+
+        $\textbf{Para}$ i de 0 a nGyms:
+            int potas $\gets$ 3 if i < nStops else 0
+            int y $\gets$ random(0,16383)
+            agregar a gyms un gimnasio con {0,y,potas}
+
+        $\textbf{Para}$ i de 0 a nStops:
+            int y $\gets$ random(0,16383)
+            agregar a stops una parada con {16383,y}
+
+        $\textbf{Retornar}$ {gyms, stops}
+\end{lstlisting}
