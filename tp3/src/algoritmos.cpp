@@ -84,7 +84,7 @@ pair<double, uint64_t> exacto_backtracking(vector<int64_t> &orden) {
             if (distancia < mejorDist) {
                 mejorDist = distancia;
                 mejorOrden = orden;
-                mejorOrdenLen = pos;
+                mejorOrdenLen = pos+1;
             }
             return;
         }
