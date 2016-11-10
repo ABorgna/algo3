@@ -14,10 +14,10 @@ Para ello medimos con ambos 5 casos distintos para cada combinación de cantidad
 Como podemos observar, ambos se comportan exponencialmente pero el backtracking resulta ser cerca de un orden de magnitud mas rápido.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=14cm]{time-exacto}
-	\caption{Tiempo de ejecución de los algoritmos exactos}
-	\label{fig:time-exacto}
+    \centering
+    \includegraphics[width=14cm]{time-exacto}
+    \caption{Tiempo de ejecución de los algoritmos exactos}
+    \label{fig:time-exacto}
 \end{figure}
 
 \subsubsection{En función del tamaño de la mochila}
@@ -30,10 +30,10 @@ interesantes, limitado por la cantidad de nodos que puede tener un problema a se
 no podemos determinar propiamente el comportamiento.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=13.5cm]{time-exacto-moch}
-	\caption{Tiempo de ejecución de los algoritmos exactos al variar el tamaño de la mochila}
-	\label{fig:time-exacto-moch}
+    \centering
+    \includegraphics[width=13.5cm]{time-exacto-moch}
+    \caption{Tiempo de ejecución de los algoritmos exactos al variar el tamaño de la mochila}
+    \label{fig:time-exacto-moch}
 \end{figure}
 
 \subsection{Runtime de las heurísticas greedy}
@@ -45,17 +45,17 @@ Medimos el tiempo en la figura \ref{fig:time-greedy} generando 5 casos para cada
 Vemos en la figura \ref{fig:time-greedy-correlation} que estos tiempos tiempos se correlaciona fuertemente con un comportamiento cuadrático en función de la cantidad de nodos.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=13.5cm]{time-greedy}
-	\caption{Tiempo de ejecución de las heurísticas greedy}
-	\label{fig:time-greedy}
+    \centering
+    \includegraphics[width=13.5cm]{time-greedy}
+    \caption{Tiempo de ejecución de las heurísticas greedy}
+    \label{fig:time-greedy}
 \end{figure}
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=10cm]{time-greedy-correlation}
-	\caption{Correlación entre el tiempo de ejecución del greedy y una complejidad cuadrática}
-	\label{fig:time-greedy-correlation}
+    \centering
+    \includegraphics[width=10cm]{time-greedy-correlation}
+    \caption{Correlación entre el tiempo de ejecución del greedy y una complejidad cuadrática}
+    \label{fig:time-greedy-correlation}
 \end{figure}
 
 \subsubsection{En función del tamaño de la mochila}
@@ -91,17 +91,17 @@ Para las heurísticas locales medimos nuevamente los tiempos generando 5 casos p
 Podemos corroborar en la figura \ref{fig:time-local-correlation} que ambas variaciones se corresponden con un comportamiento de orden cuarto en función de la cantidad de nodos.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=13.5cm]{time-local}
-	\caption{Tiempo de ejecución de las heurísticas locales}
-	\label{fig:time-local}
+    \centering
+    \includegraphics[width=13.5cm]{time-local}
+    \caption{Tiempo de ejecución de las heurísticas locales}
+    \label{fig:time-local}
 \end{figure}
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=13cm]{time-local-correlation}
+    \centering
+    \includegraphics[width=13cm]{time-local-correlation}
     \caption{Correlación entre el tiempo de ejecución de las heurísticas locales 2opt (izquierda) y swap (derecha), con una complejidad $n^4$}
-	\label{fig:time-local-correlation}
+    \label{fig:time-local-correlation}
 \end{figure}
 
 \subsubsection{En función del tamaño de la mochila}
@@ -137,17 +137,17 @@ En el cuadro \ref{tab:time-local-moch} se encuentra una descripción de los dato
 Para medir el comportamiento de GRASP generamos 4 instancias para cada combinación de gimnasios y mochilas entre 10 y 50, avanzando de a 5, con un tamaño de mochila superior a 150. En la figura \ref{fig:time-grasp} pueden apreciarse los resultados. Como se observa en la figura \ref{fig:time-grasp-correlation}, el comportamiento está fuertemente correlacionado a un orden 5 sobre la cantidad de nodos.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=13.5cm]{time-grasp}
-	\caption{Tiempo de ejecución de la metaheurística grasp}
-	\label{fig:time-grasp}
+    \centering
+    \includegraphics[width=13.5cm]{time-grasp}
+    \caption{Tiempo de ejecución de la metaheurística grasp}
+    \label{fig:time-grasp}
 \end{figure}
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=10cm]{time-grasp-correlation}
-	\caption{Correlación entre el tiempo de ejecución de grasp y una complejidad de orden 5 en función de la cantidad de nodos}
-	\label{fig:time-grasp-correlation}
+    \centering
+    \includegraphics[width=10cm]{time-grasp-correlation}
+    \caption{Correlación entre el tiempo de ejecución de grasp y una complejidad de orden 5 en función de la cantidad de nodos}
+    \label{fig:time-grasp-correlation}
 \end{figure}
 
 \subsubsection{En función del tamaño de la mochila}
@@ -157,8 +157,98 @@ Para medir el tiempo de ejecución en función del tamaño de la mochila fijamos
 Esto puede deberse a que cuando hay poco espacio el la mochila se limita la cantidad de opciones que puede tomar el algoritmo, lo que hace que termine mas temprano.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=10cm]{time-grasp-moch}
-	\caption{Correlación entre el tiempo de ejecución de grasp y una complejidad de orden 5 en función de la cantidad de nodos}
-	\label{fig:time-grasp-moch}
+    \centering
+    \includegraphics[width=11cm]{time-grasp-moch}
+    \caption{Correlación entre el tiempo de ejecución de grasp y una complejidad de orden 5 en función de la cantidad de nodos}
+    \label{fig:time-grasp-moch}
 \end{figure}
+
+\subsection{Precisión de las heurísticas}
+
+Para medir que tan buenos son los resultados corrimos el mismo problema con cada heurística y comparamos con el resultado real,
+obteniendo la proporción entre la solución encontrada y la buscada. Como el nuestro es un problema de minimización,
+las proporciones siempre serán mayores o iguales a 1 (nuestras heurísticas siempre encuentran una solución posible).
+
+Para testear problemas de mayor tamaño, tomamos como resultado de comparación el menor valor encontrado entre todas las heurísticas.
+
+\subsubsection{Precisión en casos pequeños, comparando con el exacto}
+\label{sec:precision-small}
+
+Para cada combinación de gimnasios y paradas tal que su suma sea menor a 14 (y ambos $\geq 1$) generamos 4 casos,
+uno con mochila de tamaño 3, otro con tamaño igual a la cantidad de paradas, otro con el doble de las paradas
+y uno con espacio igual a trues veces la cantidad de paradas.
+Resolvimos estos casos con cada uno de nuestros algoritmos y comparamos las soluciones.
+
+En la figura \ref{fig:precision-small-all} vemos las distribuciones de las precisiones para cada heurística.
+
+Como era de esperar los algoritmos greedy suelen obtener resultados muy por encima del valor óptimo, aunque vemos que en el $75\%$
+de los casos la variante closest first obtuvo un valor menor al doble del buscado.
+Las heurísticas locales, especialmente la variante swap, mejoraron bastante la precision (a costa de un tiempo de ejecución bastante mas elevado).
+
+Y por último, el GRASP obtuvo el óptimo en un $82.3\%$ de los casos.
+En el cuadro \ref{tab:precision-small-grasp} se describe la distribución de su precisión.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{precision-small-all}
+    \caption{Precisión comparando con el valor exacto}
+    \label{fig:precision-small-all}
+\end{figure}
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{| l r |}
+            \hline
+            count  & 226.000000 \\
+            mean   &   1.011650 \\
+            std    &   0.039716 \\
+            min    &   1.000000 \\
+            25\%   &   1.000000 \\
+            50\%   &   1.000000 \\
+            75\%   &   1.000000 \\
+            max    &   1.288691 \\
+            \hline
+        \end{tabular}
+        \caption{Descripción de la precisión de la metaheurística GRASP}\label{tab:precision-small-grasp}
+    \end{center}
+\end{table}
+
+\subsubsection{Precisión en casos pequeños, comparando con el exacto}
+
+A continuación generamos casos de prueba para todas las combinaciones de paradas y gimnasios tal que ambos
+sean mayor o iguales a $10$ y su suma sea a lo sumo 40.
+En cada caso variamos el tamaño de la mochila de igual forma que en la sección \ref{sec:precision-small}.
+
+Nuevamente observamos como la variante closest first del greedy produce mejores resultados que la otra.
+
+Además notamos que, si bien la heurística local swap no suele producir resultados muy malos,
+su media es bastante peor que la variante 2opt, cuyos valores se describen en el cuadro \ref{tab:precision-big-local-2opt}.
+
+Por último, la metaheurística grasp obtiene el mejor resultado en el $96.72\%$ de los casos.
+Este número no es $100\%$ ya que existen casos donde los locales obtienen un buen resultado a partir del greedy closest first
+pero el grasp, por la característica aleatoria de su ejecución, termina en una solución peor.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{precision-big-all}
+    \caption{Precisión comparando con el valor exacto}
+    \label{fig:precision-big-all}
+\end{figure}
+
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{| l r |}
+            \hline
+            count  & 2008.000000 \\
+            mean   &    1.111849 \\
+            std    &    0.247017 \\
+            min    &    1.000000 \\
+            25\%   &    1.000000 \\
+            50\%   &    1.049093 \\
+            75\%   &    1.139941 \\
+            max    &    5.181492 \\
+            \hline
+        \end{tabular}
+        \caption{Descripción de la precisión de la heurística local 2opt}\label{tab:precision-big-local-2opt}
+    \end{center}
+\end{table}
