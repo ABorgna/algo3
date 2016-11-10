@@ -1,0 +1,40 @@
+\section{GRASP}
+Nuestra última optimización se trata de una metaheurística \footnote{https://en.wikipedia.org/wiki/Metaheuristic} de tipo \emph{GRASP (Greedy randomized adaptive search procedure)}, que consiste en mejorar sucesivamente mediante búsqueda local una lista de soluciones candidatas arrojadas por nuestra función greedy aleatoria y luego tomando el mínimo de todas las soluciones ya optimizadas.
+\\
+
+Si bien el esquema de esta metaheurística es sencillo y concreto, hay mucho lugar para variaciones en la manera en que se toman las listas de candidatos (e.g tamaño, si se filtran con algún criterio, etc), criterios de parada o métodos de búsqueda local.
+\\
+
+\subsection{Búsquedas locales alternadas}
+Nuestra primer combinación de variantes toma como parámetro un exponente $i$ que indica que se va a considerar un total de $(\#gimnasios + \#paradas)^i$ candidatos construídos por el \emph{greedy random}, otro exponente $j$ que indica que se van a realizar $(\#gimnasios + \#paradas)^j$ iteraciones de búsqueda local sobre los candidatos.
+\\
+
+Estas variables definen un criterio de parada que asegura un comportamiento polinómico sobre la cantidad de gimnasios y paradas totales.
+\\
+
+Además, para obtener mayor diversidad de características entre los candidatos, alternamos las búsquedas locales entre \emph{swap de nodos} y \emph{2opt} para optimizarlos.
+
+\begin{lstlisting}
+    $\textbf{Def}$ grasp(orden, i, j) $\rightarrow$ $\langle {float,\ int} \rangle$:
+        mejorRes $\gets$ $\infty$
+
+        n $\gets$ #gimnasios + #paradas
+
+        cant_candidatos $\gets$ $n^{i}$
+        limite $\gets$ $n^{j}$
+
+        $\textbf{Para}$ i $\gets$ 0..cant_candidatos:
+            resGreedy $\gets$ greedy_random(orden_actual)
+
+            $\textbf{Si}$ resGreedy.first = $\infty$:
+                $\textbf{Proximo i}$
+
+            res $\gets$ local_dos_opt(orden_actual, limite) $\textbf{Si}$ i es par
+                   local_swap(orden_actual, limite) $\textbf{Sino}$
+
+            $\textbf{Si}$ res.first < mejorRes:
+                mejorRes $\gets$ res.first
+                orden $\gets$ orden_actual
+
+        $\textbf{Retornar}$ $\langle$mejorRes, |orden|$\rangle$
+\end{lstlisting}
