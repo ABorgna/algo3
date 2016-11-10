@@ -8,10 +8,21 @@
     La idea es tomar en cada momento, de todos los gimnasios con requisitos de pociones menores a la cantidad acumulada, aquel que sea más cercano a la ubicación 'actual'. De no contar con suficientes pociones para ninguno de los gimnasios restantes, se busca la parada más cercana. En caso de que no queden paradas sin visitar y falten gimnasios por visitar el algoritmo terminará, devolviendo que no hay solución.
     \\
 
-    En muchas ocasiones el algoritmo puede no encontrar una solución factible incluso frente a la existencia de una. Por ejemplo:
+    En muchas ocasiones el algoritmo puede no encontrar una solución factible incluso frente a la existencia de una. Particularmente por la 'saturación' de pociones respecto del tamaño de la mochila, tomando menos pociones de las que ofrece una parada (no pudiendo cumplir eventualmente el requisito de algún gimnasio posterior). Por ejemplo, sea un tamaño de mochila 5 y los siguientes 5 gimnasios y paradas:
     \\
 
-    {\color{red} * ejemplo acá *}
+    (2, 2, 4)     \quad  \quad  (0, 0)
+
+    (2, 5, 5)      \quad \quad  (1, 2)
+
+    (10, 10, 4)    \quad   (2, 3)
+
+    (0, 1, 1)    \quad  \quad  (2, 4)
+
+    (1, 1, 1)    \quad  \quad  (3, 5)
+    \\
+
+    El algoritmo \emph{exacto} toma la secuencia $\langle$(0, 0), (0, 1, 1), (2, 4), (2, 5, 5), (2, 3), (1, 1, 1), (1, 2), (2, 2, 4), (3, 5), (10, 10, 4)$\rangle$ con distancia aproximada $23,60$. En cambio, el algoritmo \emph{greedy} comienza por la primer parada enumerada (como se verá más adelante en el pseudocódigo) $(0, 0)$ dado que no puede acceder a ningún gimnasio por requisitos de pociones, para luego ir a los gimnasios más cercanos $(0, 1, 1)$ y $(1, 1, 1)$ quedando con una única poción. En este punto accede a la parada $(1, 2)$ para luego visitar (con 4 pociones acumuladas) el gimnasio $(2, 2, 4)$. Como ahora los dos únicos gimnasios que quedan requieren más de 3 pociones tiene que volver a dos paradas, pero al tener una mochila de tamaño 5 va a saturar las 3 potenciales pociones en 5 necesariamente. Yendo al gimnasio más cercano $(2,5,5)$ queda sin pociones y con una única parada restante por visitar y un gimnasio de 4 pociones por requisito. Por lo tanto no puede terminar el camino.
     \\
 
     Incluso no solo no provee garantías de llegar a un resultado válido, de existir, sino que tampoco podemos especular con un 'error máximo' de precisión respecto de la solución real. Supongamos que existe alguna cota k que caracterice "cuántas veces la distancia mínima real" puede a lo sumo llegar a ser aquella devuelta por nuestro algoritmo. Pero entonces podríamos suponer un escenario con tamaño de mochila $3*k$, $n$ paradas (0,0) superpuestas y $n$ gimnasios ($k$, 0, 3) también superpuestos.

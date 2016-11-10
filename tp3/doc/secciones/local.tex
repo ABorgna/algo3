@@ -146,6 +146,17 @@ Claramente es necesario recalcalcular la validez de un camino tras swapear dos d
     \newpage
     \subsubsection{Pseudocódigo del algoritmo}
 
+    Al igual que con la búsqueda local con swaps de nodos, se hacen reiterados llamados a la función que realiza una iteración de $2opt$, pudiendo elegir si se hace una cantidad $corridas$ de iteraciones o si se itera hasta dejar de ver mejoras (en caso de que se itere una cantidad definida de veces y que se dejen de ver mejoras antes de completar dicha cantidad, también se deja de iterar).
+    \\
+
+    El pseudocódigo de la función $local\_dos\_opt$ es idéntico a $local\_swap$ solamente que llama a $iterar2opt$ mientras itera. Por lo tanto nos abstenemos de escribir sus pseudocódigo.
+    \\
+
+    Nuevamente es necesario rellenar las paradas que falten y recortarlas al final, para maximizar los vecindarios de las instancias.
+    \\
+
+    Para esta búsqueda local, decidimos ir pisando la variable $orden$ sobre la cual se explora su vecindario al momento de encontrar un vecino mejor. Esto, como ya comentamos, significa no recorrer potencialmente todo el vecindario pero también buscar en más vecindarios.
+
     \begin{lstlisting}
     $\textbf{Def}$ iterar2opt(orden, verbose) $\rightarrow$ $\langle {float,\ bool} \rangle$:
 
@@ -175,3 +186,17 @@ Claramente es necesario recalcalcular la validez de un camino tras swapear dos d
                     orden $\gets$ orden_vecino
         Retornar $\langle$ dist, huboMejora $\rangle$
     \end{lstlisting}
+
+    \subsection{Complejidad del algoritmo}
+    El algoritmo tiene la misma complejidad temporal que $iterar\_swap$, dado que en lo único que difieren es en la función que construye a los vecinos, en este caso $\mathcal{O}(|orden|)$ dado que se copian 3 tercios, de los cuales uno se invierte también en $\mathcal{O}(|orden|) = \mathcal{O}(\#gimnasios + \#paradas)$ porque se agregan todas las paradas en $local\_dos\_opt$. \\
+
+    Como dijimos al analizar $iterar\_swap$ (que tiene las mismas guardas), el resto del cuerpo del ciclo tiene complejidad también $\mathcal{O}(\#gimnasios + \#paradas)$. Se ejecuta dicho cuerpo un orden cuadrático (en la cantidad de ubicaciones) de veces, dejando un ciclo $for$ anidado con costo $\mathcal{O}((\#gimnasios + \#paradas)^3)$ que además es mayor que el costo de inicializar $dist$ llamando a $distanciaCamino$ en $\mathcal{O}(\#gimnasios + \#paradas)$, haciendo que la complejidad final de la función sea cúbica en la cantidad de ubicaciones.
+    \\
+
+    Siguiendo lo mencionado sobre $local\_dos\_opt$ siendo idéntica a $local\_swap$, se podría especular con que tengan además las mismas complejidades. Como lo único que podría llegar a cambiar es la cantidad de veces necesarias a iterar hasta no encontrar mejoras (si $corridas$ > 0 entonces la complejidad es la misma que su homóloga pues se realizan $corridas$ veces llamados a una función cúbica y el resto del código es el mismo), queremos ver si esta cantidad es la misma que en su caso homólogo.
+    \\
+
+    Esto es así porque a lo sumo podemos tener que ver $\mathcal{O}((\#gimnasios + \#paradas)!)$ mejoras (una por cada permutación). Por cada iteración se cubre a lo sumo una cantidad cuadrática de mejoras, quedando $\mathcal{O}((\#gimnasios + \#paradas)!/(\#gimnasios + \#paradas)^2) = \mathcal{O}((\#gimnasios + \#paradas)!)$ llamados peor caso a la función $iterar2opt$ de complejidad cúbica sobre las ubicaciones totales.
+    \\
+
+    Por lo tanto, al igual que $local\_swap$, $local\_dos\_opt$ tiene complejidad $\mathcal{O}((\#gimnasios + \#paradas)!*(\#gimnasios + \#paradas)^3) = \mathcal{O}((\#gimnasios + \#paradas)!)$ al realizar un orden factorial de llamados a una función cúbica con el resto del código con menor complejidad peor caso.
