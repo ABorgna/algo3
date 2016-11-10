@@ -66,8 +66,7 @@ En el cuadro \ref{tab:time-greedy-moch} se encuentra una descripción de los dat
 
 \begin{table}[H]
     \begin{center}
-        \begin{tabular}{| l r |}
-            \hline
+        \begin{tabular}{ l | r }
             count  & 76.000000 \\
             mean   &  0.215175 \\
             std    &  0.005658 \\
@@ -76,7 +75,6 @@ En el cuadro \ref{tab:time-greedy-moch} se encuentra una descripción de los dat
             50\%   &  0.213131 \\
             75\%   &  0.215283 \\
             max    &  0.239380 \\
-            \hline
         \end{tabular}
         \caption{Descripción de las mediciones en función del tamaño de mochila}\label{tab:time-greedy-moch}
     \end{center}
@@ -112,8 +110,7 @@ En el cuadro \ref{tab:time-local-moch} se encuentra una descripción de los dato
 
 \begin{table}[H]
     \begin{center}
-        \begin{tabular}{| l r r |}
-            \hline
+        \begin{tabular}{ l | r r }
             & Swap & 2opt \\
             \hline
             count  & 141.000000 & 141.000000 \\
@@ -124,7 +121,6 @@ En el cuadro \ref{tab:time-local-moch} se encuentra una descripción de los dato
             50\%   &   0.253680 &   0.165566 \\
             75\%   &   0.297979 &   0.193758 \\
             max    &   0.566984 &   0.268200 \\
-            \hline
         \end{tabular}
         \caption{Descripción de las mediciones en función del tamaño de mochila}\label{tab:time-local-moch}
     \end{center}
@@ -174,7 +170,7 @@ Para testear problemas de mayor tamaño, tomamos como resultado de comparación 
 \subsubsection{Precisión en casos pequeños, comparando con el exacto}
 \label{sec:precision-small}
 
-Para cada combinación de gimnasios y paradas tal que su suma sea menor a 14 (y ambos $\geq 1$) generamos 4 casos,
+Para cada combinación de gimnasios y paradas tal que su suma sea menor a 14 (y ambos $\geq 1$) generamos 4 casos usando el generador \texttt{random},
 uno con mochila de tamaño 3, otro con tamaño igual a la cantidad de paradas, otro con el doble de las paradas
 y uno con espacio igual a trues veces la cantidad de paradas.
 Resolvimos estos casos con cada uno de nuestros algoritmos y comparamos las soluciones.
@@ -197,8 +193,7 @@ En el cuadro \ref{tab:precision-small-grasp} se describe la distribución de su 
 
 \begin{table}[H]
     \begin{center}
-        \begin{tabular}{| l r |}
-            \hline
+        \begin{tabular}{ l | r }
             count  & 226.000000 \\
             mean   &   1.011650 \\
             std    &   0.039716 \\
@@ -207,15 +202,15 @@ En el cuadro \ref{tab:precision-small-grasp} se describe la distribución de su 
             50\%   &   1.000000 \\
             75\%   &   1.000000 \\
             max    &   1.288691 \\
-            \hline
         \end{tabular}
         \caption{Descripción de la precisión de la metaheurística GRASP}\label{tab:precision-small-grasp}
     \end{center}
 \end{table}
 
-\subsubsection{Precisión en casos pequeños, comparando con el exacto}
+\subsubsection{Precisión en casos grandes, comparando con el mínimo}
+\label{sec:precision-big}
 
-A continuación generamos casos de prueba para todas las combinaciones de paradas y gimnasios tal que ambos
+A continuación generamos casos de prueba utilizando el generador \texttt{random} para todas las combinaciones de paradas y gimnasios tal que ambos
 sean mayor o iguales a $10$ y su suma sea a lo sumo 40.
 En cada caso variamos el tamaño de la mochila de igual forma que en la sección \ref{sec:precision-small}.
 
@@ -237,8 +232,7 @@ pero el grasp, por la característica aleatoria de su ejecución, termina en una
 
 \begin{table}[H]
     \begin{center}
-        \begin{tabular}{| l r |}
-            \hline
+        \begin{tabular}{ l | r }
             count  & 2008.000000 \\
             mean   &    1.111849 \\
             std    &    0.247017 \\
@@ -247,8 +241,41 @@ pero el grasp, por la característica aleatoria de su ejecución, termina en una
             50\%   &    1.049093 \\
             75\%   &    1.139941 \\
             max    &    5.181492 \\
-            \hline
         \end{tabular}
         \caption{Descripción de la precisión de la heurística local 2opt}\label{tab:precision-big-local-2opt}
     \end{center}
 \end{table}
+
+\subsubsection{Precisión en función del generador}
+
+Utilizando las mismas variables descriptas en la sección \ref{sec:precision-big} generamos instancias con cada uno de los generadores
+disponibles, para ver si la precisión variaba con los tipos de problema.
+
+El resultado puede verse en la figura \ref{fig:precision-big-all-bygen}.
+Para las instancias de \ref{zigzag} se suele conseguir buenos resultados en comparación con las \texttt{random}.
+Ademas es notable que las instancias de \texttt{separated} se suelen resolver relativamente bien con las heurísticas locales y GRASP,
+no así con los greedy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{precision-big-all-bygen}
+    \caption{Precisión comparando con el mínimo, según el generador utilizado}
+    \label{fig:precision-big-all-bygen}
+\end{figure}
+
+\subsubsection{Precisión en función del tamaño de la mochila}
+
+Quisimos también probar si el tamaño de las mochilas influía en la precisión de cada método.
+Para ello tomamos los resultados obtenidos en la sección \ref{sec:precision-big} y los separamos
+por el tamaño de la mochila relativo a la cantidad de paradas.
+
+El resultado, que puede observarse en la figura \ref{fig:precision-big-all-bysize},
+muestra una leve correlación para las heurísticas greedy. Las heurísticas locales y GRASP, en cambio, no parecen verse afectadas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{precision-big-all-bysize}
+    \caption{Precisión comparando con el mínimo, según el tamaño relativo de la mochila}
+    \label{fig:precision-big-all-bysize}
+\end{figure}
+
