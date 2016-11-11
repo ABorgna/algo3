@@ -396,7 +396,10 @@ pair<double, uint64_t> grasp_trim(vector<int64_t> &orden, double expLimite,
         candidatos.insert({resGreedy.first, orden_candidato});
     }
 
-    for (uint64_t i = 0; i < candidatos.size()/2 + 1; ++i) {
+    // Ceilling de la mitad
+    int hasta = (candidatos.size() % 2) ? candidatos.size() / 2 + 1 :
+                                          candidatos.size() / 2 ;
+    for (int i = 0; i < hasta; ++i) {
         auto resGreedy = *candidatos.begin();
         orden_actual = resGreedy.second;
         candidatos.erase(candidatos.begin());
