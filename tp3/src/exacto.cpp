@@ -15,7 +15,7 @@ const uint64_t N_HEURISTICA = 0;
 enum poda_t {
     poda_none = 0,
     poda_backtracking = 1,
-    poda_dinamica = 2,
+    poda_distancias = 2,
 };
 
 extern int64_t ngyms, nstops, bagSize;
@@ -46,8 +46,8 @@ int prob_solve(std::ostream& os) {
         case poda_backtracking:
             tie(d, k) = exacto_backtracking(orden);
             break;
-        case poda_dinamica:
-            tie(d, k) = exacto_dinamica(orden);
+        case poda_distancias:
+            tie(d, k) = exacto_backtracking_distancias(orden);
             break;
     }
 
@@ -70,8 +70,8 @@ int setPrune(const vector<string>& s) {
         poda = poda_none;
     } else if (s[0] == "backtracking") {
         poda = poda_backtracking;
-    } else if (s[0] == "dinamica") {
-        poda = poda_dinamica;
+    } else if (s[0] == "distancias") {
+        poda = poda_distancias;
     } else {
         cerr << s[0] << " no es una poda válida" << endl;
         return 1;
@@ -82,5 +82,5 @@ int setPrune(const vector<string>& s) {
 vector<Option> prob_custom_options() {
     return {{'p', "poda", 1, false, &setPrune, "<poda>",
              "Seleccionar el tipo de poda a usar.\n"
-             "Opciones: none, backtracking. Default=backtracking"}};
+             "Opciones: none, backtracking, distancias. Default=backtracking"}};
 }

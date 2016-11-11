@@ -126,28 +126,83 @@ pair<double, uint64_t> exacto_backtracking(vector<int64_t> &orden) {
     return {mejorDist, mejorOrdenLen};
 }
 
-// ------------------------------------ Solución exacta por dinamic programming
+// ------------------------------------ Solución exacta por Backtracking
 
-pair<double, uint64_t> exacto_dinamica(vector<int64_t> &orden) {
-    // Para ngyms+nstops <= 64
-    int64_t n = ngyms + nstops;
+pair<double, uint64_t> exacto_backtracking_distancias(vector<int64_t> &orden) {
+    orden = vector<int64_t>(ngyms + nstops, 0);
 
-    if (n > 64)
-        return {0, 0};
+    double mejorDist = numeric_limits<double>::infinity();
+    uint64_t mejorOrdenLen = 0;
+    vector<int64_t> mejorOrden = orden;
+    vector<bool> used(ngyms + nstops, false);
 
-    for (int64_t init = 0; init < n; init++) {
-        if (graph[init].power > 0)
+    function<void(uint64_t, int64_t, int64_t, double)> recursiva = [&](
+        int64_t pos, int64_t gymCounter, int64_t powAcumulado,
+        double distancia) {
+
+        if (pos >= ngyms + nstops) {
+            // Algo salió mal
+            return;
+        }
+
+        // Calculo distancia para orden[0..pos]
+        if (pos >= 1) {
+            distancia += graph.distance(orden[pos - 1], orden[pos]);
+            if (distancia >= mejorDist)
+                return;
+        }
+
+        // Vemos si orden[0..pos] es solución
+        if (graph.isGym(orden[pos]))
+            gymCounter++;
+
+        if (gymCounter == ngyms) {
+            // Llegamos a una posible solucion
+            if (distancia < mejorDist) {
+                mejorDist = distancia;
+                mejorOrden = orden;
+                mejorOrdenLen = pos+1;
+            }
+            return;
+        }
+
+        if (pos + 1 == ngyms + nstops)
+            return;
+
+        for (int i = 0; i < ngyms + nstops; i++) {
+            if (used[i])
+                continue;
+
+            orden[pos + 1] = i;
+            int64_t newPowAcumulado = powAcumulado;
+
+            if (not esCaminoValido(orden.begin() + pos + 1,
+                                   orden.begin() + pos + 2, bagSize, graph,
+                                   newPowAcumulado))
+                continue;
+
+            used[i] = true;
+            recursiva(pos + 1, gymCounter, newPowAcumulado, distancia);
+            used[i] = false;
+        }
+    };
+
+    for (int i = 0; i < ngyms + nstops; i++) {
+        if (graph[i].power > 0)
             continue;
-
-        vector<vector<double>> d(
-            1 << n, vector<double>(n, numeric_limits<double>::infinity()));
+        int64_t powAcumulado = min(bagSize, -graph[i].power);
+        orden[0] = i;
+        used[i] = true;
+        recursiva(0, 0, powAcumulado, 0);
+        used[i] = false;
     }
 
-    // TODO
-    orden = {1};
+    orden = mejorOrden;
+    orden.resize(mejorOrdenLen);
 
-    return {0, 0};
+    return {mejorDist, mejorOrdenLen};
 }
+
 
 // ------------------------------------ Solución greedy trivial
 
