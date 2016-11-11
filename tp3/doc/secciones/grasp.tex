@@ -15,7 +15,7 @@ Estas variables definen un criterio de parada que asegura un comportamiento poli
 Además, para obtener mayor diversidad de características entre los candidatos, alternamos las búsquedas locales entre \emph{swap de nodos} y \emph{2opt} para optimizarlos.
 
 \begin{lstlisting}
-    $\textbf{Def}$ grasp(orden, i, j) $\rightarrow$ $\langle {float,\ int} \rangle$:
+    $\textbf{Def}$ grasp_alternado(orden, i, j) $\rightarrow$ $\langle {float,\ int} \rangle$:
         mejorRes $\gets$ $\infty$
 
         n $\gets$ #gimnasios + #paradas
@@ -23,7 +23,7 @@ Además, para obtener mayor diversidad de características entre los candidatos,
         cant_candidatos $\gets$ $n^{i}$
         limite $\gets$ $n^{j}$
 
-        $\textbf{Para}$ i $\gets$ 0..cant_candidatos:
+        $\textbf{Para}$ i $\gets$ 0..cant_candidatos-1:
             resGreedy $\gets$ greedy_random(orden_actual)
 
             $\textbf{Si}$ resGreedy.first = $\infty$:
@@ -35,6 +35,53 @@ Además, para obtener mayor diversidad de características entre los candidatos,
             $\textbf{Si}$ res.first < mejorRes:
                 mejorRes $\gets$ res.first
                 orden $\gets$ orden_actual
+
+        $\textbf{Retornar}$ $\langle$mejorRes, |orden|$\rangle$
+\end{lstlisting}
+
+\subsection{Mejores candidatos}
+Mientras en el caso anterior nos permitíamos mejorar indiscriminadamente todas soluciones que nos devolvía el \emph{greedy random} una manera de reducir tiempos de ejecución es también ser más restrictivos sobre qué candidatos vamos a considerar y cuáles no.
+\\
+
+Todavía alternando búsquedas locales, presentamos uan segunda implementación de \emph{GRASP} para nuestro problema donde, todavía alternando búsquedas locales, solamente vamos a mejorar un grupo selecto de candidatos.
+\\
+
+En particular, nos limitamos únicamente a hacer búsquedas locales sobre a lo sumo la 'mejor mitad' (en cuanto a distancias de cada solución refiere) de las que anteriormente considerábamos. La intuición detrás de esto es que estas soluciones tendrían que iterar menos hasta encontrar un mínimo local o que den mejores resultados tras ser mejoradas.
+\\
+
+Para no tener que realizar ordenamientos, directamente agregamos los candidatos en un $set$ de tuplas ($distancia$, $orden$) que, al ordenar por primer componente, nos garantice acceso al mínimo y borrado logarítmico en sus elementos.
+
+\begin{lstlisting}
+    $\textbf{Def}$ grasp_trim(orden,  expLimite, expInicios) $\rightarrow$ $\langle$float, int$\rangle$
+        mejorRes $\gets$ $\infty$
+
+        n $\gets$ #gimnasios + #paradas
+
+        cant_candidatos $\gets$ $n^{i}$
+        limite $\gets$ $n^{j}$
+
+        candidatos $\gets$ $\emptyset$
+        $\textbf{Para}$ i $\gets$ 0...cant_candidatos-1:
+            orden_candidato $\gets$ [ ]
+            resGreedy $\gets$ greedy_random(orden_candidato)
+            candidatos $\gets$ candidatos $\cup$ {$\langle$resGreedy.first, orden_candidato$\rangle$}
+
+        hasta $\gets$ $\lceil \#candidatos / 2 \rceil$
+
+        $\textbf{Para}$ i $\gets$ 0..hasta-1:
+            actual $\gets$ min(candidatos)
+            orden_actual $\gets$ actual.second
+            candidatos $\gets$ candidatos - min(candidatos)
+
+            $\textbf{Si}$ actual.first = $\infty$:
+                $\textbf{Proximo i}$
+
+                res $\gets$ local_dos_opt(orden_actual, limite) $\textbf{Si}$ i es par
+                       local_swap(orden_actual, limite) $\textbf{Sino}$
+
+                $\textbf{Si}$ res.first < mejorRes:
+                    mejorRes $\gets$ res.first
+                    orden $\gets$ orden_actual
 
         $\textbf{Retornar}$ $\langle$mejorRes, |orden|$\rangle$
 \end{lstlisting}

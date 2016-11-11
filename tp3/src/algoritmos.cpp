@@ -392,7 +392,6 @@ pair<double, uint64_t> grasp_trim(vector<int64_t> &orden, double expLimite,
     for (int i = 0; i < inicios; ++i) {
         vector<int64_t> orden_candidato;
         auto resGreedy = greedy_random(orden_candidato);
-        std::cout << "Distancia: " << resGreedy.first << std::endl;
         candidatos.insert({resGreedy.first, orden_candidato});
     }
 
