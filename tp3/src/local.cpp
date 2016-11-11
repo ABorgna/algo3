@@ -49,6 +49,7 @@ int prob_solve(std::ostream& os) {
             break;
         case tipo_swap_min:
             tie(d, k) = local_swap_min(orden, verbose, 0);
+            break;
     }
 
     lastResult = d;

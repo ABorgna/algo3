@@ -341,9 +341,9 @@ pair<double, uint64_t> greedy_random(vector<int64_t> &orden) {
     return {distRecorrida, orden.size()};
 }
 
-// ---------------------------- G R A S P
+// ---------------------------- G R A S P alternando b.locales
 
-pair<double, uint64_t> grasp(vector<int64_t> &orden, double expLimite,
+pair<double, uint64_t> grasp_alternado(vector<int64_t> &orden, double expLimite,
                              double expInicios) {
     double mejorRes = numeric_limits<double>::infinity();
     vector<int64_t> orden_actual;  // PlaceHolders
@@ -363,6 +363,102 @@ pair<double, uint64_t> grasp(vector<int64_t> &orden, double expLimite,
 
         auto res = i % 2 ? local_dos_opt(orden_actual, false, limite)
                          : local_swap(orden_actual, false, limite);
+
+        if (res.first < mejorRes) {
+            mejorRes = res.first;
+            orden = orden_actual;
+        }
+    }
+
+    return {mejorRes, orden.size()};
+}
+
+// ---------------------------- G R A S P trimeando candidatos
+
+pair<double, uint64_t> grasp_trim(vector<int64_t> &orden, double expLimite,
+                             double expInicios) {
+    double mejorRes = numeric_limits<double>::infinity();
+    vector<int64_t> orden_actual;
+    orden = vector<int64_t>();
+
+    set<pair<double, vector<int64_t>> > candidatos;
+
+    // Mi idea es usar algunas veces 2opt y otras veces swap de nodos
+    int n = ngyms + nstops;
+
+    int inicios = max(1, (int)pow(n, expInicios));
+    int limite = max(1, (int)pow(n, expLimite));
+
+    for (int i = 0; i < inicios; ++i) {
+        vector<int64_t> orden_candidato;
+        auto resGreedy = greedy_random(orden_candidato);
+        std::cout << "Distancia: " << resGreedy.first << std::endl;
+        candidatos.insert({resGreedy.first, orden_candidato});
+    }
+
+    for (uint64_t i = 0; i < candidatos.size()/2 + 1; ++i) {
+        auto resGreedy = *candidatos.begin();
+        orden_actual = resGreedy.second;
+        candidatos.erase(candidatos.begin());
+
+        if (resGreedy.first == numeric_limits<double>::infinity())
+            continue;
+        auto res = i % 2 ? local_dos_opt(orden_actual, false, limite)
+                         : local_swap(orden_actual, false, limite);
+
+        if (res.first < mejorRes) {
+            mejorRes = res.first;
+            orden = orden_actual;
+        }
+    }
+
+    return {mejorRes, orden.size()};
+}
+
+// ---------------------------- G R A S P mejorando a fondo por 2opt
+
+pair<double, uint64_t> grasp_2opt(vector<int64_t> &orden, double expInicios) {
+    double mejorRes = numeric_limits<double>::infinity();
+    vector<int64_t> orden_actual;  // PlaceHolders
+    orden = vector<int64_t>();
+    int n = ngyms + nstops;
+
+    int inicios = max(1, (int)pow(n, expInicios));
+
+    for (int i = 0; i < inicios; ++i) {
+        auto resGreedy = greedy_random(orden_actual);
+
+        if (resGreedy.first == numeric_limits<double>::infinity())
+            continue;
+
+        auto res = local_dos_opt(orden_actual, false, 0);
+
+        if (res.first < mejorRes) {
+            mejorRes = res.first;
+            orden = orden_actual;
+        }
+    }
+
+    return {mejorRes, orden.size()};
+}
+
+// ---------------------------- G R A S P mejorando a fondo por swap
+
+pair<double, uint64_t> grasp_swap(vector<int64_t> &orden, double expInicios) {
+    double mejorRes = numeric_limits<double>::infinity();
+    vector<int64_t> orden_actual;  // PlaceHolders
+    orden = vector<int64_t>();
+    int n = ngyms + nstops;
+
+    int inicios = max(1, (int)pow(n, expInicios));
+
+    for (int i = 0; i < inicios; ++i) {
+        auto resGreedy = greedy_random(orden_actual);
+
+        if (resGreedy.first == numeric_limits<double>::infinity())
+            continue;
+
+        auto res = local_swap(orden_actual, false, 0);
 
         if (res.first < mejorRes) {
             mejorRes = res.first;
