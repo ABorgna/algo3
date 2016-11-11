@@ -15,11 +15,9 @@ pair<double, uint64_t> local_dos_opt(vector<int64_t> &orden, bool verbose,
                                      int corridas);
 pair<double, uint64_t> local_swap(vector<int64_t> &orden, bool verbose,
                                   int corridas);
+pair<double, uint64_t> local_swap_min(vector<int64_t> &orden, bool verbose,
+                                int corridas);
 pair<double, uint64_t> grasp_alternado(vector<int64_t> &orden, double expLimite,
                              double expInicios);
 pair<double, uint64_t> grasp_trim(vector<int64_t> &orden, double expLimite,
-                          double expInicios);
-pair<double, uint64_t> grasp_2opt(vector<int64_t> &orden, double expInicios);
-pair<double, uint64_t> grasp_swap(vector<int64_t> &orden, double expInicios);
- pair<double, uint64_t> local_swap_min(vector<int64_t> &orden, bool verbose,
-                                   int corridas);
+                             double expInicios);

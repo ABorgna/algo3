@@ -86,33 +86,33 @@ Para no tener que realizar ordenamientos, directamente agregamos los candidatos 
         $\textbf{Retornar}$ $\langle$mejorRes, |orden|$\rangle$
 \end{lstlisting}
 
-\subsection{Con una única búsqueda local}
-Por último hicimos dos implementaciones que, sin recortar candidatos, emplean una única búsqueda local (es decir, no alternan como en las implementaciones que ya mostramos) y mejoran cada instancia hasta encontrar un mínimo local.
-\\
-
-La motivación detrás de estas GRASPs es, a costa de potencialmente empeorar el rendimiento temporal (ya hemos visto que cuando $corridas=0$ para las búsquedas locales la performance es potencialmente factorial), mejorar la precisión dado que se mejoran todos los candidatos hasta que que no sea posible seguir.
-\\
-
-Para cada instancia hacemos un llamado a la respectiva búsqueda local de la función (i.e $2opt$ o $swap$) con $corridas=0$, recordando que este valor de parámetro seteaba la búsqueda para que realice iteraciones hasta no encontrar ningún vecino de la instancia final que presente menor distancia.
-
-\begin{lstlisting}
-    $\textbf{Def}$ grasp_local(orden, i) $\rightarrow$ $\langle {float,\ int} \rangle$:
-        mejorRes $\gets$ $\infty$
-
-        n $\gets$ #gimnasios + #paradas
-        cant_candidatos $\gets$ $n^{i}$
-
-        $\textbf{Para}$ i $\gets$ 0..cant_candidatos-1:
-            resGreedy $\gets$ greedy_random(orden_actual)
-
-            $\textbf{Si}$ resGreedy.first = $\infty$:
-                $\textbf{Proximo i}$
-
-            res $\gets$ busqueda_local(orden_actual, 0) $\emph{// 2opt/swap}$
-
-            $\textbf{Si}$ res.first < mejorRes:
-                mejorRes $\gets$ res.first
-                orden $\gets$ orden_actual
-
-        $\textbf{Retornar}$ $\langle$mejorRes, |orden|$\rangle$
-\end{lstlisting}
+%\subsection{Con una única búsqueda local}
+%Por último hicimos dos implementaciones que, sin recortar candidatos, emplean una única búsqueda %local (es decir, no alternan como en las implementaciones que ya mostramos) y mejoran cada instancia %hasta encontrar un mínimo local.
+%\\
+%
+%La motivación detrás de estas GRASPs es, a costa de potencialmente empeorar el rendimiento temporal %(ya hemos visto que cuando $corridas=0$ para las búsquedas locales la performance es potencialmente %factorial), mejorar la precisión dado que se mejoran todos los candidatos hasta que que no sea %posible seguir.
+%\\
+%
+%Para cada instancia hacemos un llamado a la respectiva búsqueda local de la función (i.e $2opt$ o %$swap$) con $corridas=0$, recordando que este valor de parámetro seteaba la búsqueda para que %realice iteraciones hasta no encontrar ningún vecino de la instancia final que presente menor %distancia.
+%
+%\begin{lstlisting}
+%    $\textbf{Def}$ grasp_local(orden, i) $\rightarrow$ $\langle {float,\ int} \rangle$:
+%        mejorRes $\gets$ $\infty$
+%
+%        n $\gets$ #gimnasios + #paradas
+%        cant_candidatos $\gets$ $n^{i}$
+%
+%        $\textbf{Para}$ i $\gets$ 0..cant_candidatos-1:
+%            resGreedy $\gets$ greedy_random(orden_actual)
+%
+%            $\textbf{Si}$ resGreedy.first = $\infty$:
+%                $\textbf{Proximo i}$
+%
+%            res $\gets$ busqueda_local(orden_actual, 0) $\emph{// 2opt/swap}$
+%
+%            $\textbf{Si}$ res.first < mejorRes:
+%                mejorRes $\gets$ res.first
+%                orden $\gets$ orden_actual
+%
+%        $\textbf{Retornar}$ $\langle$mejorRes, |orden|$\rangle$
+%\end{lstlisting}

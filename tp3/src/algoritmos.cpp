@@ -472,60 +472,6 @@ pair<double, uint64_t> grasp_trim(vector<int64_t> &orden, double expLimite,
     return {mejorRes, orden.size()};
 }
 
-// ---------------------------- G R A S P mejorando a fondo por 2opt
-
-pair<double, uint64_t> grasp_2opt(vector<int64_t> &orden, double expInicios) {
-    double mejorRes = numeric_limits<double>::infinity();
-    vector<int64_t> orden_actual;  // PlaceHolders
-    orden = vector<int64_t>();
-    int n = ngyms + nstops;
-
-    int inicios = max(1, (int)pow(n, expInicios));
-
-    for (int i = 0; i < inicios; ++i) {
-        auto resGreedy = greedy_random(orden_actual);
-
-        if (resGreedy.first == numeric_limits<double>::infinity())
-            continue;
-
-        auto res = local_dos_opt(orden_actual, false, 0);
-
-        if (res.first < mejorRes) {
-            mejorRes = res.first;
-            orden = orden_actual;
-        }
-    }
-
-    return {mejorRes, orden.size()};
-}
-
-// ---------------------------- G R A S P mejorando a fondo por swap
-
-pair<double, uint64_t> grasp_swap(vector<int64_t> &orden, double expInicios) {
-    double mejorRes = numeric_limits<double>::infinity();
-    vector<int64_t> orden_actual;  // PlaceHolders
-    orden = vector<int64_t>();
-    int n = ngyms + nstops;
-
-    int inicios = max(1, (int)pow(n, expInicios));
-
-    for (int i = 0; i < inicios; ++i) {
-        auto resGreedy = greedy_random(orden_actual);
-
-        if (resGreedy.first == numeric_limits<double>::infinity())
-            continue;
-
-        auto res = local_swap(orden_actual, false, 0);
-
-        if (res.first < mejorRes) {
-            mejorRes = res.first;
-            orden = orden_actual;
-        }
-    }
-
-    return {mejorRes, orden.size()};
-}
-
 // ------------------------------------ Corrida de opt (devuelve dist y si hubo
 // mejora)
 
