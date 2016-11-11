@@ -141,3 +141,23 @@
     \\
 
     Por lo tanto, sumando el costo de la inicilización del \emph{launcher} al producto entre la cantidad espectulada de llamadas y tu respectivo costo tenemos una complejidad $\mathcal{O}(n+m + (n+m)*(n+m)!) = \mathcal{O}((n+m)!)$. Que es, en potencial y teórico peor caso, equivalente a la de fuerza bruta, sin considerar podas que disminuyan tiempos de ejecución en casos promedio.
+
+    \subsubsection{Poda por distancias}
+    Una poda más interesante es la resultante de abortar aquellas ramas de ejecución cuyos prefijos de la secuencia de ubicaciones visitadas llevan una distancia acumulada mayor o igual a la mejor distancia vista hasta el momento.
+    \\
+
+    Esto funciona porque agregando ubicaciones al final a un camino que ya tiene distancia mayor que la solución actual, solamente pueden aumentar.
+    \\
+
+    El código del algoritmo es esencialmente el mismo, solo que en el $if$ que actualiza la distancia también se compara la distancia con la mínima:
+
+    \begin{lstlisting}
+        [...]
+        $\textbf{Si}$ pos $\geq$ 1:
+            dist $\gets$ dist + distancia(orden[pos - 1], orden[pos])
+            $\textbf{Si}$ dist $\geq$ mejorDist:
+                $\textbf{Retornar}$
+        [...]
+    \end{lstlisting}
+
+    La complejidad peor caso del algoritmo sigue siendo la misma dado que considera el caso en que no se poda ninguna rama y se tienen que explorar todas de principio a fin.

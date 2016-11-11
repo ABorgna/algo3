@@ -84,9 +84,11 @@ En el cuadro \ref{tab:time-greedy-moch} se encuentra una descripción de los dat
 
 \subsubsection{En función de la cantidad de nodos}
 
-Para las heurísticas locales medimos nuevamente los tiempos generando 5 casos para cada combinación de entre 10 y 100 gimnasios y paradas, avanzando de a 10, y tamaño de mochila mayor a 300. Los resultados se pueden apreciar en la figura \ref{fig:time-local}.
+Para las heurísticas locales medimos nuevamente los tiempos generando 5 casos para cada combinación de entre 10 y 100 gimnasios y paradas, avanzando de a 10, y tamaño de mochila mayor a 300. Los resultados se pueden apreciar en la figura \ref{fig:time-local}. Se pasa $corridas=0$, por lo que se itera hasta encontrar un mínimo local.
 
 Podemos corroborar en la figura \ref{fig:time-local-correlation} que ambas variaciones se corresponden con un comportamiento de orden cuarto en función de la cantidad de nodos.
+
+Esto significaría que se hizo una cantidad lineal (también en función de la cantidad de nodos) de llamados a cada método de optimización dado que estos eran cúbicos en complejidad. Magnitud muy distinta a la cota factorial que supusimos en dicha sección, aún cuando considerábamos que era realmente muy poco probable que se tuviera un orden factorial de llamados antes de encontrar un mínimo local.
 
 \begin{figure}[H]
     \centering
@@ -101,6 +103,24 @@ Podemos corroborar en la figura \ref{fig:time-local-correlation} que ambas varia
     \caption{Correlación entre el tiempo de ejecución de las heurísticas locales 2opt (izquierda) y swap (derecha), con una complejidad $n^4$}
     \label{fig:time-local-correlation}
 \end{figure}
+
+El $swap$ que se tomó para comparar con $2opt$ es aquel que no tomaba el mínimo del vecindario de cada instancia sino que tomaba el primero que tuviera menor distancia a la actual (realizando el resto de las iteraciones sobre el último mínimo encontrado). Como especulamos en su momento, al recorrer potencialmente más de un vecindario por iteración (aunque no de manera completa), su performance terminó siendo temporalmente mejor. Esto se ve en la figura \ref{fig:time-local-swap_min} donde se observa un comportamiento de complejidad $n^5$, peor al $n^4$ apreciado en la figura \ref{fig:time-local} para .
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=13.5cm]{swap-min-time}
+    \caption{Tiempo de ejecución de la heurística swap tomando el mínimo de cada vecindario por iteración.}
+    \label{fig:time-local-swap_min}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{swap-min-corr-time}
+    \caption{Correlación entre el tiempo de ejecución de la heurística swap tomando el mínimo de cada vecindario por iteración, con una complejidad $n^5$}
+    \label{fig:time-local-swap_min-correlation}
+\end{figure}
+
+Por lo tanto, utilizamos la otra implementación para el resto de los contrastes empíricos ya que tiene un rendimiento más parecido a la otra búsqueda local implementada, $2opt$, que tampoco tomaba el mínimo de cada vecindario.
 
 \subsubsection{En función del tamaño de la mochila}
 
@@ -318,4 +338,3 @@ utilizar $0.4$ para ambos exponentes reduciría el tiempo de corrida en un $94\%
     \caption{Precisión media de GRASP al variar sus exponentes, sobre tres problemas con 50 nodos}
     \label{fig:grasp-variables-prec}
 \end{figure}
-

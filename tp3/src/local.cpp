@@ -23,6 +23,8 @@ extern string generatorName;
 tipo_local_t tipo_local = tipo_dos_opt;
 string tipo_local_name = "dos_opt";
 
+int corridas = 0;
+
 double lastResult = 0;
 bool verbose = false;
 
@@ -42,13 +44,13 @@ int prob_solve(std::ostream& os) {
 
     switch (tipo_local) {
         case tipo_dos_opt:
-            tie(d, k) = local_dos_opt(orden, verbose, 0);
+            tie(d, k) = local_dos_opt(orden, verbose, corridas);
             break;
         case tipo_swap:
-            tie(d, k) = local_swap(orden, verbose, 0);
+            tie(d, k) = local_swap(orden, verbose, corridas);
             break;
         case tipo_swap_min:
-            tie(d, k) = local_swap_min(orden, verbose, 0);
+            tie(d, k) = local_swap_min(orden, verbose, corridas);
             break;
     }
 
@@ -85,10 +87,23 @@ int setVerbose(__attribute__((unused)) const vector<string>& s) {
     return 0;
 }
 
+int setCorridas(const vector<string>& s) {
+    size_t sz = 0;
+    int num = stoi(s[0], &sz);
+    if (sz == 0 or num < 0) {
+        cerr << "Debe ser un número positivo" << endl;
+        return 1;
+    }
+    corridas = num;
+    return 0;
+}
+
 vector<Option> prob_custom_options() {
     return {{'t', "tipo", 1, false, &setTipo, "<tipo>",
              "Seleccionar el tipo de busqueda local a realizar.\n"
              "Opciones: dos_opt, swap, swap_min. Default=dos_opt"},
             {'v', "verbose", 0, false, &setVerbose, "",
-             "Seleccionar el tipo de poda a usar."}};
+             "Seleccionar el tipo de poda a usar."},
+            {'c', "corridas", 1, false, &setCorridas, "",
+              "Seleccionar la cantidad de corridas a realizar (0 es hasta encontra mínimo local). Default = 0"}};
 }
