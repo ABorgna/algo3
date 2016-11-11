@@ -127,10 +127,13 @@ En el cuadro \ref{tab:time-local-moch} se encuentra una descripción de los dato
 \end{table}
 
 \subsection{Runtime de la metaheurística GRASP}
+\label{sec:time-grasp}
 
 \subsubsection{En función de la cantidad de nodos}
 
-Para medir el comportamiento de GRASP generamos 4 instancias para cada combinación de gimnasios y mochilas entre 10 y 50, avanzando de a 5, con un tamaño de mochila superior a 150. En la figura \ref{fig:time-grasp} pueden apreciarse los resultados. Como se observa en la figura \ref{fig:time-grasp-correlation}, el comportamiento está fuertemente correlacionado a un orden 5 sobre la cantidad de nodos.
+Para medir el comportamiento de GRASP generamos 4 instancias para cada combinación de gimnasios y mochilas entre 10 y 50, avanzando de a 5, con un tamaño de mochila superior a 150. Además, seteamos ambos exponentes del GRASP en $1$.
+
+En la figura \ref{fig:time-grasp} pueden apreciarse los resultados. Como se observa en la figura \ref{fig:time-grasp-correlation}, el comportamiento está fuertemente correlacionado a un orden 5 sobre la cantidad de nodos.
 
 \begin{figure}[H]
     \centering
@@ -277,5 +280,42 @@ muestra una leve correlación para las heurísticas greedy. Las heurísticas loc
     \includegraphics[width=12cm]{precision-big-all-bysize}
     \caption{Precisión comparando con el mínimo, según el tamaño relativo de la mochila}
     \label{fig:precision-big-all-bysize}
+\end{figure}
+
+\subsection{Variación de las variables del GRASP}
+
+Cuando presentamos la metaheurística GRASP describimos dos variables que recibe como parámetro.
+Por un lado la que llamaremos $inicios$, que se usa como exponente para calcular la cantidad de puntos de partida aleatorios a utilizar.
+Y la otra, que llamaremos $limite$, que se usa como exponente para limitar la cantidad de pasos a dar por las búsquedas locales.
+
+Para estudiar el comportamiento de la metaheurística al variar ambos exponentes generamos tres instancias del problema con 25 gimnasios,
+25 paradas, y mochila de tamaño 100. Luego corrimos el GRASP variando cada exponente entre $0.2$ y $1.7$, en pasos de a $0.1$ y obtuvimos
+los valores medios de tiempo y precisión (comparando con el mejor resultado) entre las tres instancias.
+
+En la figura \ref{fig:grasp-variables-time} pueden apreciarse los tiempos obtenidos.
+Se observa un claro comportamiento exponencial en función de la cantidad de $inicios$.
+Por otro lado, encontramos que a partir de un $limite$ igual a 0.5 el tiempo deja de aumentar para este ya que
+probablemente casi todas las búsquedas locales terminen en los pasos anteriores.
+
+Al observar los cambios de precisión en la figura \ref{fig:grasp-variables-prec} vemos que nuevamente los resultados se mantienen constantes
+al aumentar el $limite$ mas allá de 0.5. Vemos en cambio que los resultados van descendiendo siempre que aumentamos
+la cantidad de inicios.
+
+Comparando ambos gráficos se aprecia que los valores $1$ y $1$ utilizados como exponentes de $inicios$ y $limite$ en las mediciones
+de la sección \ref{sec:time-grasp} brindan un buen tradeoff entre tiempo y precisión. Aunque si uno no buscara resultados tan exactos,
+utilizar $0.4$ para ambos exponentes reduciría el tiempo de corrida en un $94\%$ a costa de obtener un resultado un $6\%$ peor.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{grasp-variables-time}
+    \caption{Tiempo de corrida medio de GRASP al variar sus exponentes, sobre tres problemas con 50 nodos}
+    \label{fig:grasp-variables-time}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{grasp-variables-prec}
+    \caption{Precisión media de GRASP al variar sus exponentes, sobre tres problemas con 50 nodos}
+    \label{fig:grasp-variables-prec}
 \end{figure}
 
