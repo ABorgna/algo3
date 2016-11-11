@@ -62,7 +62,7 @@
         orden $\gets$ orden ++ [nodo_actual]
 
         Mientras gims $\neq$ $\emptyset$:
-            $\textbf{Si}$ min(gims).first $\geq$ pociones_actuales:
+            $\textbf{Si}$ min(gims).first $\leq$ pociones_actuales:
                 gim_candidato $\gets$ $(g \in$ gims | g.first $ \leq $ pociones_actuales $\land$
                   ($\forall \ g'\in$ gims, g'.first$\leq$ pociones_actuales) $distancia($nodo_actual, g.second$) \leq$
                                                             $distancia($nodo_actual, g'.second))
@@ -121,3 +121,44 @@
     \\
 
     La complejidad es exactamente la misma y la implementación solo cambia la comparación de menor estricto a mayor estricto para las distancias de los candidatos.
+
+
+    \subsection{Elección aleatoria sobre un subconjunto de gimnasios}
+
+    La estrategia de este algoritmo es similar a la del gimnasio más cercano. Su diferencia se basa en la elección de gimnasios y paradas. En vez de elegir el nodo más cercano a la ubicación 'actual', se elige uno aleatoriamente entre la mitad de los nodos más cercanos a la misma ubicación.
+    \\
+
+    La lógica de elección entre ir a un gimnasio o a una parada es la misma: si no se puede ir a ningún gimnasio, entonces se busca una parada con el mismo criterio mencionado en el párrafo anterior, y luego se continua con el procedimiento desde la nueva posición 'actual'.
+    \\
+
+    Al mismo tiempo, así como el algoritmo anterior, este también puede no encontrar una solución válida aún en el caso de haberla.
+    \\
+
+    La estrategia de este algoritmo se basa en aumentar las posibilidades de elecciones al tomar uno aleatoriamente entre la mitad de los más cercanos, ya que existen situaciones en las cuales tomar el más cercano de todos no es la mejor solución.
+    \\
+
+    La sección que cambia de manera más significativa el código es en las guardas a la hora de buscar gimnasios o paradas.
+    \\
+
+        \begin{lstlisting}
+            $\textbf{Si}$ min(gims).first $\leq$ pociones_actuales:
+                gims_candidatos $\gets$ vector de gimnasios que se pueden visitar
+
+                sort(gims_candidatos)           //Se ordenan segun la distancia al nodo actual
+
+                gim_candidato $\gets$ random(primera_mitad(gims_candidatos))
+
+                [...]
+
+            $\textbf{Sino si}$ paradas $\neq$ $\emptyset$:
+                paradas_mas_cercanas $\gets$ vector de todas las paradas
+
+                sort(paradas_mas_cercanas)      //Se ordenan segun la distancia al nodo actual
+
+                parada_mas_cercana $\gets$ random(primera_mitad(paradas_mas_cercanas))
+
+                [...]
+
+        \end{lstlisting}
+
+    El primer paso en cada entrada de la guarda es recorrer de manera lineal tanto los gimnasios como las paradas, con lo cual la complejidad se mantiene igual. El segundo paso es ordenar. Esto cambia la complejidad, ya que anteriormente se recorrían linealmente los gimnasios o las paradas respectivamente dependiendo de en cual de las dos condiciones de la guarda se ejecutaba. Ahora, al realizar un sort, esa parte del algoritmo pasa de ser $\mathcal{O}(\#gimnasios + \#paradas)$ a ser $\mathcal{O}(\#gimnasios \cdot log(\#gimnasios) + \#paradas \cdot log(\#paradas))$. Obtener un elemento random de un arreglo tiene complejidad $O(1)$ ya que se puede implementar con la función rand que provee C++\footnote{http://stackoverflow.com/questions/8658784/rand-function-in-c}, cuya complejidad es la mencionada aquí. Siguiendo la linea de razonamiento para el algoritmo del gimnasio más cercano y aplicando esta modificación, la complejidad nueva pasa a ser $\mathcal{O}((\#gimnasios + \#paradas) \cdot (\#gimnasios \cdot log(\#gimnasios) + \#paradas \cdot log(\#paradas)))$
