@@ -269,7 +269,7 @@ En el caso de la implementación basada en 2opt empeora, manteniendo nuevamente 
 \begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{precision-big-all}
-    \caption{Precisión comparando con el valor exacto}
+    \caption{Precisión comparando con el valor del mínimo en casos grandes}
     \label{fig:precision-big-all}
 \end{figure}
 
@@ -360,3 +360,55 @@ utilizar $0.4$ para ambos exponentes reduciría el tiempo de corrida en un $94\%
     \caption{Precisión media de GRASP al variar sus exponentes, sobre tres problemas con 50 nodos}
     \label{fig:grasp-variables-prec}
 \end{figure}
+
+\subsection{Segundo set de muestras}
+
+Para comprobar que las conclusiones obtenidas se correspondan con el verdadero comportamiento de los algoritmos
+generamos un nuevo set de instancias aleatorias y corrimos nuevamente todas las mediciones.
+
+A continuación presentamos los gráficos mas representativos de las secciones anteriores, correspondientes esta vez
+al nuevo set de instancias.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{test-time-exacto}
+    \caption{Tiempo de ejecución, en escala logarítmica, de los algoritmos exactos.}
+    \label{fig:test-time-exacto}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{test-time-greedy}
+    \caption{Tiempo de ejecución de las heurísticas greedy}
+    \label{fig:test-time-greedy}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{test-time-local}
+    \caption{Tiempo de ejecución de las heurísticas locales}
+    \label{fig:test-time-local}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{test-time-grasp}
+    \caption{Tiempo de ejecución de la metaheurística grasp alternando búsquedas locales}
+    \label{fig:test-time-grasp}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{test-precision-big-all}
+    \caption{Precisión comparando con el valor del mínimo en casos grandes}
+    \label{fig:test-precision-big-all}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{test-precision-big-all-bygen}
+    \caption{Precisión comparando con el mínimo, según el generador utilizado}
+    \label{fig:test-precision-big-all-bygen}
+\end{figure}
+
+Como podemos ver, en todos los casos los valores medidos presentan el mismo comportamiento que el analizado previamente.
