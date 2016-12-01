@@ -17,6 +17,7 @@ const uint64_t N_HEURISTICA = 4;
 enum tipo_grasp_t {
     tipo_grasp_alternado  = 0,
     tipo_grasp_trim = 1,
+    tipo_grasp_2opt = 2,
 };
 
 extern int64_t ngyms, nstops, bagSize;
@@ -49,6 +50,9 @@ int prob_solve(std::ostream& os) {
             break;
         case tipo_grasp_trim:
             tie(d, k) = grasp_trim(orden, expLimite, expInicios);
+            break;
+        case tipo_grasp_2opt:
+            tie(d, k) = grasp_2opt(orden, expInicios);
             break;
     }
 
@@ -94,6 +98,8 @@ int setTipo(const vector<string>& s) {
         tipo_grasp = tipo_grasp_alternado;
     } else if (s[0] == "grasp_trim") {
         tipo_grasp = tipo_grasp_trim;
+    } else if (s[0] == "grasp_2opt") {
+        tipo_grasp = tipo_grasp_2opt;
     } else {
         cerr << s[0] << " no es un tipo válido" << endl;
         return 1;
@@ -110,5 +116,5 @@ vector<Option> prob_custom_options() {
              "aleatorios del grasp. La cantidad será igual a nodos^<exp>."},
             {'T', "tipo", 1, false, &setTipo, "<tipo>",
             "Seleccionar el tipo de grasp a realizar \n"
-            "Opciones: grasp_alternado, grasp_trim. Default=grasp_alternado"}};
+            "Opciones: grasp_alternado, grasp_trim, grasp_2opt. Default=grasp_alternado"}};
 }
