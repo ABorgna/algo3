@@ -247,11 +247,11 @@ sean mayor o iguales a $10$ y su suma sea a lo sumo 40.
 En cada caso variamos el tamaño de la mochila de igual forma que en la sección \ref{sec:precision-small}.
 \\
 
-Nuevamente observamos como la variante \textbf{\emph{Closest First}} del greedy produce mejores resultados que la otra. Lo cual, considerando tanto las diferencias de runtimes y precisión para casos chicos, la posiciona como la de mejor rendimiento de las dos implementaciones acorde a nuestras conclusiones.
+Nuevamente observamos como la variante \textbf{\emph{Closest First}} del greedy produce mejores resultados que la otra. Lo cual, considerando tanto las diferencias de runtimes y precisión para casos chicos, la posiciona como la de mejor rendimiento de las dos implementaciones a modo de conclusión a raíz de estas mediciones.
 \\
 
 Además notamos que, si bien la heurística local swap no suele producir resultados muy malos,
-su media es bastante peor que la variante 2opt, cuyos valores se describen en el cuadro \ref{tab:precision-big-local-2opt}. Considerando que, si bien para casos pequeños mejoraba la precisión $swap$, tanto para instancias grandes como en runtime concluímos una hay clara ventaja a favor de \textbf{\emph{2-opt}}.
+su media es bastante peor que la variante 2opt, cuyos valores se describen en el cuadro \ref{tab:precision-big-local-2opt}. Considerando que, si bien la implementación basada en $2opt$ vuelve a presentar una gran varianza y para casos pequeños mejoraba levemente la precisión $swap$, tanto para instancias grandes como en runtime concluímos una hay clara ventaja a favor de \textbf{\emph{2-opt}}.
 \\
 
 Por último, la metaheurística grasp obtiene el mejor resultado en el $96.72\%$ de los casos.
@@ -284,13 +284,11 @@ Este número no es $100\%$ ya que existen casos donde los locales obtienen un bu
 
 \subsubsection{Precisión en función del generador}
 
-Utilizando las mismas variables descriptas en la sección \ref{sec:precision-big} generamos instancias con cada uno de los generadores
-disponibles, para ver si la precisión variaba con los tipos de problema.
+Utilizando las mismas variables descriptas en la sección \ref{sec:precision-big} generamos instancias con cada uno de los generadores disponibles, para ver si la precisión variaba con los tipos de problema.
 
 El resultado puede verse en la figura \ref{fig:precision-big-all-bygen}.
 Para las instancias de \texttt{zigzag} se suele conseguir buenos resultados en comparación con las \texttt{random}.
-Ademas es notable que las instancias de \texttt{separated} se suelen resolver relativamente bien con las heurísticas locales y GRASP,
-no así con los greedy.
+Ademas es notable que las instancias de \texttt{separated} se suelen resolver relativamente bien con las heurísticas locales y GRASP, no así con los greedy. Las conclusiones anteriores en comparaciones dentro de cada implementación parecen mantenerse.
 
 \begin{figure}[H]
     \centering
@@ -307,6 +305,8 @@ por el tamaño de la mochila relativo a la cantidad de paradas.
 
 El resultado, que puede observarse en la figura \ref{fig:precision-big-all-bysize},
 muestra una leve correlación para las heurísticas greedy. Las heurísticas locales y GRASP, en cambio, no parecen verse afectadas.
+
+Tampoco se modifican las conclusiones entre implementaciones \emph{'Closest First vs Furthest First'} ni \emph{'2opt vs Swap'}.
 
 \begin{figure}[H]
     \centering
