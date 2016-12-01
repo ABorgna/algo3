@@ -11,7 +11,10 @@ Para las mediciones de tiempos se corre repetidamente el mismo problema no menos
 En la figura \ref{fig:time-exacto} comparamos el tiempo de ejecución del algoritmo exacto de fuerza bruta con el de backtracking.
 Para ello medimos con ambos 5 casos distintos para cada combinación de cantidad de gimnasios y paradas entre 2 y 5. Además usamos siempre un tamaño de mochila mayor a tres veces la cantidad de paradas.
 
-Como podemos observar, ambos se comportan exponencialmente pero el backtracking resulta ser cerca de un orden de magnitud mas rápido.
+Como podemos observar, los tres se comportan exponencialmente. Sin embargo, es notable la mejora de runtimes tanto al agregar poda de backtracking como al agregar la cota del greedy. Como especulamos en su momento, al contar con una distancia máxima precalculada antes de empezar a hacer backtracking, se logra descartar la suficiente cantidad de ramas como para que justifique el costo del llamado.
+\\
+
+Concluímos entonces, a partir de las mediciones, que dicho \emph{tradeoff} está justificado y da buenos resultados.
 
 \begin{figure}[H]
     \centering
@@ -26,7 +29,7 @@ A continuación realizamos pruebas fijando la cantidad de gimnasios y paradas en
 
 Vemos en la figura \ref{fig:time-exacto-moch} que dentro del intervalo de tamaños de mochila
 interesantes, limitado por la cantidad de nodos que puede tener un problema a ser resuelto en un tiempo factible
-(ya que si el tamaño es mayor a tres veces la cantidad de paradas, no influirá en el comportamiento del algoritmo) existe una notable diferencia de rendimiento contra la implementación de fuerza bruta a favor del backtracking.
+(ya que si el tamaño es mayor a tres veces la cantidad de paradas, no influirá en el comportamiento del algoritmo) existe una notable diferencia de rendimiento contra la implementación de fuerza bruta a favor las de backtracking.
 
 \begin{figure}[H]
     \centering
@@ -98,7 +101,7 @@ Esto significaría que se hizo una cantidad lineal (también en función de la c
     \label{fig:time-local}
 \end{figure}
 
-Sobre las instancias más grandes se observa una diferencia favorable hacia $2opt$ respecto de $swap$.
+Sobre las instancias más grandes se observa una diferencia favorable hacia $2opt$ respecto de $swap$. Esto lo tendremos en cuenta más adelante a la hora de concluir qué implementación nos dió mejores resultados.
 
 \begin{figure}[H]
     \centering
@@ -150,7 +153,9 @@ En el cuadro \ref{tab:time-local-moch} se encuentra una descripción de los dato
     \end{center}
 \end{table}
 
-\subsection{Runtime de la metaheurística GRASP}
+\subsection{Runtime de la metaheurística GRASP alternando busquedas locales}
+Más adelante, en la subsección \emph{'Variación de las variables del GRASP'} veremos que la precisión de las búsquedas locales en el GRASP alcanza un máximo con un valor finito de iteraciones en cada búsqueda, no siendo necesaria la iteración indefinida hasta alcanzar mínimos locales. Por lo tanto, para medir runtimes, decidimos usar de manera estándar la versión de GRASP alternado, que, a diferencia de la implementación basada en 2opt, itera una cantidad máxima de veces indicada como parámetro teniendo siempre mejores runtimes.
+
 \label{sec:time-grasp}
 
 \subsubsection{En función de la cantidad de nodos}
@@ -208,7 +213,7 @@ Como era de esperar los algoritmos greedy suelen obtener resultados muy por enci
 de los casos la variante closest first obtuvo un valor menor al doble del buscado.
 Las heurísticas locales, especialmente la variante swap, mejoraron bastante la precision (a costa de un tiempo de ejecución bastante mas elevado).
 
-Y por último, el GRASP obtuvo el óptimo en un $82.3\%$ de los casos.
+Y por último, el GRASP alternado (grasp en la figura) obtuvo el óptimo en un $82.3\%$ de los casos, un poco mejor que la versión 2opt.
 En el cuadro \ref{tab:precision-small-grasp} se describe la distribución de su precisión.
 
 \begin{figure}[H]
@@ -222,6 +227,9 @@ Respecto de las heurísticas golosas, comparando a partir la figura \ref{fig:pre
 \\
 
 En el caso de las heurísticas locales,  $2op$ presenta una varianza muchísimo mayor que $swap$ a pesar de que, por debajo de sus terceros cuartiles, las precisión es apenas favorable para esta última.
+\\
+
+Para las versiones de GRASP, se ve también una gran varianza en el caso de la basada en $2opt$ (seguramente a causa de la varianza general de dicha búsqueda local, como ya vimos antes). Mientras que las mediciones del GRASP alternado están más concentradas en las cercanías al valor óptimo.
 
 \begin{table}[H]
     \begin{center}
@@ -254,8 +262,9 @@ Además notamos que, si bien la heurística local swap no suele producir resulta
 su media es bastante peor que la variante 2opt, cuyos valores se describen en el cuadro \ref{tab:precision-big-local-2opt}. Considerando que, si bien la implementación basada en $2opt$ vuelve a presentar una gran varianza y para casos pequeños mejoraba levemente la precisión $swap$, tanto para instancias grandes como en runtime concluímos una hay clara ventaja a favor de \textbf{\emph{2-opt}}.
 \\
 
-Por último, la metaheurística grasp obtiene el mejor resultado en el $96.72\%$ de los casos.
+Por último, la metaheurística grasp alternada obtiene el mejor resultado en el $96.72\%$ de los casos.
 Este número no es $100\%$ ya que existen casos donde los locales obtienen un buen resultado a partir del greedy closest first pero el grasp, por la característica aleatoria de su ejecución, termina en una solución peor.
+En el caso de la implementación basada en 2opt empeora, manteniendo nuevamente una gran varianza (con outliers de similar error de precisión a la respectiva búsqueda local, correspondiente a malos mínimos locales). Por lo tanto el 2opt exhaustivo hasta encontrar mínimos locales no justifica en precisión la cantidad indefinida de iteraciones versus la implementación de \textbf{\emph{GRASP alternado}}, que utiliza criterios de finalización polinómicos.
 
 \begin{figure}[H]
     \centering
@@ -306,7 +315,7 @@ por el tamaño de la mochila relativo a la cantidad de paradas.
 El resultado, que puede observarse en la figura \ref{fig:precision-big-all-bysize},
 muestra una leve correlación para las heurísticas greedy. Las heurísticas locales y GRASP, en cambio, no parecen verse afectadas.
 
-Tampoco se modifican las conclusiones entre implementaciones \emph{'Closest First vs Furthest First'} ni \emph{'2opt vs Swap'}.
+Tampoco se modifican las conclusiones entre implementaciones \emph{'Closest First vs Furthest First'}, \emph{'2opt vs Swap'} ó \emph{'GRASP Alternado vs GRASP 2opt'}.
 
 \begin{figure}[H]
     \centering
