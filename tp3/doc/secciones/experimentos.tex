@@ -16,7 +16,7 @@ Como podemos observar, ambos se comportan exponencialmente pero el backtracking 
 \begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{time-exacto}
-    \caption{Tiempo de ejecución de los algoritmos exactos}
+    \caption{Tiempo de ejecución, en escala logarítmica, de los algoritmos exactos.}
     \label{fig:time-exacto}
 \end{figure}
 
@@ -24,10 +24,9 @@ Como podemos observar, ambos se comportan exponencialmente pero el backtracking 
 
 A continuación realizamos pruebas fijando la cantidad de gimnasios y paradas en 5 y variando el tamaño de la mochila.
 
-Desafortunadamente vemos en la figura \ref{fig:time-exacto-moch} que dentro del intervalo de tamaños de mochila
+Vemos en la figura \ref{fig:time-exacto-moch} que dentro del intervalo de tamaños de mochila
 interesantes, limitado por la cantidad de nodos que puede tener un problema a ser resuelto en un tiempo factible
-(ya que si el tamaño es mayor a tres veces la cantidad de paradas, no influirá en el comportamiento del algoritmo),
-no podemos determinar propiamente el comportamiento.
+(ya que si el tamaño es mayor a tres veces la cantidad de paradas, no influirá en el comportamiento del algoritmo) existe una notable diferencia de rendimiento contra la implementación de fuerza bruta a favor del backtracking.
 
 \begin{figure}[H]
     \centering
@@ -50,6 +49,8 @@ Vemos en la figura \ref{fig:time-greedy-correlation} que estos tiempos tiempos s
     \caption{Tiempo de ejecución de las heurísticas greedy}
     \label{fig:time-greedy}
 \end{figure}
+
+Las implementaciones \emph{Closest First} y \emph{Furthest First} mostraron tiempos de ejecuciones notablemente similares, como se aprecia en la figura \ref{fig:time-greedy}. Esto se debe a que el algoritmo es indentico pero modificando el tipo de comparación para elegir el próximo gimnasio (menor distancia por mayor distancia).
 
 \begin{figure}[H]
     \centering
@@ -97,6 +98,8 @@ Esto significaría que se hizo una cantidad lineal (también en función de la c
     \label{fig:time-local}
 \end{figure}
 
+Sobre las instancias más grandes se observa una diferencia favorable hacia $2opt$ respecto de $swap$.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=13cm]{time-local-correlation}
@@ -104,18 +107,19 @@ Esto significaría que se hizo una cantidad lineal (también en función de la c
     \label{fig:time-local-correlation}
 \end{figure}
 
-El $swap$ que se tomó para comparar con $2opt$ es aquel que no tomaba el mínimo del vecindario de cada instancia sino que tomaba el primero que tuviera menor distancia a la actual (realizando el resto de las iteraciones sobre el último mínimo encontrado). Como especulamos en su momento, al recorrer potencialmente más de un vecindario por iteración (aunque no de manera completa), su performance terminó siendo temporalmente mejor. Esto se ve en la figura \ref{fig:time-local-swap_min} donde se observa un comportamiento de complejidad $n^5$, peor al $n^4$ apreciado en la figura \ref{fig:time-local} para .
+    El $swap$ que se tomó para comparar con $2opt$ es aquel que no tomaba el mínimo del vecindario de cada instancia sino que tomaba el primero que tuviera menor distancia a la actual (realizando el resto de las iteraciones sobre el último mínimo encontrado).
+    Como especulamos en su momento, al recorrer potencialmente más de un vecindario por iteración (aunque no de manera completa), su performance terminó siendo temporalmente mejor. Esto se ve en la figura \ref{fig:time-local-swap_min} donde se observa un comportamiento de complejidad $n^5$, peor al $n^4$ apreciado en la figura \ref{fig:time-local} correspondiente al $swap$ que se queda con el primer vecino que mejore la distancia.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=13.5cm]{swap-min-time}
+    \includegraphics[width=11cm]{swap-min-time}
     \caption{Tiempo de ejecución de la heurística swap tomando el mínimo de cada vecindario por iteración.}
     \label{fig:time-local-swap_min}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=12cm]{swap-min-corr-time}
+    \includegraphics[width=10cm]{swap-min-corr-time}
     \caption{Correlación entre el tiempo de ejecución de la heurística swap tomando el mínimo de cada vecindario por iteración, con una complejidad $n^5$}
     \label{fig:time-local-swap_min-correlation}
 \end{figure}
@@ -158,14 +162,14 @@ En la figura \ref{fig:time-grasp} pueden apreciarse los resultados. Como se obse
 \begin{figure}[H]
     \centering
     \includegraphics[width=13.5cm]{time-grasp}
-    \caption{Tiempo de ejecución de la metaheurística grasp}
+    \caption{Tiempo de ejecución de la metaheurística grasp alternando búsquedas locales}
     \label{fig:time-grasp}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=10cm]{time-grasp-correlation}
-    \caption{Correlación entre el tiempo de ejecución de grasp y una complejidad de orden 5 en función de la cantidad de nodos}
+    \caption{Correlación entre el tiempo de ejecución de grasp alternando búsquedas locales y una complejidad de orden 5 en función de la cantidad de nodos}
     \label{fig:time-grasp-correlation}
 \end{figure}
 
@@ -210,9 +214,14 @@ En el cuadro \ref{tab:precision-small-grasp} se describe la distribución de su 
 \begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{precision-small-all}
-    \caption{Precisión comparando con el valor exacto}
+    \caption{Precisión comparando con el valor mínimo conseguido mediante un algoritmo exacto.}
     \label{fig:precision-small-all}
 \end{figure}
+
+Respecto de las heurísticas golosas, comparando a partir la figura \ref{fig:precision-small-all} podemos ver una ventaja, acorde quizás a las expectativas detrás de la intuición de cada heurística, para la implementación \emph{Clostest First} respecto de \emph{Furthest First}.
+\\
+
+En el caso de las heurísticas locales,  $2op$ presenta una varianza muchísimo mayor que $swap$ a pesar de que, por debajo de sus terceros cuartiles, las precisión es apenas favorable para esta última.
 
 \begin{table}[H]
     \begin{center}
@@ -236,15 +245,17 @@ En el cuadro \ref{tab:precision-small-grasp} se describe la distribución de su 
 A continuación generamos casos de prueba utilizando el generador \texttt{random} para todas las combinaciones de paradas y gimnasios tal que ambos
 sean mayor o iguales a $10$ y su suma sea a lo sumo 40.
 En cada caso variamos el tamaño de la mochila de igual forma que en la sección \ref{sec:precision-small}.
+\\
 
-Nuevamente observamos como la variante closest first del greedy produce mejores resultados que la otra.
+Nuevamente observamos como la variante \textbf{\emph{Closest First}} del greedy produce mejores resultados que la otra. Lo cual, considerando tanto las diferencias de runtimes y precisión para casos chicos, la posiciona como la de mejor rendimiento de las dos implementaciones acorde a nuestras conclusiones.
+\\
 
 Además notamos que, si bien la heurística local swap no suele producir resultados muy malos,
-su media es bastante peor que la variante 2opt, cuyos valores se describen en el cuadro \ref{tab:precision-big-local-2opt}.
+su media es bastante peor que la variante 2opt, cuyos valores se describen en el cuadro \ref{tab:precision-big-local-2opt}. Considerando que, si bien para casos pequeños mejoraba la precisión $swap$, tanto para instancias grandes como en runtime concluímos una hay clara ventaja a favor de \textbf{\emph{2-opt}}.
+\\
 
 Por último, la metaheurística grasp obtiene el mejor resultado en el $96.72\%$ de los casos.
-Este número no es $100\%$ ya que existen casos donde los locales obtienen un buen resultado a partir del greedy closest first
-pero el grasp, por la característica aleatoria de su ejecución, termina en una solución peor.
+Este número no es $100\%$ ya que existen casos donde los locales obtienen un buen resultado a partir del greedy closest first pero el grasp, por la característica aleatoria de su ejecución, termina en una solución peor.
 
 \begin{figure}[H]
     \centering
@@ -252,6 +263,8 @@ pero el grasp, por la característica aleatoria de su ejecución, termina en una
     \caption{Precisión comparando con el valor exacto}
     \label{fig:precision-big-all}
 \end{figure}
+
+
 
 \begin{table}[H]
     \begin{center}
@@ -275,7 +288,7 @@ Utilizando las mismas variables descriptas en la sección \ref{sec:precision-big
 disponibles, para ver si la precisión variaba con los tipos de problema.
 
 El resultado puede verse en la figura \ref{fig:precision-big-all-bygen}.
-Para las instancias de \ref{zigzag} se suele conseguir buenos resultados en comparación con las \texttt{random}.
+Para las instancias de \texttt{zigzag} se suele conseguir buenos resultados en comparación con las \texttt{random}.
 Ademas es notable que las instancias de \texttt{separated} se suelen resolver relativamente bien con las heurísticas locales y GRASP,
 no así con los greedy.
 

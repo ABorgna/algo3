@@ -161,3 +161,15 @@
     \end{lstlisting}
 
     La complejidad peor caso del algoritmo sigue siendo la misma dado que considera el caso en que no se poda ninguna rama y se tienen que explorar todas de principio a fin.
+
+    \subsubsection{Poda por distancias partiendo de un greedy}
+    La poda anterior mejora su rendimiento cuanto antes encuentre el backtracking una solución buena que permita recortar la mayor cantidad de ramas posibles. Si las primeras soluciones encontradas no dan distancias cercanas a la mínima entonces vamos a profundizar sobre varias ramificaciones que no proporcionan soluciones óptimas.
+    \\
+
+    Para mejorar esto, propusimos utilizar la implementación greedy de \emph{vecino más cercano} (que presentaremos más adelante) para conseguir previo al backtracking una distancia máxima inicial que no dependa necesariamente de las primeras ramas exploradas.
+    \\
+
+    Si bien ese llamado tiene un costo temporal en peor caso cuadrático en función de la cantidad de ubicaciones en el mapa (la cota viene del análisis que haremos en dicha sección), en notación $\mathcal{O}$ el costo del backtracking lo 'absorbe'. A nivel experimental nos interesaría ver si las podas iniciales gracias a una potencial cota decente del greedy justifican el costo del llamado a dicha implementación.
+    \\
+
+    También podría suceder que el greedy no encuentre una solución y devuelva distancia infinita, en cuyo caso el backtracking funcionaría igual que en con la poda de la subsección anterior pero con la penalidad temporal del llamado al greedy.

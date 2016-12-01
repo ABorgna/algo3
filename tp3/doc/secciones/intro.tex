@@ -22,7 +22,7 @@
    Por ejemplo, si se nos presenta una mochila con capacidad 4, dos gimnasios correspondientes a nodos $(0,0,2)$ y $(1,1,4)$ y dos paradas (0,1) y $(1,0)$, una solución óptima es aquella de distancia 3 dada por la secuencia $orden =\langle {(0,1), (0,0,2), (1,0), (1,1,4)} \rangle$ (no es la única óptima porque $orden = \langle {(1,0), (0,0,2), (0,1), (1,1,4)} \rangle$ también es solución con distancia 3).
    \\
 
-   El problema es de la clase NP, esto se puede ver dado que se puede transformar una instancia del problema conocido como \emph{Shortest Hamiltonian Path} sobre grafos euclideanos (NP \footnote{Christos H. Papadimitriou, Computational Complexity, Page 190, Addison-Wesley Publishing Company, Inc.,1994.}) en una instancia de nuestro problema solamente tomando por cada nodo un gimnasio que consuma 3 pociones y una parada superpuesta al gimnasio. Permitiéndonos cierta informalidad, un supuesto algoritmo polinomial que resolvería nuestro problema recorrería de a pares superpuestos dado que, para mantener la cantidad de pociones no-negativa, hay que alternar paradas y gimnasios. Siendo claramente los gimnasios superpuestos a cada una de las paradas la forma óptima de tomar estos gimnasios, porque de lo contrario el camino estaría no solamente pagando la distancia entre gimnasios sino también entre gimnasios y paradas. Que sea de la clase NP implica que los algoritmos necesarios para conseguir una solución exacta al problema son del tipo de los que recorren el espacio de soluciones del problema buscando el orden apropiado para las ubicaciones. Mencionaremos más sobre esto en la sección correspondiente a dichas implementaciones.
+   El problema es de la clase NP-Hard, esto se puede ver dado que se puede transformar una instancia del problema conocido como \emph{Shortest Hamiltonian Path} sobre grafos euclideanos (NP-completo) \footnote{Christos H. Papadimitriou, Computational Complexity, Page 190, Addison-Wesley Publishing Company, Inc.,1994.}) en una instancia de nuestro problema solamente tomando por cada nodo un gimnasio que consuma 3 pociones y una parada superpuesta al gimnasio. Permitiéndonos cierta informalidad, un supuesto algoritmo polinomial que resolviera nuestro problema recorrería de a pares superpuestos dado que, para mantener la cantidad de pociones no-negativa, hay que alternar paradas y gimnasios. Siendo claramente los gimnasios superpuestos a cada una de las paradas la forma óptima de tomar estos gimnasios, porque de lo contrario el camino estaría no solamente pagando la distancia entre gimnasios sino también entre gimnasios y paradas. Que sea de la clase NP implica que los algoritmos necesarios para conseguir una solución exacta al problema son del tipo de los que recorren el espacio de soluciones del problema buscando el orden apropiado para las ubicaciones. Mencionaremos más sobre esto en la sección correspondiente a dichas implementaciones.
 
    \subsection{Funciones auxiliares recurrentes y representación del grafo mapa}
 
@@ -92,7 +92,7 @@ Cada uno recibe como variable la cantidad de gimnasios y paradas, y el tamaño d
 \subsubsection{Generador \texttt{random}}
 \label{sec:generadores-random}
 
-El generador mas general, que usaremos en la mayoría de las mediciones.
+El generador más general, que usaremos en la mayoría de las mediciones.
 Es capaz de generar cualquier instancia válida
 (con las posiciones $x$ e $y$ dentro de los límites dados).
 
@@ -126,7 +126,7 @@ A continuación puede verse el pseudocódigo:
 \end{lstlisting}
 
 Es importante notar que existen casos donde se podría generar instancias sin solución.
-Por ejemplo, si deseamos una instancia con 2 gimnasios, 3 paradas y tamaño de mochila 6
+Por ejemplo, si deseamos una instancia con 2 gimnasios, 3 paradas y tamaño de mochila 5
 podría generarse el problema descripto en el cuadro \ref{tab:generadores-random-sinsolu}.
 
 \begin{table}[H]
